@@ -1,0 +1,9 @@
+name = "finki-diplomas-api"
+main = "src/index.ts"
+compatibility_date = "2025-02-06"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+# CAS_USERNAME and CAS_PASSWORD should be set as secrets:
+#   wrangler secret put CAS_USERNAME
+#   wrangler secret put CAS_PASSWORD
