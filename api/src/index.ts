@@ -10,7 +10,7 @@ type Bindings = {
 };
 
 const CACHE_KEY = 'https://diplomski-api.finki-hub.com/diplomas';
-const CACHE_TTL_SECONDS = 3600; // 1 hour
+const CACHE_TTL_SECONDS = 3_600; // 1 hour
 
 const app = new Hono<{ Bindings: Bindings }>();
 
