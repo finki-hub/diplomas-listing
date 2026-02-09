@@ -3,6 +3,10 @@ main = "src/index.ts"
 compatibility_date = "2025-02-06"
 compatibility_flags = ["nodejs_compat"]
 
+[[routes]]
+pattern = "diplomski-api.finki-hub.com/*"
+zone_name = "finki-hub.com"
+
 [vars]
 # CAS_USERNAME and CAS_PASSWORD should be set as secrets:
 #   wrangler secret put CAS_USERNAME
