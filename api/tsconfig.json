@@ -9,6 +9,10 @@
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
+    "types": [
+      "@cloudflare/workers-types",
+      "@types/node"
+    ],
     "lib": [
       "ESNext"
     ],

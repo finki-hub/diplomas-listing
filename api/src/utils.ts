@@ -1,4 +1,4 @@
-import { JSDOM } from 'jsdom';
+import { load } from 'cheerio';
 
 type Diploma = {
   dateOfSubmission: string;
@@ -16,49 +16,48 @@ export const isAuthenticated = (html: string): boolean =>
   html.includes('Датум на пријавување') || !html.includes('Датум на одбрана');
 
 export const parseDiplomas = (html: string): Diploma[] => {
-  const { window } = new JSDOM(html);
-  const document = window.document;
+  const $ = load(html);
+  const diplomas: Diploma[] = [];
 
-  const cards = document.querySelectorAll('div.panel');
+  $('div.panel').each((_, card) => {
+    const title = $(card).find('.panel-heading').text().trim();
 
-  return Array.from(cards).map((card) => {
-    const title =
-      card.querySelector('.panel-heading')?.textContent.trim() ?? '';
+    const getByLabel = (label: string): string => {
+      let value = '';
 
-    const rows = card.querySelectorAll('table tbody tr');
+      $(card)
+        .find('table tr')
+        .each((__, row) => {
+          const labelCell = $(row).find('td:nth-child(1)');
 
-    const getByLabel = (label: string) => {
-      for (const row of rows) {
-        const labelCell = row.querySelector('td:nth-child(1)');
+          if (labelCell.text().includes(label)) {
+            value = $(row).find('td:nth-child(2) strong').text().trim();
+          }
+        });
 
-        if (labelCell?.textContent.includes(label)) {
-          return (
-            row.querySelector('td:nth-child(2) strong')?.textContent.trim() ??
-            ''
-          );
-        }
-      }
-
-      return '';
+      return value;
     };
 
-    const getFileUrl = () => {
-      for (const row of rows) {
-        const labelCell = row.querySelector('td:nth-child(1)');
+    const getFileUrl = (): null | string => {
+      let url: null | string = null;
 
-        if (labelCell?.textContent.includes('Датотека')) {
-          const anchor = row.querySelector('td:nth-child(2) strong a');
-          const href = anchor?.getAttribute('href');
+      $(card)
+        .find('table tr')
+        .each((__, row) => {
+          const labelCell = $(row).find('td:nth-child(1)');
 
-          // eslint-disable-next-line no-script-url
-          return href && href !== 'javascript:void(0)' ? href : null;
-        }
-      }
+          if (labelCell.text().includes('Датотека')) {
+            const href = $(row).find('td:nth-child(2) strong a').attr('href');
 
-      return null;
+            // eslint-disable-next-line no-script-url
+            url = href && href !== 'javascript:void(0)' ? href : null;
+          }
+        });
+
+      return url;
     };
 
-    return {
+    diplomas.push({
       dateOfSubmission: getByLabel('Датум на пријавување'),
       description: getByLabel('Краток опис'),
       fileUrl: getFileUrl(),
@@ -68,6 +67,8 @@ export const parseDiplomas = (html: string): Diploma[] => {
       status: getByLabel('Статус'),
       student: getByLabel('Студент'),
       title,
-    };
+    });
   });
+
+  return diplomas;
 };

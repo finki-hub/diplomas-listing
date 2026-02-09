@@ -1,10 +1,6 @@
-import axios from 'axios';
-import { wrapper } from 'axios-cookiejar-support';
-import { CasAuthentication, Service } from 'finki-auth';
-import { CookieJar } from 'tough-cookie';
 import { describe, expect, it } from 'vitest';
-import { z } from 'zod';
 
+import { authenticateAndFetch } from '../auth.js';
 import { isAuthenticated, parseDiplomas } from '../utils.js';
 
 const hasCredentials = () => {
@@ -32,24 +28,8 @@ describe('Diplomas E2E', () => {
     'should fetch and parse real diploma data with non-empty fields',
     { timeout: 30_000 },
     async () => {
-      const auth = new CasAuthentication(getCredentials());
-
-      await auth.authenticate(Service.DIPLOMAS);
-      const cookies = await auth.getCookie(Service.DIPLOMAS);
-
-      const jar = new CookieJar();
-
-      for (const cookie of cookies) {
-        await jar.setCookie(cookie, 'http://diplomski.finki.ukim.mk');
-      }
-
-      const client = wrapper(axios.create({ jar }));
-
-      const response = await client.get(
-        'http://diplomski.finki.ukim.mk/DiplomaList',
-      );
-
-      const html = z.string().parse(response.data);
+      const { password, username } = getCredentials();
+      const html = await authenticateAndFetch(username, password);
 
       expect(html.length).toBeGreaterThan(0);
 
