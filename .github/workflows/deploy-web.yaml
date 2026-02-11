@@ -1,0 +1,18 @@
+name: Deploy Web to Cloudflare Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    uses: finki-hub/.github/.github/workflows/cloudflare-pages.yaml@main
+    with:
+      working-directory: web
+      project-name: finki-diplomas-listing
+      directory: dist
+    secrets: inherit
