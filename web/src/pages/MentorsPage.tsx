@@ -145,6 +145,28 @@ export default function MentorsPage() {
       : counts[mid];
   });
 
+  const STATUS_STAGES: [string, number][] = [
+    ["пријава", 1],
+    ["прифаќање", 2],
+    ["валидирање од службата", 3],
+    ["одобрение од продекан", 4],
+    ["одобрение за оценка", 5],
+    ["забелешки", 6],
+    ["валидирање на услови", 7],
+    ["одбран", 8],
+    ["архив", 9],
+  ];
+
+  const getStatusOpacity = (status: string): number => {
+    const lower = status.toLowerCase();
+    for (const [keyword, stage] of STATUS_STAGES) {
+      if (lower.includes(keyword)) {
+        return 0.3 + (stage / 9) * 0.7;
+      }
+    }
+    return 0.3;
+  };
+
   const handleSort = (field: SortField) => {
     if (sortField() === field) {
       setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
@@ -443,13 +465,8 @@ export default function MentorsPage() {
                                               </td>
                                               <td class="py-2 pr-4">
                                                 <Badge
-                                                  variant={
-                                                    diploma.status
-                                                      .toLowerCase()
-                                                      .includes("одбран")
-                                                      ? "default"
-                                                      : "secondary"
-                                                  }
+                                                  variant="default"
+                                                  style={{ opacity: getStatusOpacity(diploma.status) }}
                                                 >
                                                   {diploma.status || "—"}
                                                 </Badge>
