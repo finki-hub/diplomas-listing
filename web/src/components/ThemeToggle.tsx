@@ -1,68 +1,74 @@
-import { createSignal, onMount, Show } from "solid-js";
+import { createSignal, onMount, Show } from 'solid-js';
 
-type Theme = "light" | "dark";
+type Theme = 'dark' | 'light';
 
 const getInitialTheme = (): Theme => {
-  if (typeof window !== "undefined") {
-    const stored = localStorage.getItem("theme") as Theme | null;
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem('theme') as null | Theme;
     if (stored) return stored;
-    return window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light";
+    return window.matchMedia('(prefers-color-scheme: dark)').matches
+      ? 'dark'
+      : 'light';
   }
-  return "light";
+  return 'light';
 };
 
 export default function ThemeToggle() {
   const [theme, setTheme] = createSignal<Theme>(getInitialTheme());
 
   const applyTheme = (t: Theme) => {
-    document.documentElement.classList.toggle("dark", t === "dark");
-    localStorage.setItem("theme", t);
+    document.documentElement.classList.toggle('dark', t === 'dark');
+    localStorage.setItem('theme', t);
   };
 
-  onMount(() => applyTheme(theme()));
+  onMount(() => {
+    applyTheme(theme());
+  });
 
   const toggle = () => {
-    const next = theme() === "dark" ? "light" : "dark";
+    const next = theme() === 'dark' ? 'light' : 'dark';
     setTheme(next);
     applyTheme(next);
   };
 
   return (
     <button
-      onClick={toggle}
-      class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-input bg-background text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       aria-label="Промени тема"
+      class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-input bg-background text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      onClick={toggle}
     >
       <Show
-        when={theme() === "dark"}
         fallback={
           <svg
-            xmlns="http://www.w3.org/2000/svg"
             class="h-4 w-4"
-            viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            stroke-width="2"
             stroke-linecap="round"
             stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
           >
             <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
           </svg>
         }
+        when={theme() === 'dark'}
       >
         <svg
-          xmlns="http://www.w3.org/2000/svg"
           class="h-4 w-4"
-          viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
-          stroke-width="2"
           stroke-linecap="round"
           stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
         >
-          <circle cx="12" cy="12" r="4" />
+          <circle
+            cx="12"
+            cy="12"
+            r="4"
+          />
           <path d="M12 2v2" />
           <path d="M12 20v2" />
           <path d="m4.93 4.93 1.41 1.41" />

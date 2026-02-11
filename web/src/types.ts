@@ -11,7 +11,7 @@ export type Diploma = {
 };
 
 export type MentorSummary = {
+  diplomas: Diploma[];
   mentor: string;
   totalDiplomas: number;
-  diplomas: Diploma[];
 };

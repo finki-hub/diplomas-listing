@@ -1,13 +1,18 @@
-import { Route, Router } from "@solidjs/router";
-import MentorsPage from "@/pages/MentorsPage";
+import { Route, Router } from '@solidjs/router';
 
-function App() {
-  return (
-    <Router>
-      <Route path="/" component={MentorsPage} />
-      <Route path="/mentors" component={MentorsPage} />
-    </Router>
-  );
-}
+import MentorsPage from '@/pages/MentorsPage';
+
+const App = () => (
+  <Router>
+    <Route
+      component={MentorsPage}
+      path="/"
+    />
+    <Route
+      component={MentorsPage}
+      path="/mentors"
+    />
+  </Router>
+);
 
 export default App;
