@@ -248,7 +248,7 @@ export default function MentorsPage() {
             <CardTitle>Ментори и дипломски трудови</CardTitle>
             <CardDescription>
               Преглед на сите ментори и нивните дипломски трудови. Кликнете на
-              ред за да ги видите деталите.
+              ред за да ги видите деталите. Податоците се ажурираат на секој час.
             </CardDescription>
           </CardHeader>
           <CardContent>
