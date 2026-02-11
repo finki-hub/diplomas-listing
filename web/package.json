@@ -15,7 +15,8 @@
     "@solidjs/router": "^0.15.4",
     "clsx": "^2.1.1",
     "solid-js": "^1.9.10",
-    "tailwind-merge": "^3.4.0"
+    "tailwind-merge": "^3.4.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",

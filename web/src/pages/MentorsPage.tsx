@@ -1,7 +1,5 @@
 import { createMemo, createResource, createSignal, For, Show } from 'solid-js';
 
-import type { Diploma, MentorSummary } from '@/types';
-
 import ThemeToggle from '@/components/ThemeToggle';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -19,6 +17,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  type Diploma,
+  diplomasResponseSchema,
+  type MentorSummary,
+} from '@/types';
 
 const API_URL = 'https://diplomski-api.finki-hub.com/diplomas';
 
@@ -27,7 +30,7 @@ const fetchDiplomas = async (): Promise<Diploma[]> => {
   if (!response.ok) {
     throw new Error('Failed to fetch diplomas');
   }
-  return (await response.json()) as Diploma[];
+  return diplomasResponseSchema.parse(await response.json());
 };
 
 const aggregateByMentor = (diplomas: Diploma[]): MentorSummary[] => {
