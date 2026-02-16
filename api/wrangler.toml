@@ -1,4 +1,4 @@
-name = "finki-diplomas-api"
+name = "finki-hub-diplomas-api"
 main = "src/index.ts"
 compatibility_date = "2025-02-06"
 compatibility_flags = ["nodejs_compat"]

@@ -12,7 +12,7 @@
     "vitest": "^4.0.18",
     "wrangler": "^4.64.0"
   },
-  "name": "finki-diplomas-api",
+  "name": "diplomas-api",
   "private": true,
   "scripts": {
     "check": "tsc --noEmit",

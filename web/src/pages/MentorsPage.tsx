@@ -389,7 +389,7 @@ const PageHeader = () => (
       <div class="ml-auto flex items-center gap-2">
         <a
           class="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
-          href="https://github.com/finki-hub/finki-diplomas-listing"
+          href="https://github.com/finki-hub/diplomas-listing"
           rel="noopener noreferrer"
           target="_blank"
           title="GitHub"

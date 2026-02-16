@@ -13,6 +13,6 @@ jobs:
     uses: finki-hub/.github/.github/workflows/cloudflare-pages.yaml@main
     with:
       working-directory: web
-      project-name: finki-diplomas-listing
+      project-name: finki-hub-diplomas-listing
       directory: dist
     secrets: inherit
