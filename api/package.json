@@ -12,7 +12,8 @@
     "vitest": "^4.0.18",
     "wrangler": "^4.65.0"
   },
-  "name": "diplomas-api",
+  "license": "MIT",
+  "name": "diplomas-listing-api",
   "private": true,
   "scripts": {
     "check": "tsc --noEmit",
