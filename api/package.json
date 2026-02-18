@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "hono": "^4.11.9"
+    "hono": "^4.11.10"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260217.0",
