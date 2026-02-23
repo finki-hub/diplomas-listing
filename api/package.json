@@ -3,7 +3,7 @@
     "hono": "^4.12.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260227.0",
+    "@cloudflare/workers-types": "^4.20260302.0",
     "@types/node": "^25.3.0",
     "eslint": "^9.39.2",
     "eslint-config-imperium": "^3.4.0",
