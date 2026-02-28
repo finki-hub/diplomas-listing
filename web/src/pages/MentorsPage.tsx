@@ -385,10 +385,15 @@ const MentorTableHeader = (props: {
 const PageHeader = () => (
   <div class="border-b">
     <div class="container mx-auto flex h-16 items-center px-4">
+      <img
+        alt="ФИНКИ Хаб"
+        class="mr-2 h-10 w-10"
+        src="/logo.png"
+      />
       <h1 class="text-xl font-bold tracking-tight">ФИНКИ Хаб / Дипломски</h1>
       <div class="ml-auto flex items-center gap-2">
         <a
-          class="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
+          class="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md border border-input bg-background text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           href="https://github.com/finki-hub/diplomas-listing"
           rel="noopener noreferrer"
           target="_blank"
