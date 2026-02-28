@@ -385,7 +385,7 @@ const MentorTableHeader = (props: {
 const PageHeader = () => (
   <div class="border-b">
     <div class="container mx-auto flex h-16 items-center px-4">
-      <h1 class="text-xl font-bold tracking-tight">ФИНКИ ДИПЛОМСКИ</h1>
+      <h1 class="text-xl font-bold tracking-tight">ФИНКИ Хаб / Дипломски</h1>
       <div class="ml-auto flex items-center gap-2">
         <a
           class="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
