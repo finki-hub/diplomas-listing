@@ -2,7 +2,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@theme {
+@custom-variant dark ([data-kb-theme="dark"] &);
+
+@theme inline {
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
 
@@ -37,11 +39,56 @@
   --radius-sm: calc(var(--radius) - 4px);
 
   /* Font families */
-  --font-family-sans: 'Inter', system-ui, sans-serif;
-  --font-family-mono: 'JetBrains Mono', monospace;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 
   /* Container */
   --container-2xl: 1280px;
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-collapsible-down: collapsible-down 0.2s ease-out;
+  --animate-collapsible-up: collapsible-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+
+    to {
+      height: var(--kb-accordion-content-height);
+    }
+  }
+
+  @keyframes accordion-up {
+    from {
+      height: var(--kb-accordion-content-height);
+    }
+
+    to {
+      height: 0;
+    }
+  }
+
+  @keyframes collapsible-down {
+    from {
+      height: 0;
+    }
+
+    to {
+      height: var(--kb-collapsible-content-height);
+    }
+  }
+
+  @keyframes collapsible-up {
+    from {
+      height: var(--kb-collapsible-content-height);
+    }
+
+    to {
+      height: 0;
+    }
+  }
 }
 
 @utility container {
@@ -56,6 +103,32 @@
 
 @layer base {
   :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 5%;
+    --card: 0 0% 99%;
+    --card-foreground: 0 0% 5%;
+    --popover: 0 0% 99%;
+    --popover-foreground: 0 0% 5%;
+    --primary: 142 70% 45%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 93%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 94%;
+    --muted-foreground: 0 0% 40%;
+    --accent: 142 70% 45%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 88%;
+    --input: 0 0% 88%;
+    --ring: 142 70% 45%;
+    --radius: 0.75rem;
+    --glow-primary: 142 70% 45%;
+    --gradient-start: 142 70% 45%;
+    --gradient-end: 160 84% 39%;
+  }
+
+  [data-kb-theme="dark"] {
     --background: 0 0% 4%;
     --foreground: 0 0% 95%;
     --card: 0 0% 7%;
@@ -75,24 +148,32 @@
     --border: 0 0% 15%;
     --input: 0 0% 15%;
     --ring: 142 70% 45%;
-    --radius: 0.75rem;
-    --glow-primary: 142 70% 45%;
-    --gradient-start: 142 70% 45%;
-    --gradient-end: 160 84% 39%;
-    --sidebar-background: 0 0% 6%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 142 70% 45%;
-    --sidebar-primary-foreground: 0 0% 2%;
-    --sidebar-accent: 0 0% 12%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 0 0% 15%;
-    --sidebar-ring: 142 70% 45%;
   }
 }
 
 @layer base {
   * {
     @apply border-border;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
+    scrollbar-width: thin;
+  }
+
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 9999px;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
   }
 
   html {
@@ -101,7 +182,8 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', system-ui, sans-serif;
+    margin: 0;
+    min-height: 100vh;
   }
 
   h1,
@@ -149,22 +231,6 @@
     @apply hover:bg-card/70 hover:border-border transition-all duration-300;
   }
 
-  .card-glow {
-    @apply relative;
-  }
-
-  .card-glow::before {
-    content: '';
-    @apply absolute inset-0 rounded-xl opacity-0 transition-opacity duration-300 pointer-events-none;
-    background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-        hsl(var(--glow-primary) / 0.1),
-        transparent 40%);
-  }
-
-  .card-glow:hover::before {
-    @apply opacity-100;
-  }
-
   .hero-gradient {
     background: radial-gradient(ellipse 80% 50% at 50% -20%,
         hsl(var(--glow-primary) / 0.15),
@@ -175,6 +241,22 @@
     background: radial-gradient(ellipse 100% 100% at 50% 100%,
         hsl(var(--glow-primary) / 0.05),
         transparent);
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-10px);
+    }
   }
 
   .animate-pulse-slow {
@@ -191,32 +273,5 @@
     50% {
       opacity: 0.8;
     }
-  }
-
-  .animate-fade-in {
-    opacity: 0;
-    transform: translateY(10px);
-    animation: fade-in 0.5s ease-out forwards;
-  }
-
-  @keyframes fade-in {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .timeline-line {
-    @apply absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2;
-    background: linear-gradient(to bottom,
-        transparent,
-        hsl(var(--primary)) 20%,
-        hsl(var(--primary)) 80%,
-        transparent);
   }
 }

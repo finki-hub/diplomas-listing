@@ -17,7 +17,7 @@ export default function ThemeToggle() {
   const [theme, setTheme] = createSignal<Theme>(getInitialTheme());
 
   const applyTheme = (t: Theme) => {
-    document.documentElement.classList.toggle('dark', t === 'dark');
+    document.documentElement.dataset['kbTheme'] = t;
     localStorage.setItem('theme', t);
   };
 
