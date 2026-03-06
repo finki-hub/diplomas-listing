@@ -4,7 +4,7 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260305.1",
-    "@types/node": "^25.3.3",
+    "@types/node": "^25.3.5",
     "eslint": "^9.39.3",
     "eslint-config-imperium": "^3.4.0",
     "typescript": "~5.9.3",
