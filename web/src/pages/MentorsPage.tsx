@@ -331,7 +331,7 @@ const MentorTableHeader = (props: {
 }) => (
   <TableHeader>
     <TableRow>
-      <TableHead class="hidden sm:table-cell w-[50px] text-center">#</TableHead>
+      <TableHead class="hidden sm:table-cell w-12.5 text-center">#</TableHead>
       <TableHead>
         <div class="flex items-center gap-2">
           <button
