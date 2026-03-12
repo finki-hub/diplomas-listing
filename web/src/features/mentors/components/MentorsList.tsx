@@ -1,3 +1,4 @@
+import { ArrowDown, ArrowUp, ArrowUpDown, ChevronRight } from 'lucide-solid';
 import { For, Show } from 'solid-js';
 
 import type { Diploma } from '@/types';
@@ -66,24 +67,16 @@ type SortIconProps = {
 };
 
 const SortIcon = (props: SortIconProps) => (
-  <Show when={props.currentField === props.field}>
-    <svg
-      class="ml-1 inline-block h-4 w-4"
-      fill="none"
-      stroke="currentColor"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      stroke-width="2"
-      viewBox="0 0 24 24"
-      xmlns="http://www.w3.org/2000/svg"
+  <Show
+    fallback={<ArrowUpDown class="ml-1 inline-block h-4 w-4" />}
+    when={props.currentField === props.field}
+  >
+    <Show
+      fallback={<ArrowDown class="ml-1 inline-block h-4 w-4" />}
+      when={props.currentDirection === 'asc'}
     >
-      <Show
-        fallback={<path d="M12 5v14m4-4l-4 4m-4-4l4 4" />}
-        when={props.currentDirection === 'asc'}
-      >
-        <path d="M12 19V5m-4 4l4-4m4 4l-4-4" />
-      </Show>
-    </svg>
+      <ArrowUp class="ml-1 inline-block h-4 w-4" />
+    </Show>
   </Show>
 );
 
@@ -207,18 +200,9 @@ const MentorMobileCard = (props: MentorMobileCardProps) => (
       type="button"
     >
       <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
-        <svg
+        <ChevronRight
           class={`h-4 w-4 transition-transform duration-200 ${props.expanded ? 'rotate-90' : ''}`}
-          fill="none"
-          stroke="currentColor"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path d="m9 18 6-6-6-6" />
-        </svg>
+        />
       </div>
       <div class="min-w-0 flex-1">
         <div class="flex items-start justify-between gap-3">
@@ -265,20 +249,11 @@ const MentorRow = (props: MentorRowProps) => (
       </TableCell>
       <TableCell class="font-medium">
         <div class="flex items-center gap-2">
-          <svg
+          <ChevronRight
             class={`h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 ${
               props.expanded ? 'rotate-90' : ''
             }`}
-            fill="none"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path d="m9 18 6-6-6-6" />
-          </svg>
+          />
           <span class="truncate">{props.summary.mentor}</span>
         </div>
       </TableCell>
