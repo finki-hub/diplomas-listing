@@ -7,6 +7,7 @@ import {
 } from 'eslint-config-imperium';
 
 export default [
+  { ignores: ['dist'] },
   base,
   node,
   typescript,
