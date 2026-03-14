@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "finki-auth": "^2.0.0",
     "hono": "^4.12.7"
   },
   "devDependencies": {
