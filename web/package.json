@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@solidjs/router": "^0.15.4",
+    "@solidjs/router": "^0.16.1",
     "clsx": "^2.1.1",
     "lucide-solid": "^0.577.0",
     "simple-icons": "^16.12.0",
