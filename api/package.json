@@ -9,7 +9,7 @@
     "eslint": "^9.39.4",
     "eslint-config-imperium": "^3.4.0",
     "typescript": "~5.9.3",
-    "vite": "^7.3.1",
+    "vite": "^8.0.1",
     "vitest": "^4.1.0",
     "wrangler": "^4.75.0"
   },
