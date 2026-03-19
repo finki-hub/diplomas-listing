@@ -1,10 +1,10 @@
 import { For } from 'solid-js';
 
+import type { Diploma } from '@/types';
+
 import { Badge } from '@/components/ui/badge';
 
 import type { DiplomaDetailsTableProps } from './types';
-
-import type { Diploma } from '@/types';
 
 import { getStatusOpacity } from '../../utils';
 

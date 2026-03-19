@@ -31,24 +31,28 @@ const matchesDiploma = (
   return matchesStatus && matchesYear && matchesSearch;
 };
 
+type CompareOptions = {
+  hasQuery: boolean;
+  sortDirection: SortDirection;
+  sortField: SortField;
+};
+
 const compareSummaries = (
   a: FilteredMentorSummary,
   b: FilteredMentorSummary,
-  sortField: SortField,
-  sortDirection: SortDirection,
-  hasQuery: boolean,
+  options: CompareOptions,
 ): number => {
   let comparison = 0;
 
-  if (sortField === 'mentor') {
+  if (options.sortField === 'mentor') {
     comparison = a.mentor.localeCompare(b.mentor);
   } else {
-    comparison = hasQuery
+    comparison = options.hasQuery
       ? a.filteredDiplomas.length - b.filteredDiplomas.length
       : a.totalDiplomas - b.totalDiplomas;
   }
 
-  return sortDirection === 'asc' ? comparison : -comparison;
+  return options.sortDirection === 'asc' ? comparison : -comparison;
 };
 
 export const buildFilteredSummaries = (options: {
@@ -84,13 +88,11 @@ export const buildFilteredSummaries = (options: {
     );
 
   return [...results].sort((a, b) =>
-    compareSummaries(
-      a,
-      b,
-      options.sortField,
-      options.sortDirection,
-      options.query.length > 0,
-    ),
+    compareSummaries(a, b, {
+      hasQuery: options.query.length > 0,
+      sortDirection: options.sortDirection,
+      sortField: options.sortField,
+    }),
   );
 };
 

@@ -1,6 +1,5 @@
-import type { SortControlsProps } from './types';
-
 import type { SortField } from '../../types';
+import type { SortControlsProps } from './types';
 
 import SortIcon from './SortIcon';
 

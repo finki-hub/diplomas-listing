@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { authenticateAndFetch } from '../auth.js';
 import { isAuthenticated, parseDiplomas } from '../utils.js';
 
-const getCredentials = (): { password: string; username: string } | null => {
+const getCredentials = (): null | { password: string; username: string } => {
   const username = process.env.CAS_USERNAME;
   const password = process.env.CAS_PASSWORD;
 

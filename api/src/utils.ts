@@ -43,7 +43,8 @@ const parseTableRows = (panel: string): TableRow[] => {
 const findRowByLabel = (
   rows: TableRow[],
   label: string,
-): TableRow | undefined => rows.find((row) => stripTags(row.labelCell).includes(label));
+): TableRow | undefined =>
+  rows.find((row) => stripTags(row.labelCell).includes(label));
 
 export const isAuthenticated = (html: string): boolean =>
   html.includes('Датум на пријавување') || !html.includes('Датум на одбрана');
@@ -101,8 +102,7 @@ export const parseDiplomas = (html: string): Diploma[] => {
   const panelStarts = findPanelStartIndices(html);
 
   return panelStarts.map((start, i) => {
-    const end =
-      i + 1 < panelStarts.length ? panelStarts[i + 1] : html.length;
+    const end = i + 1 < panelStarts.length ? panelStarts[i + 1] : html.length;
     const panel = html.slice(start, end);
     const rows = parseTableRows(panel);
 
