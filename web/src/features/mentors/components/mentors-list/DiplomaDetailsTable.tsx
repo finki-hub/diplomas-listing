@@ -10,6 +10,7 @@ import { getStatusOpacity } from '../../utils';
 
 const StatusBadge = (props: { status: string }) => (
   <Badge
+    class="whitespace-normal"
     style={{ opacity: getStatusOpacity(props.status) }}
     variant="default"
   >
