@@ -21,16 +21,17 @@ describe('Diplomas E2E', () => {
       if (!credentials) return;
 
       const { password, username } = credentials;
-      const html = await authenticateAndFetch(username, password);
+      const diplomasResponse = await authenticateAndFetch(username, password);
+      const diplomasHtml = await diplomasResponse.text();
 
-      expect(html.length).toBeGreaterThan(0);
+      expect(diplomasHtml.length).toBeGreaterThan(0);
 
       expect(
-        isAuthenticated(html),
+        isAuthenticated(diplomasHtml),
         'should be authenticated — got the public (non-logged-in) page instead',
       ).toBe(true);
 
-      const diplomas = parseDiplomas(html);
+      const diplomas = parseDiplomas(diplomasHtml, diplomasResponse.url);
 
       expect(diplomas.length).toBeGreaterThan(0);
 

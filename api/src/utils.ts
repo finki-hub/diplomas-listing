@@ -60,7 +60,7 @@ const getByLabel = (rows: TableRow[], label: string): string => {
   return strongMatch?.groups?.text ? stripTags(strongMatch.groups.text) : '';
 };
 
-const getFileUrl = (rows: TableRow[]): null | string => {
+const getFileUrl = (rows: TableRow[], url: string): null | string => {
   const row = findRowByLabel(rows, 'Датотека');
   if (!row) return null;
 
@@ -71,7 +71,7 @@ const getFileUrl = (rows: TableRow[]): null | string => {
     // eslint-disable-next-line no-script-url
     hrefMatch.groups.url !== 'javascript:void(0)'
   ) {
-    return hrefMatch.groups.url;
+    return new URL(hrefMatch.groups.url, url).href;
   }
 
   return null;
@@ -98,7 +98,7 @@ const findPanelStartIndices = (html: string): number[] => {
   return indices;
 };
 
-export const parseDiplomas = (html: string): Diploma[] => {
+export const parseDiplomas = (html: string, url: string): Diploma[] => {
   const panelStarts = findPanelStartIndices(html);
 
   return panelStarts.map((start, i) => {
@@ -117,7 +117,7 @@ export const parseDiplomas = (html: string): Diploma[] => {
     return {
       dateOfSubmission: getByLabel(rows, 'Датум на пријавување'),
       description: getByLabel(rows, 'Краток опис'),
-      fileUrl: getFileUrl(rows),
+      fileUrl: getFileUrl(rows, url),
       member1: getByLabel(rows, 'Член 1'),
       member2: getByLabel(rows, 'Член 2'),
       mentor: getByLabel(rows, 'Ментор'),

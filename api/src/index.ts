@@ -35,16 +35,17 @@ app.get('/diplomas', async (c) => {
       return c.json({ error: 'CAS credentials are not configured' }, 500);
     }
 
-    const html = await authenticateAndFetch(
+    const diplomasResponse = await authenticateAndFetch(
       c.env.CAS_USERNAME,
       c.env.CAS_PASSWORD,
     );
+    const diplomasHtml = await diplomasResponse.text();
 
-    if (!isAuthenticated(html)) {
+    if (!isAuthenticated(diplomasHtml)) {
       return c.json({ error: 'Authentication failed' }, 401);
     }
 
-    const diplomas = parseDiplomas(html);
+    const diplomas = parseDiplomas(diplomasHtml, diplomasResponse.url);
 
     if (diplomas.length === 0) {
       return c.json(
