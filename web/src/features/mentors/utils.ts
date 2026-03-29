@@ -1,6 +1,6 @@
 import type { Diploma, MentorSummary } from '@/types';
 
-import { STATUS_STAGES } from './constants';
+import { DIPLOMAS_FILE_URL, STATUS_STAGES } from './constants';
 
 export const aggregateByMentor = (diplomas: Diploma[]): MentorSummary[] => {
   const mentorMap = new Map<string, Diploma[]>();
@@ -56,3 +56,6 @@ export const getSubmissionYear = (value: string): null | string => {
 
   return year;
 };
+
+export const getDiplomaFileUrl = (fileId: null | string): null | string =>
+  fileId === null ? null : `${DIPLOMAS_FILE_URL}${fileId}`;

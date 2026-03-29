@@ -1,4 +1,6 @@
-export const API_URL = 'https://diplomski-api.finki-hub.com/diplomas';
+export const DIPLOMAS_LIST_URL = 'https://diplomski-api.finki-hub.com/diplomas';
+export const DIPLOMAS_FILE_URL =
+  'https://diplomski-api.finki-hub.com/download/';
 
 export const STATUS_STAGES: Array<[string, number]> = [
   ['пријава', 1],

@@ -1,14 +1,13 @@
-import { Download } from 'lucide-solid';
 import { For, Show } from 'solid-js';
 
 import type { Diploma } from '@/types';
 
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/cn.ts';
+import DownloadButton from '@/features/mentors/components/mentors-list/DownloadButton.tsx';
 
 import type { DiplomaDetailsTableProps } from './types';
 
-import { getStatusOpacity } from '../../utils';
+import { getDiplomaFileUrl, getStatusOpacity } from '../../utils';
 
 const StatusBadge = (props: { status: string }) => (
   <Badge
@@ -22,23 +21,6 @@ const StatusBadge = (props: { status: string }) => (
 
 const DateDisplay = (props: { value: string }) => (
   <>{props.value || '\u2014'}</>
-);
-
-const DownloadButton = (props: { class?: string; url: null | string }) => (
-  <span title={props.url === null ? 'Не постои' : undefined}>
-    <a
-      class={cn(
-        'inline-flex items-center justify-center rounded-md p-1.5 transition-colors hover:[&>svg]:text-black',
-        props.url ? 'hover:bg-accent' : 'opacity-30 pointer-events-none',
-        props.class,
-      )}
-      download=""
-      href={props.url ?? undefined}
-      target="_blank"
-    >
-      <Download class="h-4 w-4 transition-colors" />
-    </a>
-  </span>
 );
 
 const MobileDiplomaCard = (props: { diploma: Diploma }) => (
@@ -83,7 +65,7 @@ const MobileDiplomaCard = (props: { diploma: Diploma }) => (
             <DateDisplay value={props.diploma.dateOfSubmission} />
           </div>
         </div>
-        <Show when={props.diploma.fileUrl !== null}>
+        <Show when={props.diploma.fileId !== null}>
           <div class="min-w-0">
             <div class="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Датотека
@@ -91,7 +73,7 @@ const MobileDiplomaCard = (props: { diploma: Diploma }) => (
             <div class="mt-1">
               <DownloadButton
                 class="w-full bg-primary text-primary-foreground"
-                url={props.diploma.fileUrl}
+                url={getDiplomaFileUrl(props.diploma.fileId)}
               />
             </div>
           </div>
@@ -137,7 +119,7 @@ const DiplomaDetailsTable = (props: DiplomaDetailsTableProps) => (
                 <DateDisplay value={diploma.dateOfSubmission} />
               </td>
               <td class="py-2 text-center">
-                <DownloadButton url={diploma.fileUrl} />
+                <DownloadButton url={getDiplomaFileUrl(diploma.fileId)} />
               </td>
             </tr>
           )}

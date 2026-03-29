@@ -9,14 +9,14 @@ const getInitialTheme = (): Theme => {
   return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 };
 
+export const [theme, setTheme] = createSignal<Theme>(getInitialTheme());
+
+const applyTheme = (t: Theme) => {
+  document.documentElement.dataset['kbTheme'] = t;
+  localStorage.setItem('theme', t);
+};
+
 export default function ThemeToggle() {
-  const [theme, setTheme] = createSignal<Theme>(getInitialTheme());
-
-  const applyTheme = (t: Theme) => {
-    document.documentElement.dataset['kbTheme'] = t;
-    localStorage.setItem('theme', t);
-  };
-
   onMount(() => {
     applyTheme(theme());
   });

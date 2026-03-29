@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const diplomaSchema = z.object({
   dateOfSubmission: z.string(),
   description: z.string(),
-  fileUrl: z.string().nullable(),
+  fileId: z.string().nullable(),
   member1: z.string(),
   member2: z.string(),
   mentor: z.string(),

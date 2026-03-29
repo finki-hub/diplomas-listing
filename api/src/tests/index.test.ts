@@ -1,7 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { assert, describe, expect, it } from 'vitest';
 
-import { authenticateAndFetch } from '../auth.js';
-import { isAuthenticated, parseDiplomas } from '../utils.js';
+import { AuthManager } from '../auth.js';
+import { fetchDiplomaFile, fetchDiplomaList } from '../fetch.js';
+import { parseDiplomas } from '../utils.js';
 
 const getCredentials = (): null | { password: string; username: string } => {
   const username = process.env.CAS_USERNAME;
@@ -21,17 +22,17 @@ describe('Diplomas E2E', () => {
       if (!credentials) return;
 
       const { password, username } = credentials;
-      const diplomasResponse = await authenticateAndFetch(username, password);
+
+      const authManager = new AuthManager(username, password);
+      const diplomasResponse = await fetchDiplomaList(authManager);
+
+      expect(diplomasResponse.ok).toBe(true);
+
       const diplomasHtml = await diplomasResponse.text();
 
       expect(diplomasHtml.length).toBeGreaterThan(0);
 
-      expect(
-        isAuthenticated(diplomasHtml),
-        'should be authenticated — got the public (non-logged-in) page instead',
-      ).toBe(true);
-
-      const diplomas = parseDiplomas(diplomasHtml, diplomasResponse.url);
+      const diplomas = parseDiplomas(diplomasHtml);
 
       expect(diplomas.length).toBeGreaterThan(0);
 
@@ -47,10 +48,68 @@ describe('Diplomas E2E', () => {
         expect(typeof diploma.description).toBe('string');
 
         expect(
-          diploma.fileUrl === null || typeof diploma.fileUrl === 'string',
+          diploma.fileId === null || typeof diploma.fileId === 'string',
           'fileUrl should be null or a string',
         ).toBe(true);
+
+        if (diploma.fileId !== null) {
+          expect(diploma.fileId, 'fileId should contain only digits').toMatch(
+            /^\d+$/u,
+          );
+        }
       }
+    },
+  );
+
+  it.skipIf(!getCredentials())(
+    'should successfully fetch a real diploma file',
+    { timeout: 30_000 },
+    async () => {
+      const credentials = getCredentials();
+      if (!credentials) return;
+
+      const authManager = new AuthManager(
+        credentials.username,
+        credentials.password,
+      );
+
+      const diplomasResponse = await fetchDiplomaList(authManager);
+
+      expect(diplomasResponse.ok).toBe(true);
+
+      const diplomasHtml = await diplomasResponse.text();
+      const diplomas = parseDiplomas(diplomasHtml);
+
+      expect(diplomas.length).toBeGreaterThan(0);
+
+      const firstDiploma = diplomas.find((d) => d.fileId !== null);
+      assert(firstDiploma?.fileId, 'No diploma with fileId found');
+
+      const testId = firstDiploma.fileId;
+
+      expect(testId, 'fileId should contain only digits').toMatch(/^\d+$/u);
+
+      const fileResponse = await fetchDiplomaFile(authManager, testId);
+
+      expect(fileResponse.ok).toBe(true);
+      expect(fileResponse.status).toBe(200);
+
+      const contentType = fileResponse.headers.get('Content-Type');
+
+      expect(contentType).not.toBe(null);
+      expect(contentType).toMatch(
+        /application\/octet-stream|application\/pdf/iu,
+      );
+
+      const contentLength = fileResponse.headers.get('Content-Length');
+
+      if (contentLength !== null) {
+        expect(Number(contentLength)).toBeGreaterThan(0);
+      }
+
+      const blob = await fileResponse.blob();
+
+      expect(blob.size, 'file should not be empty').toBeGreaterThan(0);
     },
   );
 });

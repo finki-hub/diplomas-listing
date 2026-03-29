@@ -1,7 +1,12 @@
+import type { ValidationTargets } from 'hono';
+import type { ZodType } from 'zod';
+
+import { zValidator } from '@hono/zod-validator';
+
 type Diploma = {
   dateOfSubmission: string;
   description: string;
-  fileUrl: null | string;
+  fileId: null | string;
   member1: string;
   member2: string;
   mentor: string;
@@ -46,9 +51,6 @@ const findRowByLabel = (
 ): TableRow | undefined =>
   rows.find((row) => stripTags(row.labelCell).includes(label));
 
-export const isAuthenticated = (html: string): boolean =>
-  html.includes('Датум на пријавување') || !html.includes('Датум на одбрана');
-
 const getByLabel = (rows: TableRow[], label: string): string => {
   const row = findRowByLabel(rows, label);
   if (!row) return '';
@@ -60,7 +62,7 @@ const getByLabel = (rows: TableRow[], label: string): string => {
   return strongMatch?.groups?.text ? stripTags(strongMatch.groups.text) : '';
 };
 
-const getFileUrl = (rows: TableRow[], url: string): null | string => {
+const getFileId = (rows: TableRow[]): null | string => {
   const row = findRowByLabel(rows, 'Датотека');
   if (!row) return null;
 
@@ -71,7 +73,7 @@ const getFileUrl = (rows: TableRow[], url: string): null | string => {
     // eslint-disable-next-line no-script-url
     hrefMatch.groups.url !== 'javascript:void(0)'
   ) {
-    return new URL(hrefMatch.groups.url, url).href;
+    return hrefMatch.groups.url.split('/').pop() ?? null;
   }
 
   return null;
@@ -98,7 +100,7 @@ const findPanelStartIndices = (html: string): number[] => {
   return indices;
 };
 
-export const parseDiplomas = (html: string, url: string): Diploma[] => {
+export const parseDiplomas = (html: string): Diploma[] => {
   const panelStarts = findPanelStartIndices(html);
 
   return panelStarts.map((start, i) => {
@@ -117,7 +119,7 @@ export const parseDiplomas = (html: string, url: string): Diploma[] => {
     return {
       dateOfSubmission: getByLabel(rows, 'Датум на пријавување'),
       description: getByLabel(rows, 'Краток опис'),
-      fileUrl: getFileUrl(rows, url),
+      fileId: getFileId(rows),
       member1: getByLabel(rows, 'Член 1'),
       member2: getByLabel(rows, 'Член 2'),
       mentor: getByLabel(rows, 'Ментор'),
@@ -127,3 +129,21 @@ export const parseDiplomas = (html: string, url: string): Diploma[] => {
     };
   });
 };
+
+export const validate = <
+  Target extends keyof ValidationTargets,
+  Schema extends ZodType,
+>(
+  target: Target,
+  schema: Schema,
+) =>
+  zValidator(target, schema, (result, c) => {
+    if (!result.success) {
+      const errorMessage = result.error.issues[0]?.message ?? 'Invalid input';
+
+      return c.json({ error: errorMessage }, 400);
+    }
+
+    // eslint-disable-next-line no-useless-return, consistent-return
+    return;
+  });
