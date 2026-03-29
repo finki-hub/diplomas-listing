@@ -100,6 +100,10 @@ export const useMentorsPageState = () => {
     const currentExpandedMentor = expandedMentor();
     if (!currentExpandedMentor) return;
 
+    // Don't collapse the expanded mentor before data has loaded,
+    // otherwise URL params get wiped on initial page load.
+    if (diplomas.loading) return;
+
     const mentorStillVisible = filteredSummaries().some(
       (summary) => summary.mentor === currentExpandedMentor,
     );
