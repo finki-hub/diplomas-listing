@@ -18,4 +18,5 @@ const App = () => (
     <Toaster position="bottom-right" />
   </>
 );
+
 export default App;

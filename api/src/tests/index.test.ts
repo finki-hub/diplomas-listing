@@ -49,7 +49,7 @@ describe('Diplomas E2E', () => {
 
         expect(
           diploma.fileId === null || typeof diploma.fileId === 'string',
-          'fileUrl should be null or a string',
+          'fileId should be null or a string',
         ).toBe(true);
 
         if (diploma.fileId !== null) {

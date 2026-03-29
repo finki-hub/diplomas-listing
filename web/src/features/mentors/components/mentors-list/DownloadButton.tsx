@@ -62,6 +62,7 @@ const DownloadButton = (props: { class?: string; url: null | string }) => {
   return (
     <button
       aria-disabled={isLoading()}
+      aria-label={props.url === null ? 'Не постои' : 'Преземи'}
       class={cn(
         'inline-flex items-center justify-center rounded-md p-1.5 transition-colors',
         'disabled:opacity-30 disabled:cursor-default',

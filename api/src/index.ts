@@ -24,7 +24,8 @@ const app = new Hono<{
   Bindings: Bindings;
   Variables: Variables;
 }>();
-let auth: AuthManager | null = null;
+let auth: null | { instance: AuthManager; password: string; username: string } =
+  null;
 
 app.onError((err, c) => {
   if (err.message === casAuthErrorMessage) {
@@ -49,9 +50,18 @@ app.use('*', async (c, nextFn) => {
     return c.json({ error: 'CAS credentials are not configured' }, 500);
   }
 
-  auth ??= new AuthManager(c.env.CAS_USERNAME, c.env.CAS_PASSWORD);
+  if (
+    auth?.username !== c.env.CAS_USERNAME ||
+    auth.password !== c.env.CAS_PASSWORD
+  ) {
+    auth = {
+      instance: new AuthManager(c.env.CAS_USERNAME, c.env.CAS_PASSWORD),
+      password: c.env.CAS_PASSWORD,
+      username: c.env.CAS_USERNAME,
+    };
+  }
 
-  c.set('auth', auth);
+  c.set('auth', auth.instance);
 
   await nextFn();
 
@@ -105,13 +115,15 @@ app.get(
 
     const fileResponse = await fetchDiplomaFile(c.get('auth'), id);
 
+    if (!fileResponse.ok) {
+      return c.json({ error: `Upstream error: ${fileResponse.status}` }, 502);
+    }
+
     if (fileResponse.headers.get('Content-Length') === '0') {
       return c.json({ error: 'File not found' }, 404);
     }
 
-    if (!fileResponse.ok) {
-      return c.json({ error: `Upstream error: ${fileResponse.status}` }, 502);
-    }
+    const contentLength = fileResponse.headers.get('Content-Length');
 
     return new Response(fileResponse.body, {
       headers: {
@@ -119,7 +131,7 @@ app.get(
         'Content-Disposition':
           fileResponse.headers.get('Content-Disposition') ??
           `attachment; filename="diploma_${id}.pdf"`,
-        'Content-Length': fileResponse.headers.get('Content-Length') ?? '',
+        ...(contentLength === null ? {} : { 'Content-Length': contentLength }),
         'Content-Type':
           fileResponse.headers.get('Content-Type') ??
           'application/octet-stream',
