@@ -15,14 +15,7 @@ export class AuthManager {
 
     if (!isValid) {
       if (!this.activeAuthPromises.has(service)) {
-        const authTask = Promise.race([
-          this.casAuth.authenticate(service),
-          new Promise<never>((_resolve, reject) => {
-            setTimeout(() => {
-              reject(new Error(casAuthErrorMessage));
-            }, 15_000);
-          }),
-        ]).finally(() => {
+        const authTask = this.casAuth.authenticate(service).finally(() => {
           this.activeAuthPromises.delete(service);
         });
 
