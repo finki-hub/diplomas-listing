@@ -15,7 +15,14 @@ export class AuthManager {
 
     if (!isValid) {
       if (!this.activeAuthPromises.has(service)) {
-        const authTask = this.casAuth.authenticate(service).finally(() => {
+        const authTask = Promise.race([
+          this.casAuth.authenticate(service),
+          new Promise<never>((_resolve, reject) => {
+            setTimeout(() => {
+              reject(new Error(casAuthErrorMessage));
+            }, 15_000);
+          }),
+        ]).finally(() => {
           this.activeAuthPromises.delete(service);
         });
 
@@ -31,6 +38,6 @@ export class AuthManager {
       throw new Error(casAuthErrorMessage);
     }
 
-    return await this.casAuth.buildCookieHeader(service);
+    return this.casAuth.buildCookieHeader(service);
   }
 }
