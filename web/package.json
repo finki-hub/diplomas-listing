@@ -3,7 +3,7 @@
     "@solidjs/router": "^0.16.1",
     "clsx": "^2.1.1",
     "lucide-solid": "^1.7.0",
-    "simple-icons": "^16.14.0",
+    "simple-icons": "^16.15.0",
     "solid-js": "^1.9.12",
     "solid-sonner": "^0.3.1",
     "tailwind-merge": "^3.5.0",
