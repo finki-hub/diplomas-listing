@@ -11,7 +11,7 @@
     "eslint": "^9.39.4",
     "eslint-config-imperium": "^3.6.0",
     "typescript": "~6.0.3",
-    "vite": "^8.0.8",
+    "vite": "^8.0.9",
     "vitest": "^4.1.4",
     "wrangler": "^4.83.0"
   },
