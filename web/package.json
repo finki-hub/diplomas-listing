@@ -2,7 +2,7 @@
   "dependencies": {
     "@solidjs/router": "^0.16.1",
     "clsx": "^2.1.1",
-    "lucide-solid": "^1.11.0",
+    "lucide-solid": "^1.14.0",
     "simple-icons": "^16.18.0",
     "solid-js": "^1.9.12",
     "solid-sonner": "^0.3.1",
