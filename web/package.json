@@ -7,7 +7,7 @@
     "solid-js": "^1.9.12",
     "solid-sonner": "^0.3.1",
     "tailwind-merge": "^3.5.0",
-    "zod": "^4.3.6"
+    "zod": "^4.4.1"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.2.4",
