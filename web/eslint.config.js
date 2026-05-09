@@ -7,12 +7,14 @@ import {
   typescript,
 } from 'eslint-config-imperium';
 
-export default [
+const config = [
   { ignores: ['dist', 'vite.config.ts'] },
-  base,
+  ...base,
   browser,
   solid,
   typescript,
   prettier,
   perfectionist,
 ];
+
+export default config;
