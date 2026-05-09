@@ -71,7 +71,7 @@ export default function MentorsPage() {
 
             <Show
               when={
-                !state.diplomas.error &&
+                state.diplomas.error === undefined &&
                 (!state.diplomas.loading || state.totalDiplomasCount() > 0)
               }
             >
