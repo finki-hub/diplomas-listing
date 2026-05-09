@@ -42,14 +42,14 @@ const compareSummaries = (
   b: FilteredMentorSummary,
   options: CompareOptions,
 ): number => {
-  let comparison = 0;
+  let comparison: number;
 
   if (options.sortField === 'mentor') {
     comparison = a.mentor.localeCompare(b.mentor);
+  } else if (options.hasQuery) {
+    comparison = a.filteredDiplomas.length - b.filteredDiplomas.length;
   } else {
-    comparison = options.hasQuery
-      ? a.filteredDiplomas.length - b.filteredDiplomas.length
-      : a.totalDiplomas - b.totalDiplomas;
+    comparison = a.totalDiplomas - b.totalDiplomas;
   }
 
   return options.sortDirection === 'asc' ? comparison : -comparison;
@@ -87,7 +87,7 @@ export const buildFilteredSummaries = (options: {
       (summary): summary is NonNullable<typeof summary> => summary !== null,
     );
 
-  return [...results].sort((a, b) =>
+  return results.toSorted((a, b) =>
     compareSummaries(a, b, {
       hasQuery: options.query.length > 0,
       sortDirection: options.sortDirection,

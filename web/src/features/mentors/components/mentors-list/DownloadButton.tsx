@@ -4,6 +4,8 @@ import { toast } from 'solid-sonner';
 
 import { cn } from '@/lib/cn.ts';
 
+const FILENAME_REGEX = /filename="?(?<filename>[^";\n]+)"?/u;
+
 const getFilename = (response: Response): null | string => {
   if (!response.ok) {
     return null;
@@ -14,7 +16,7 @@ const getFilename = (response: Response): null | string => {
     return null;
   }
 
-  const match = /filename="?(?<filename>[^";\n]+)"?/u.exec(disposition);
+  const match = FILENAME_REGEX.exec(disposition);
   return match?.groups?.['filename'] ?? null;
 };
 
