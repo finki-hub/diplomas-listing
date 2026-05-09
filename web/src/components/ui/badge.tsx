@@ -6,21 +6,17 @@ export type BadgeProps = ComponentProps<'span'> & {
   variant?: 'default' | 'destructive' | 'outline' | 'secondary';
 };
 
+const variantClassNames = {
+  default: 'border-transparent bg-primary text-primary-foreground',
+  destructive: 'border-transparent bg-destructive text-white',
+  outline: 'text-foreground',
+  secondary: 'border-transparent bg-secondary text-secondary-foreground',
+} satisfies Record<NonNullable<BadgeProps['variant']>, string>;
+
 export const Badge = (props: BadgeProps) => {
   const [local, rest] = splitProps(props, ['class', 'variant']);
 
-  const variantClasses = () => {
-    switch (local.variant) {
-      case 'destructive':
-        return 'border-transparent bg-destructive text-white';
-      case 'outline':
-        return 'text-foreground';
-      case 'secondary':
-        return 'border-transparent bg-secondary text-secondary-foreground';
-      default:
-        return 'border-transparent bg-primary text-primary-foreground';
-    }
-  };
+  const variantClasses = () => variantClassNames[local.variant ?? 'default'];
 
   return (
     <span
