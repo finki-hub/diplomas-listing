@@ -22,10 +22,28 @@ type TableRow = {
 
 const ROW_REGEX = /<tr[^>]*>(?<content>[\s\S]*?)<\/tr>/giu;
 const CELL_REGEX = /<td[^>]*>(?<cell>[\s\S]*?)<\/td>/giu;
+const STRONG_REGEX = /<strong>(?<text>[\s\S]*?)<\/strong>/iu;
+const HREF_REGEX = /<a[^>]*href="(?<url>[^"]*)"[^>]*>/iu;
+const HEADING_REGEX =
+  /class="[^"]*panel-heading[^"]*"[^>]*>(?<heading>[\s\S]*?)<\/div>/iu;
+const JAVASCRIPT_VOID_URL = ['javascript', 'void(0)'].join(':');
 
-const stripTags = (html: string): string =>
-  // eslint-disable-next-line regexp/no-super-linear-move
-  html.replaceAll(/<[^>]*>/gu, '').trim();
+const stripTags = (html: string): string => {
+  let text = '';
+  let insideTag = false;
+
+  for (const char of html) {
+    if (char === '<') {
+      insideTag = true;
+    } else if (char === '>') {
+      insideTag = false;
+    } else if (!insideTag) {
+      text += char;
+    }
+  }
+
+  return text.trim();
+};
 
 const parseTableRows = (panel: string): TableRow[] => {
   const rows: TableRow[] = [];
@@ -55,9 +73,7 @@ const getByLabel = (rows: TableRow[], label: string): string => {
   const row = findRowByLabel(rows, label);
   if (!row) return '';
 
-  const strongMatch = /<strong>(?<text>[\s\S]*?)<\/strong>/iu.exec(
-    row.valueCell,
-  );
+  const strongMatch = STRONG_REGEX.exec(row.valueCell);
 
   return strongMatch?.groups?.text ? stripTags(strongMatch.groups.text) : '';
 };
@@ -66,13 +82,9 @@ const getFileId = (rows: TableRow[]): null | string => {
   const row = findRowByLabel(rows, 'Датотека');
   if (!row) return null;
 
-  const hrefMatch = /<a[^>]*href="(?<url>[^"]*)"[^>]*>/iu.exec(row.valueCell);
+  const hrefMatch = HREF_REGEX.exec(row.valueCell);
 
-  if (
-    hrefMatch?.groups?.url &&
-    // eslint-disable-next-line no-script-url
-    hrefMatch.groups.url !== 'javascript:void(0)'
-  ) {
+  if (hrefMatch?.groups?.url && hrefMatch.groups.url !== JAVASCRIPT_VOID_URL) {
     return hrefMatch.groups.url.split('/').pop() ?? null;
   }
 
@@ -104,14 +116,11 @@ export const parseDiplomas = (html: string): Diploma[] => {
   const panelStarts = findPanelStartIndices(html);
 
   return panelStarts.map((start, i) => {
-    const end = i + 1 < panelStarts.length ? panelStarts[i + 1] : html.length;
+    const end = panelStarts[i + 1] ?? html.length;
     const panel = html.slice(start, end);
     const rows = parseTableRows(panel);
 
-    const headingMatch =
-      /class="[^"]*panel-heading[^"]*"[^>]*>(?<heading>[\s\S]*?)<\/div>/iu.exec(
-        panel,
-      );
+    const headingMatch = HEADING_REGEX.exec(panel);
     const title = headingMatch?.groups?.heading
       ? stripTags(headingMatch.groups.heading)
       : '';
@@ -137,6 +146,7 @@ export const validate = <
   target: Target,
   schema: Schema,
 ) =>
+  // eslint-disable-next-line sonarjs/no-inconsistent-returns -- zValidator requires returning a response only when validation fails.
   zValidator(target, schema, (result, c) => {
     if (!result.success) {
       const errorMessage = result.error.issues[0]?.message ?? 'Invalid input';
@@ -144,6 +154,6 @@ export const validate = <
       return c.json({ error: errorMessage }, 400);
     }
 
-    // eslint-disable-next-line no-useless-return, consistent-return
+    // eslint-disable-next-line consistent-return, no-useless-return, sonarjs/no-redundant-jump -- Returning no response tells zValidator to continue to the route handler.
     return;
   });

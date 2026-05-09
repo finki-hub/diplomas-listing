@@ -15,9 +15,7 @@ export class AuthManager {
 
     if (!isValid) {
       if (!this.activeAuthPromises.has(service)) {
-        const authTask = this.casAuth.authenticate(service).finally(() => {
-          this.activeAuthPromises.delete(service);
-        });
+        const authTask = this.authenticate(service);
 
         this.activeAuthPromises.set(service, authTask);
       }
@@ -32,5 +30,13 @@ export class AuthManager {
     }
 
     return this.casAuth.buildCookieHeader(service);
+  }
+
+  private async authenticate(service: Service): Promise<void> {
+    try {
+      await this.casAuth.authenticate(service);
+    } finally {
+      this.activeAuthPromises.delete(service);
+    }
   }
 }

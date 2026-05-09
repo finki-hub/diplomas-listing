@@ -4,6 +4,9 @@ import { AuthManager } from '../auth.js';
 import { fetchDiplomaFile, fetchDiplomaList } from '../fetch.js';
 import { parseDiplomas } from '../utils.js';
 
+const DIGITS_REGEX = /^\d+$/u;
+const FILE_CONTENT_TYPE_REGEX = /application\/octet-stream|application\/pdf/iu;
+
 const getCredentials = (): null | { password: string; username: string } => {
   const username = process.env.CAS_USERNAME;
   const password = process.env.CAS_PASSWORD;
@@ -14,6 +17,10 @@ const getCredentials = (): null | { password: string; username: string } => {
 };
 
 describe('Diplomas E2E', () => {
+  it('defines credential lookup for optional e2e tests', () => {
+    expect(typeof getCredentials).toBe('function');
+  });
+
   it.skipIf(!getCredentials())(
     'should fetch and parse real diploma data with non-empty fields',
     { timeout: 30_000 },
@@ -54,7 +61,7 @@ describe('Diplomas E2E', () => {
 
         if (diploma.fileId !== null) {
           expect(diploma.fileId, 'fileId should contain only digits').toMatch(
-            /^\d+$/u,
+            DIGITS_REGEX,
           );
         }
       }
@@ -87,7 +94,7 @@ describe('Diplomas E2E', () => {
 
       const testId = firstDiploma.fileId;
 
-      expect(testId, 'fileId should contain only digits').toMatch(/^\d+$/u);
+      expect(testId, 'fileId should contain only digits').toMatch(DIGITS_REGEX);
 
       const fileResponse = await fetchDiplomaFile(authManager, testId);
 
@@ -97,9 +104,7 @@ describe('Diplomas E2E', () => {
       const contentType = fileResponse.headers.get('Content-Type');
 
       expect(contentType).not.toBe(null);
-      expect(contentType).toMatch(
-        /application\/octet-stream|application\/pdf/iu,
-      );
+      expect(contentType).toMatch(FILE_CONTENT_TYPE_REGEX);
 
       const contentLength = fileResponse.headers.get('Content-Length');
 

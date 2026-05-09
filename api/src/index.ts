@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import z from 'zod';
+import { z } from 'zod';
 
 import { fetchDiplomaFile, fetchDiplomaList } from '@/fetch.js';
 
@@ -63,10 +63,7 @@ app.use('*', async (c, nextFn) => {
 
   c.set('auth', auth.instance);
 
-  await nextFn();
-
-  // eslint-disable-next-line no-useless-return, consistent-return
-  return;
+  return nextFn();
 });
 
 app.get('/diplomas', async (c) => {
