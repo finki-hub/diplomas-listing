@@ -52,7 +52,7 @@ export const useMentorsPageState = () => {
 
   const filteredSummaries = createMemo(() =>
     buildFilteredSummaries({
-      query: search().toLowerCase().trim(),
+      query: search(),
       selectedStatus: statusFilter(),
       selectedYear: yearFilter(),
       sortDirection: sortDirection(),

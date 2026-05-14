@@ -2,7 +2,12 @@ import type { Diploma, MentorSummary } from '@/types';
 
 import type { FilteredMentorSummary, SortDirection, SortField } from './types';
 
-import { getStatusStage, getSubmissionYear } from './utils';
+import {
+  getStatusStage,
+  getSubmissionYear,
+  matchesNormalizedSearch,
+  normalizeSearchText,
+} from './utils';
 
 type FilterOptions = {
   query: string;
@@ -24,9 +29,9 @@ const matchesDiploma = (
   const matchesSearch =
     options.query.length === 0 ||
     mentorMatches ||
-    diploma.title.toLowerCase().includes(options.query) ||
-    diploma.student.toLowerCase().includes(options.query) ||
-    diploma.status.toLowerCase().includes(options.query);
+    matchesNormalizedSearch(diploma.title, options.query) ||
+    matchesNormalizedSearch(diploma.student, options.query) ||
+    matchesNormalizedSearch(diploma.status, options.query);
 
   return matchesStatus && matchesYear && matchesSearch;
 };
@@ -63,8 +68,10 @@ export const buildFilteredSummaries = (options: {
   sortField: SortField;
   summaries: MentorSummary[];
 }): FilteredMentorSummary[] => {
+  const normalizedQuery = normalizeSearchText(options.query);
+
   const filterOptions: FilterOptions = {
-    query: options.query,
+    query: normalizedQuery,
     selectedStatus: options.selectedStatus,
     selectedYear: options.selectedYear,
   };
@@ -72,8 +79,8 @@ export const buildFilteredSummaries = (options: {
   const results = options.summaries
     .map((summary) => {
       const mentorMatches =
-        options.query.length === 0 ||
-        summary.mentor.toLowerCase().includes(options.query);
+        normalizedQuery.length === 0 ||
+        matchesNormalizedSearch(summary.mentor, normalizedQuery);
 
       const matchingDiplomas = summary.diplomas.filter((diploma) =>
         matchesDiploma(diploma, filterOptions, mentorMatches),
