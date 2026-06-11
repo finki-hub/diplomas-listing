@@ -2,6 +2,10 @@ name = "finki-hub-diplomas-api"
 main = "src/index.ts"
 compatibility_date = "2025-02-06"
 compatibility_flags = ["nodejs_compat"]
+workers_dev = false
+
+[placement]
+mode = "smart"
 
 [observability]
 enabled = true
@@ -12,6 +16,10 @@ invocation_logs = true
 
 [observability.traces]
 enabled = true
+
+[[routes]]
+pattern = "diplomas-api.finki-hub.com/*"
+zone_name = "finki-hub.com"
 
 [[routes]]
 pattern = "diplomski-api.finki-hub.com/*"
