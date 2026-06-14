@@ -9,6 +9,8 @@ import {
   normalizeSearchText,
 } from './utils';
 
+const collator = new Intl.Collator();
+
 type FilterOptions = {
   query: string;
   selectedStatus: string;
@@ -113,7 +115,7 @@ export const buildStatusOptions = (diplomaData: Diploma[] | undefined) =>
         return stageA - stageB;
       }
 
-      return a.localeCompare(b);
+      return collator.compare(a, b);
     },
   );
 
