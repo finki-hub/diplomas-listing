@@ -23,18 +23,14 @@ export class AuthManager {
       await this.activeAuthPromises.get(service);
     }
 
-    const cookies = await this.casAuth.getCookie(service);
-
-    if (cookies.length === 0) {
-      throw new Error(casAuthErrorMessage);
-    }
-
     return this.casAuth.buildCookieHeader(service);
   }
 
   private async authenticate(service: Service): Promise<void> {
     try {
       await this.casAuth.authenticate(service);
+    } catch (error) {
+      throw new Error(casAuthErrorMessage, { cause: error });
     } finally {
       this.activeAuthPromises.delete(service);
     }
