@@ -2,7 +2,7 @@
   "dependencies": {
     "@hono/zod-validator": "^0.8.0",
     "finki-auth": "^3.0.0",
-    "hono": "^4.12.25",
+    "hono": "^4.12.26",
     "zod": "^4.4.3"
   },
   "devDependencies": {
