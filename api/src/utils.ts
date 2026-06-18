@@ -50,6 +50,7 @@ const parseTableRows = (panel: string): TableRow[] => {
 
   for (const rowMatch of panel.matchAll(ROW_REGEX)) {
     const row = rowMatch.groups?.content ?? '';
+    // eslint-disable-next-line unicorn/prefer-iterator-to-array -- Iterator#toArray() defeats eslint-plugin-regexp's named-group tracing, triggering a false `no-unused-capturing-group` for `cell`.
     const cells = [...row.matchAll(CELL_REGEX)];
 
     if (cells.length >= 2) {
