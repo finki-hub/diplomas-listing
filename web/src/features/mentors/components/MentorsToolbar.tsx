@@ -27,6 +27,9 @@ const fieldLabelClass =
 const formatLastUpdatedAt = (value: null | string) => {
   if (!value) return 'Се подготвува освежување...';
 
+  // eslint-disable-next-line unicorn/prefer-temporal -- Temporal is not yet available in the target browsers and the project ships no polyfill.
+  const updatedAt = new Date(value);
+
   return new Intl.DateTimeFormat('mk-MK', {
     day: '2-digit',
     hour: '2-digit',
@@ -34,7 +37,7 @@ const formatLastUpdatedAt = (value: null | string) => {
     minute: '2-digit',
     month: '2-digit',
     year: 'numeric',
-  }).format(new Date(value));
+  }).format(updatedAt);
 };
 
 const MentorsToolbar = (props: MentorsToolbarProps) => (

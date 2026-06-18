@@ -14,10 +14,12 @@ const MentorRow = (props: MentorListItemProps) => (
       class="cursor-pointer"
       onClick={props.onToggle}
       onKeyDown={(event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          props.onToggle();
+        if (!(event.key === 'Enter' || event.key === ' ')) {
+          return;
         }
+
+        event.preventDefault();
+        props.onToggle();
       }}
       role="button"
       tabIndex={0}

@@ -27,6 +27,7 @@ export const useMentorsPageState = () => {
   const [lastUpdatedAt, setLastUpdatedAt] = createSignal<null | string>(null);
   const [diplomas] = createResource(async () => {
     const nextDiplomas = await fetchDiplomas();
+    // eslint-disable-next-line unicorn/prefer-temporal -- Temporal is not yet available in the target browsers and the project ships no polyfill.
     setLastUpdatedAt(new Date().toISOString());
     return nextDiplomas;
   });

@@ -15,12 +15,12 @@ const StatusBadge = (props: { status: string }) => (
     style={{ opacity: getStatusOpacity(props.status) }}
     variant="default"
   >
-    {props.status || '\u2014'}
+    {props.status || '\u{2014}'}
   </Badge>
 );
 
 const DateDisplay = (props: { value: string }) => (
-  <>{props.value || '\u2014'}</>
+  <>{props.value || '\u{2014}'}</>
 );
 
 const MobileDiplomaCard = (props: { diploma: Diploma }) => (
