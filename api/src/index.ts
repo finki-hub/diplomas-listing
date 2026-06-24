@@ -91,17 +91,24 @@ const app = new Hono<{
       );
     }
 
-    const response = c.json(diplomas);
+    // Build the Response by hand so the array is serialized once, not twice
+    // (c.json plus a cached Response.json would each stringify it).
+    const body = JSON.stringify(diplomas);
+    const contentType = 'application/json; charset=UTF-8';
 
-    const responseToCache = Response.json(diplomas, {
-      headers: {
-        'Cache-Control': `public, max-age=${String(DIPLOMA_LIST_CACHE_TTL)}`,
-      },
-    });
+    c.executionCtx.waitUntil(
+      cache.put(
+        CACHE_KEY,
+        new Response(body, {
+          headers: {
+            'Cache-Control': `public, max-age=${String(DIPLOMA_LIST_CACHE_TTL)}`,
+            'Content-Type': contentType,
+          },
+        }),
+      ),
+    );
 
-    c.executionCtx.waitUntil(cache.put(CACHE_KEY, responseToCache));
-
-    return response;
+    return new Response(body, { headers: { 'Content-Type': contentType } });
   })
   .get(
     '/download/:id',
