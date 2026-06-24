@@ -16,7 +16,7 @@ type Diploma = {
 };
 
 type TableRow = {
-  labelCell: string;
+  label: string;
   valueCell: string;
 };
 
@@ -27,23 +27,10 @@ const HREF_REGEX = /<a[^>]*href="(?<url>[^"]*)"[^>]*>/iu;
 const HEADING_REGEX =
   /class="[^"]*panel-heading[^"]*"[^>]*>(?<heading>[\s\S]*?)<\/div>/iu;
 const JAVASCRIPT_VOID_URL = ['javascript', 'void(0)'].join(':');
+const TAG_REGEX = /<[^<>]*>/gu;
 
-const stripTags = (html: string): string => {
-  let text = '';
-  let insideTag = false;
-
-  for (const char of html) {
-    if (char === '<') {
-      insideTag = true;
-    } else if (char === '>') {
-      insideTag = false;
-    } else if (!insideTag) {
-      text += char;
-    }
-  }
-
-  return text.trim();
-};
+const stripTags = (html: string): string =>
+  html.replaceAll(TAG_REGEX, '').trim();
 
 const parseTableRows = (panel: string): TableRow[] => {
   const rows: TableRow[] = [];
@@ -55,7 +42,7 @@ const parseTableRows = (panel: string): TableRow[] => {
 
     if (cells.length >= 2) {
       rows.push({
-        labelCell: cells[0]?.groups?.cell ?? '',
+        label: stripTags(cells[0]?.groups?.cell ?? ''),
         valueCell: cells[1]?.groups?.cell ?? '',
       });
     }
@@ -67,8 +54,7 @@ const parseTableRows = (panel: string): TableRow[] => {
 const findRowByLabel = (
   rows: TableRow[],
   label: string,
-): TableRow | undefined =>
-  rows.find((row) => stripTags(row.labelCell).includes(label));
+): TableRow | undefined => rows.find((row) => row.label.includes(label));
 
 const getByLabel = (rows: TableRow[], label: string): string => {
   const row = findRowByLabel(rows, label);
