@@ -4,7 +4,11 @@
 import { render } from 'solid-js/web';
 
 import './app.css';
+import { initAnalytics } from '@/lib/analytics.ts';
+
 import App from './App';
+
+initAnalytics();
 
 const root = document.querySelector('#root');
 
