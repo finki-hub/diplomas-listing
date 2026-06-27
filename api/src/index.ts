@@ -10,6 +10,8 @@ import { parseDiplomas, validate } from './utils.js';
 type Bindings = {
   CAS_PASSWORD: string;
   CAS_USERNAME: string;
+  POSTHOG_HOST: string;
+  POSTHOG_KEY: string;
 };
 
 type Variables = {
@@ -42,6 +44,18 @@ const createAuthResolver = () => {
 
 const resolveAuth = createAuthResolver();
 
+const sendAnalytics = async (host: string, payload: unknown): Promise<void> => {
+  try {
+    await fetch(`${host}/i/v0/e/`, {
+      body: JSON.stringify(payload),
+      headers: { 'content-type': 'application/json' },
+      method: 'POST',
+    });
+  } catch {
+    // Analytics is best-effort; never let it surface to the request.
+  }
+};
+
 const app = new Hono<{
   Bindings: Bindings;
   Variables: Variables;
@@ -53,6 +67,37 @@ const app = new Hono<{
 
     console.error(err);
     return c.json({ error: 'Internal Server Error' }, 500);
+  })
+  .use('*', async (c, nextFn) => {
+    const start = Date.now();
+
+    await nextFn();
+
+    if (!c.env.POSTHOG_KEY) {
+      return;
+    }
+
+    const ms = Date.now() - start;
+    const { pathname } = new URL(c.req.url);
+    const status = c.res.status;
+
+    const payload = {
+      /* eslint-disable camelcase -- PostHog ingest API requires these keys */
+      api_key: c.env.POSTHOG_KEY,
+      distinct_id: 'diplomas-api-worker',
+      /* eslint-enable camelcase -- end PostHog key exception */
+      event: 'diplomas-api_query',
+      properties: {
+        ms,
+        path: pathname,
+        service: 'diplomas-api',
+        status,
+      },
+    };
+
+    // Fire-and-forget off the request CPU budget so analytics never adds
+    // latency or counts against the Worker's CPU cap.
+    c.executionCtx.waitUntil(sendAnalytics(c.env.POSTHOG_HOST, payload));
   })
   .use(
     '*',
