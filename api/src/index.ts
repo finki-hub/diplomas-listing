@@ -100,23 +100,6 @@ const app = new Hono<{
       outcome = 'server_error';
     }
 
-    const payload = {
-      /* eslint-disable camelcase -- PostHog ingest API requires these keys */
-      api_key: c.env.POSTHOG_KEY,
-      distinct_id: WORKER_DISTINCT_ID,
-      /* eslint-enable camelcase -- end PostHog key exception */
-      event: 'diplomas-api_query',
-      properties: {
-        ms,
-        path: pathname,
-        service: WORKER_SERVICE,
-        status,
-      },
-    };
-
-    // waitUntil: fire-and-forget, off the synchronous CPU budget (free-plan 10ms cap).
-    c.executionCtx.waitUntil(sendAnalytics(c.env.POSTHOG_HOST, payload));
-
     /* eslint-disable camelcase -- PostHog ingest API requires these keys */
     c.executionCtx.waitUntil(
       sendAnalytics(c.env.POSTHOG_HOST, {
@@ -149,7 +132,7 @@ const app = new Hono<{
             // eslint-disable-next-line camelcase -- PostHog exception list property is snake_case.
             $exception_list: [
               {
-                mechanism: { handled: false, type: 'generic' },
+                mechanism: { handled: false, synthetic: false },
                 type:
                   caughtError instanceof Error
                     ? caughtError.constructor.name
