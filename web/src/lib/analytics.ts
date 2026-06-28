@@ -20,4 +20,5 @@ export const initAnalytics = () => {
     // eslint-disable-next-line camelcase -- posthog-js option keys are snake_case.
     person_profiles: 'identified_only',
   });
+  posthog.register({ service: 'diplomas-listing' });
 };
