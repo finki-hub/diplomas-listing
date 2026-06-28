@@ -11,6 +11,8 @@ export const initAnalytics = () => {
     // eslint-disable-next-line camelcase -- posthog-js option keys are snake_case.
     capture_exceptions: true,
     // eslint-disable-next-line camelcase -- posthog-js option keys are snake_case.
+    capture_pageview: 'history_change',
+    // eslint-disable-next-line camelcase -- posthog-js option keys are snake_case.
     person_profiles: 'identified_only',
   });
 };
