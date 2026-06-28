@@ -71,15 +71,25 @@ const app = new Hono<{
   .use('*', async (c, nextFn) => {
     const start = Date.now();
 
-    await nextFn();
+    let caughtError: unknown;
+
+    try {
+      await nextFn();
+    } catch (error) {
+      caughtError = error;
+    }
 
     if (!c.env.POSTHOG_KEY) {
+      if (caughtError !== undefined) {
+        // eslint-disable-next-line @typescript-eslint/only-throw-error -- re-throwing an unknown caught value.
+        throw caughtError;
+      }
+
       return;
     }
 
     const ms = Date.now() - start;
     const { pathname } = new URL(c.req.url);
-    const status = c.res.status;
 
     const payload = {
       /* eslint-disable camelcase -- PostHog ingest API requires these keys */
@@ -91,13 +101,43 @@ const app = new Hono<{
         ms,
         path: pathname,
         service: 'diplomas-api',
-        status,
+        status: caughtError === undefined ? c.res.status : 500,
       },
     };
 
-    // Fire-and-forget off the request CPU budget so analytics never adds
-    // latency or counts against the Worker's CPU cap.
+    // Both waitUntil calls below are fire-and-forget: they never block the
+    // response and do not count against the Worker's synchronous CPU budget.
     c.executionCtx.waitUntil(sendAnalytics(c.env.POSTHOG_HOST, payload));
+
+    if (caughtError !== undefined) {
+      /* eslint-disable camelcase -- PostHog ingest API requires these keys */
+      c.executionCtx.waitUntil(
+        sendAnalytics(c.env.POSTHOG_HOST, {
+          api_key: c.env.POSTHOG_KEY,
+          distinct_id: 'diplomas-api-worker',
+          /* eslint-enable camelcase -- end PostHog key exception */
+          event: '$exception',
+          properties: {
+            // eslint-disable-next-line camelcase -- PostHog exception list property is snake_case.
+            $exception_list: [
+              {
+                mechanism: { handled: false, type: 'generic' },
+                type:
+                  caughtError instanceof Error
+                    ? caughtError.constructor.name
+                    : 'UnknownError',
+                value: '(metadata only)',
+              },
+            ],
+            path: pathname,
+            service: 'diplomas-api',
+          },
+        }),
+      );
+
+      // eslint-disable-next-line @typescript-eslint/only-throw-error -- re-throwing an unknown caught value.
+      throw caughtError;
+    }
   })
   .use(
     '*',

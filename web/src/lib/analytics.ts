@@ -17,6 +17,8 @@ export const initAnalytics = () => {
     api_host: import.meta.env.VITE_POSTHOG_HOST ?? DEFAULT_POSTHOG_HOST,
     autocapture: true,
     // eslint-disable-next-line camelcase -- posthog-js option keys are snake_case.
+    capture_exceptions: true,
+    // eslint-disable-next-line camelcase -- posthog-js option keys are snake_case.
     person_profiles: 'always',
   });
 };
