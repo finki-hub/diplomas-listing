@@ -136,8 +136,6 @@ export const useMentorsPageState = () => {
 
     if (q.trim().length === 0) return;
 
-    // Read the count after the early exit; untrack prevents filteredSummaries
-    // from becoming a reactive dep so this effect only re-runs on search() changes.
     const count = untrack(() => filteredSummaries().length);
 
     const timer = setTimeout(() => {
