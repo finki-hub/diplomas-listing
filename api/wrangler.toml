@@ -4,6 +4,10 @@ compatibility_date = "2025-02-06"
 compatibility_flags = ["nodejs_compat"]
 workers_dev = false
 
+[vars]
+# POSTHOG_KEY is supplied at deploy (e.g. `wrangler secret put POSTHOG_KEY`) to enable analytics; absent = off.
+POSTHOG_HOST = "https://eu.i.posthog.com"
+
 [placement]
 mode = "smart"
 

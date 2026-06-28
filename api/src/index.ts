@@ -10,6 +10,8 @@ import { parseDiplomas, validate } from './utils.js';
 type Bindings = {
   CAS_PASSWORD: string;
   CAS_USERNAME: string;
+  POSTHOG_HOST: string;
+  POSTHOG_KEY: string;
 };
 
 type Variables = {
@@ -19,6 +21,8 @@ type Variables = {
 const CACHE_KEY = 'https://diplomski-api.finki-hub.com/diplomas';
 const DIPLOMA_LIST_CACHE_TTL = 3_600; // 1 hour
 const STATIC_FILE_CACHE_TTL = 31_536_000; // 1 year
+const WORKER_DISTINCT_ID = 'diplomas-api-worker';
+const WORKER_SERVICE = 'diplomas-api';
 
 const createAuthResolver = () => {
   let cached: null | {
@@ -42,6 +46,16 @@ const createAuthResolver = () => {
 
 const resolveAuth = createAuthResolver();
 
+const sendAnalytics = async (host: string, payload: unknown): Promise<void> => {
+  try {
+    await fetch(`${host}/i/v0/e/`, {
+      body: JSON.stringify(payload),
+      headers: { 'content-type': 'application/json' },
+      method: 'POST',
+    });
+  } catch {} // eslint-disable-line no-empty -- analytics is best-effort
+};
+
 const app = new Hono<{
   Bindings: Bindings;
   Variables: Variables;
@@ -53,6 +67,91 @@ const app = new Hono<{
 
     console.error(err);
     return c.json({ error: 'Internal Server Error' }, 500);
+  })
+  .use('*', async (c, nextFn) => {
+    const start = Date.now();
+
+    let caughtError: unknown;
+
+    try {
+      await nextFn();
+    } catch (error) {
+      caughtError = error;
+    }
+
+    if (!c.env.POSTHOG_KEY || !c.env.POSTHOG_HOST) {
+      if (caughtError !== undefined) {
+        // eslint-disable-next-line @typescript-eslint/only-throw-error -- re-throwing an unknown caught value.
+        throw caughtError;
+      }
+
+      return;
+    }
+
+    const ms = Date.now() - start;
+    const { pathname } = new URL(c.req.url);
+    const status = caughtError === undefined ? c.res.status : 500;
+    let outcome: string;
+    if (status < 400) {
+      outcome = 'ok';
+    } else if (status < 500) {
+      outcome = 'client_error';
+    } else {
+      outcome = 'server_error';
+    }
+
+    /* eslint-disable camelcase -- PostHog ingest API requires these keys */
+    c.executionCtx.waitUntil(
+      sendAnalytics(c.env.POSTHOG_HOST, {
+        api_key: c.env.POSTHOG_KEY,
+        distinct_id: WORKER_DISTINCT_ID,
+        /* eslint-enable camelcase -- end PostHog key exception */
+        event: 'request_completed',
+        properties: {
+          // eslint-disable-next-line camelcase -- PostHog property is snake_case.
+          duration_ms: ms,
+          method: c.req.method,
+          outcome,
+          // eslint-disable-next-line @typescript-eslint/no-deprecated -- hono/route routePath has a context generic mismatch; c.req.routePath is equivalent.
+          route: c.req.routePath,
+          service: WORKER_SERVICE,
+          status,
+        },
+      }),
+    );
+
+    if (caughtError !== undefined) {
+      /* eslint-disable camelcase -- PostHog ingest API requires these keys */
+      c.executionCtx.waitUntil(
+        sendAnalytics(c.env.POSTHOG_HOST, {
+          api_key: c.env.POSTHOG_KEY,
+          distinct_id: WORKER_DISTINCT_ID,
+          /* eslint-enable camelcase -- end PostHog key exception */
+          event: '$exception',
+          properties: {
+            // eslint-disable-next-line camelcase -- PostHog exception list property is snake_case.
+            $exception_list: [
+              {
+                mechanism: { handled: false, synthetic: false },
+                type:
+                  caughtError instanceof Error
+                    ? caughtError.constructor.name
+                    : 'UnknownError',
+                value:
+                  caughtError instanceof Error
+                    ? caughtError.message
+                    : JSON.stringify(caughtError),
+              },
+            ],
+            path: pathname,
+            service: WORKER_SERVICE,
+          },
+        }),
+      );
+
+      // eslint-disable-next-line @typescript-eslint/only-throw-error -- re-throwing an unknown caught value.
+      throw caughtError;
+    }
   })
   .use(
     '*',
@@ -76,6 +175,24 @@ const app = new Hono<{
     const cachedResponse = await cache.match(CACHE_KEY);
 
     if (cachedResponse) {
+      if (c.env.POSTHOG_KEY && c.env.POSTHOG_HOST) {
+        /* eslint-disable camelcase -- PostHog ingest API requires snake_case keys */
+        c.executionCtx.waitUntil(
+          sendAnalytics(c.env.POSTHOG_HOST, {
+            api_key: c.env.POSTHOG_KEY,
+            distinct_id: WORKER_DISTINCT_ID,
+            /* eslint-enable camelcase -- end PostHog key exception */
+            event: 'catalog_query',
+            properties: {
+              // eslint-disable-next-line camelcase -- PostHog property is snake_case.
+              cache_hit: true,
+              route: '/diplomas',
+              service: WORKER_SERVICE,
+            },
+          }),
+        );
+      }
+
       return new Response(cachedResponse.body, cachedResponse);
     }
 
@@ -85,9 +202,47 @@ const app = new Hono<{
     const diplomas = parseDiplomas(diplomasHtml);
 
     if (diplomas.length === 0) {
+      if (c.env.POSTHOG_KEY && c.env.POSTHOG_HOST) {
+        c.executionCtx.waitUntil(
+          sendAnalytics(c.env.POSTHOG_HOST, {
+            /* eslint-disable camelcase -- PostHog ingest API requires snake_case keys */
+            api_key: c.env.POSTHOG_KEY,
+            distinct_id: WORKER_DISTINCT_ID,
+            /* eslint-enable camelcase -- end PostHog key exception */
+            event: 'query_zero_results',
+            properties: {
+              // eslint-disable-next-line camelcase -- PostHog property is snake_case.
+              cache_hit: false,
+              route: '/diplomas',
+              service: WORKER_SERVICE,
+            },
+          }),
+        );
+      }
+
       return c.json(
         { error: 'No diplomas found — authentication may have failed' },
         502,
+      );
+    }
+
+    if (c.env.POSTHOG_KEY && c.env.POSTHOG_HOST) {
+      /* eslint-disable camelcase -- PostHog ingest API requires snake_case keys */
+      c.executionCtx.waitUntil(
+        sendAnalytics(c.env.POSTHOG_HOST, {
+          api_key: c.env.POSTHOG_KEY,
+          distinct_id: WORKER_DISTINCT_ID,
+          /* eslint-enable camelcase -- end PostHog key exception */
+          event: 'catalog_query',
+          properties: {
+            // eslint-disable-next-line camelcase -- PostHog property is snake_case.
+            cache_hit: false,
+            // eslint-disable-next-line camelcase -- PostHog property is snake_case.
+            result_count: diplomas.length,
+            route: '/diplomas',
+            service: WORKER_SERVICE,
+          },
+        }),
       );
     }
 

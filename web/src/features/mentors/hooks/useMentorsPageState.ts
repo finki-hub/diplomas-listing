@@ -1,8 +1,11 @@
+import { posthog } from 'posthog-js';
 import {
   createEffect,
   createMemo,
   createResource,
   createSignal,
+  onCleanup,
+  untrack,
 } from 'solid-js';
 
 import type { SortField } from '../types';
@@ -125,6 +128,26 @@ export const useMentorsPageState = () => {
     });
   });
 
+  createEffect(() => {
+    const q = search();
+
+    if (q.trim().length === 0) return;
+
+    const count = untrack(() => filteredSummaries().length);
+
+    const timer = setTimeout(() => {
+      // eslint-disable-next-line camelcase -- PostHog property names are snake_case.
+      posthog.capture('catalog_search', { query: q, result_count: count });
+      if (count === 0) {
+        posthog.capture('search_zero_results', { query: q });
+      }
+    }, 500);
+
+    onCleanup(() => {
+      clearTimeout(timer);
+    });
+  });
+
   const getBadgeOpacity = (count: number) => {
     const min = 0.3;
     const max = 1;
@@ -143,6 +166,16 @@ export const useMentorsPageState = () => {
   };
 
   const toggleExpanded = (mentor: string) => {
+    const isOpening = expandedMentor() !== mentor;
+
+    if (isOpening) {
+      const position = filteredSummaries().findIndex(
+        (summary) => summary.mentor === mentor,
+      );
+      // eslint-disable-next-line camelcase -- PostHog property names are snake_case.
+      posthog.capture('result_clicked', { position, result_id: mentor });
+    }
+
     setExpandedMentor((previous) => (previous === mentor ? null : mentor));
   };
 
