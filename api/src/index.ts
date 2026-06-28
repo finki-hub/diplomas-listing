@@ -81,7 +81,7 @@ const app = new Hono<{
       caughtError = error;
     }
 
-    if (!c.env.POSTHOG_KEY) {
+    if (!c.env.POSTHOG_KEY || !c.env.POSTHOG_HOST) {
       if (caughtError !== undefined) {
         // eslint-disable-next-line @typescript-eslint/only-throw-error -- re-throwing an unknown caught value.
         throw caughtError;
@@ -163,7 +163,7 @@ const app = new Hono<{
     const cachedResponse = await cache.match(CACHE_KEY);
 
     if (cachedResponse) {
-      if (c.env.POSTHOG_KEY) {
+      if (c.env.POSTHOG_KEY && c.env.POSTHOG_HOST) {
         /* eslint-disable camelcase -- PostHog ingest API requires snake_case keys */
         c.executionCtx.waitUntil(
           sendAnalytics(c.env.POSTHOG_HOST, {
@@ -190,7 +190,7 @@ const app = new Hono<{
     const diplomas = parseDiplomas(diplomasHtml);
 
     if (diplomas.length === 0) {
-      if (c.env.POSTHOG_KEY) {
+      if (c.env.POSTHOG_KEY && c.env.POSTHOG_HOST) {
         c.executionCtx.waitUntil(
           sendAnalytics(c.env.POSTHOG_HOST, {
             /* eslint-disable camelcase -- PostHog ingest API requires snake_case keys */
@@ -214,7 +214,7 @@ const app = new Hono<{
       );
     }
 
-    if (c.env.POSTHOG_KEY) {
+    if (c.env.POSTHOG_KEY && c.env.POSTHOG_HOST) {
       /* eslint-disable camelcase -- PostHog ingest API requires snake_case keys */
       c.executionCtx.waitUntil(
         sendAnalytics(c.env.POSTHOG_HOST, {

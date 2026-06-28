@@ -6,13 +6,7 @@ const DEFAULT_POSTHOG_KEY = 'phc_xXEqLMnYeDPuXA6HHwuasQMdSufDGryS8vZZuHmu9Qwd';
 const DEFAULT_POSTHOG_HOST = 'https://eu.i.posthog.com';
 
 export const initAnalytics = () => {
-  const key = import.meta.env.VITE_POSTHOG_KEY ?? DEFAULT_POSTHOG_KEY;
-
-  if (!key) {
-    return;
-  }
-
-  posthog.init(key, {
+  posthog.init(import.meta.env.VITE_POSTHOG_KEY ?? DEFAULT_POSTHOG_KEY, {
     // eslint-disable-next-line camelcase -- posthog-js option keys are snake_case.
     api_host: import.meta.env.VITE_POSTHOG_HOST ?? DEFAULT_POSTHOG_HOST,
     autocapture: true,
