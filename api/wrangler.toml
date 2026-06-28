@@ -5,7 +5,7 @@ compatibility_flags = ["nodejs_compat"]
 workers_dev = false
 
 [vars]
-POSTHOG_KEY = "phc_xXEqLMnYeDPuXA6HHwuasQMdSufDGryS8vZZuHmu9Qwd"
+# POSTHOG_KEY is supplied at deploy (e.g. `wrangler secret put POSTHOG_KEY`) to enable analytics; absent = off.
 POSTHOG_HOST = "https://eu.i.posthog.com"
 
 [placement]
