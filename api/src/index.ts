@@ -90,6 +90,15 @@ const app = new Hono<{
 
     const ms = Date.now() - start;
     const { pathname } = new URL(c.req.url);
+    const status = caughtError === undefined ? c.res.status : 500;
+    let outcome: string;
+    if (status < 400) {
+      outcome = 'ok';
+    } else if (status < 500) {
+      outcome = 'client_error';
+    } else {
+      outcome = 'server_error';
+    }
 
     const payload = {
       /* eslint-disable camelcase -- PostHog ingest API requires these keys */
@@ -101,12 +110,32 @@ const app = new Hono<{
         ms,
         path: pathname,
         service: WORKER_SERVICE,
-        status: caughtError === undefined ? c.res.status : 500,
+        status,
       },
     };
 
     // waitUntil: fire-and-forget, off the synchronous CPU budget (free-plan 10ms cap).
     c.executionCtx.waitUntil(sendAnalytics(c.env.POSTHOG_HOST, payload));
+
+    /* eslint-disable camelcase -- PostHog ingest API requires these keys */
+    c.executionCtx.waitUntil(
+      sendAnalytics(c.env.POSTHOG_HOST, {
+        api_key: c.env.POSTHOG_KEY,
+        distinct_id: WORKER_DISTINCT_ID,
+        /* eslint-enable camelcase -- end PostHog key exception */
+        event: 'request_completed',
+        properties: {
+          // eslint-disable-next-line camelcase -- PostHog property is snake_case.
+          duration_ms: ms,
+          method: c.req.method,
+          outcome,
+          // eslint-disable-next-line @typescript-eslint/no-deprecated -- hono/route routePath has a context generic mismatch; c.req.routePath is equivalent.
+          route: c.req.routePath,
+          service: WORKER_SERVICE,
+          status,
+        },
+      }),
+    );
 
     if (caughtError !== undefined) {
       /* eslint-disable camelcase -- PostHog ingest API requires these keys */
