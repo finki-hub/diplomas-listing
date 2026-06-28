@@ -137,7 +137,10 @@ const app = new Hono<{
                   caughtError instanceof Error
                     ? caughtError.constructor.name
                     : 'UnknownError',
-                value: '(metadata only)',
+                value:
+                  caughtError instanceof Error
+                    ? caughtError.message
+                    : JSON.stringify(caughtError),
               },
             ],
             path: pathname,
