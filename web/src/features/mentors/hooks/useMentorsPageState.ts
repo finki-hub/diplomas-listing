@@ -136,6 +136,7 @@ export const useMentorsPageState = () => {
 
     if (q.trim().length === 0) return;
 
+    // untrack keeps filteredSummaries non-reactive so this effect re-runs only on search() changes.
     const count = untrack(() => filteredSummaries().length);
 
     const timer = setTimeout(() => {
