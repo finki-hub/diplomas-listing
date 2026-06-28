@@ -53,9 +53,7 @@ const sendAnalytics = async (host: string, payload: unknown): Promise<void> => {
       headers: { 'content-type': 'application/json' },
       method: 'POST',
     });
-  } catch {
-    // Analytics is best-effort; never let it surface to the request.
-  }
+  } catch {} // eslint-disable-line no-empty -- analytics is best-effort
 };
 
 const app = new Hono<{
@@ -107,8 +105,7 @@ const app = new Hono<{
       },
     };
 
-    // Both waitUntil calls below are fire-and-forget: they never block the
-    // response and do not count against the Worker's synchronous CPU budget.
+    // waitUntil: fire-and-forget, off the synchronous CPU budget (free-plan 10ms cap).
     c.executionCtx.waitUntil(sendAnalytics(c.env.POSTHOG_HOST, payload));
 
     if (caughtError !== undefined) {

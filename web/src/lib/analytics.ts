@@ -1,7 +1,5 @@
 import { posthog } from 'posthog-js';
 
-// Public, write-only browser ingest key. Safe to commit and ship in the bundle,
-// mirroring the API's wrangler.toml [vars]. Override locally via VITE_POSTHOG_*.
 const DEFAULT_POSTHOG_KEY = 'phc_xXEqLMnYeDPuXA6HHwuasQMdSufDGryS8vZZuHmu9Qwd';
 const DEFAULT_POSTHOG_HOST = 'https://eu.i.posthog.com';
 

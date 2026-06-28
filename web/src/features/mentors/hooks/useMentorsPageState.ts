@@ -128,15 +128,11 @@ export const useMentorsPageState = () => {
     });
   });
 
-  // Debounced catalog_search / search_zero_results — fires 500 ms after the
-  // user stops typing, not on every keystroke. Only tracks when a non-empty
-  // text query is present; filter-only changes are excluded via untrack.
   createEffect(() => {
     const q = search();
 
     if (q.trim().length === 0) return;
 
-    // untrack keeps filteredSummaries non-reactive so this effect re-runs only on search() changes.
     const count = untrack(() => filteredSummaries().length);
 
     const timer = setTimeout(() => {
