@@ -1,8 +1,11 @@
+import { posthog } from 'posthog-js';
 import {
   createEffect,
   createMemo,
   createResource,
   createSignal,
+  onCleanup,
+  untrack,
 } from 'solid-js';
 
 import type { SortField } from '../types';
@@ -125,6 +128,31 @@ export const useMentorsPageState = () => {
     });
   });
 
+  // Debounced catalog_search / search_zero_results — fires 500 ms after the
+  // user stops typing, not on every keystroke. Only tracks when a non-empty
+  // text query is present; filter-only changes are excluded via untrack.
+  createEffect(() => {
+    const q = search();
+
+    if (q.trim().length === 0) return;
+
+    // Read the count after the early exit; untrack prevents filteredSummaries
+    // from becoming a reactive dep so this effect only re-runs on search() changes.
+    const count = untrack(() => filteredSummaries().length);
+
+    const timer = setTimeout(() => {
+      // eslint-disable-next-line camelcase -- PostHog property names are snake_case.
+      posthog.capture('catalog_search', { query: q, result_count: count });
+      if (count === 0) {
+        posthog.capture('search_zero_results', { query: q });
+      }
+    }, 500);
+
+    onCleanup(() => {
+      clearTimeout(timer);
+    });
+  });
+
   const getBadgeOpacity = (count: number) => {
     const min = 0.3;
     const max = 1;
@@ -143,6 +171,16 @@ export const useMentorsPageState = () => {
   };
 
   const toggleExpanded = (mentor: string) => {
+    const isOpening = expandedMentor() !== mentor;
+
+    if (isOpening) {
+      const position = filteredSummaries().findIndex(
+        (summary) => summary.mentor === mentor,
+      );
+      // eslint-disable-next-line camelcase -- PostHog property names are snake_case.
+      posthog.capture('result_clicked', { position, result_id: mentor });
+    }
+
     setExpandedMentor((previous) => (previous === mentor ? null : mentor));
   };
 

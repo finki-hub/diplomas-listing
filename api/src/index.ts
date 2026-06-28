@@ -21,6 +21,8 @@ type Variables = {
 const CACHE_KEY = 'https://diplomski-api.finki-hub.com/diplomas';
 const DIPLOMA_LIST_CACHE_TTL = 3_600; // 1 hour
 const STATIC_FILE_CACHE_TTL = 31_536_000; // 1 year
+const WORKER_DISTINCT_ID = 'diplomas-api-worker';
+const WORKER_SERVICE = 'diplomas-api';
 
 const createAuthResolver = () => {
   let cached: null | {
@@ -94,13 +96,13 @@ const app = new Hono<{
     const payload = {
       /* eslint-disable camelcase -- PostHog ingest API requires these keys */
       api_key: c.env.POSTHOG_KEY,
-      distinct_id: 'diplomas-api-worker',
+      distinct_id: WORKER_DISTINCT_ID,
       /* eslint-enable camelcase -- end PostHog key exception */
       event: 'diplomas-api_query',
       properties: {
         ms,
         path: pathname,
-        service: 'diplomas-api',
+        service: WORKER_SERVICE,
         status: caughtError === undefined ? c.res.status : 500,
       },
     };
@@ -114,7 +116,7 @@ const app = new Hono<{
       c.executionCtx.waitUntil(
         sendAnalytics(c.env.POSTHOG_HOST, {
           api_key: c.env.POSTHOG_KEY,
-          distinct_id: 'diplomas-api-worker',
+          distinct_id: WORKER_DISTINCT_ID,
           /* eslint-enable camelcase -- end PostHog key exception */
           event: '$exception',
           properties: {
@@ -130,7 +132,7 @@ const app = new Hono<{
               },
             ],
             path: pathname,
-            service: 'diplomas-api',
+            service: WORKER_SERVICE,
           },
         }),
       );
@@ -161,6 +163,24 @@ const app = new Hono<{
     const cachedResponse = await cache.match(CACHE_KEY);
 
     if (cachedResponse) {
+      if (c.env.POSTHOG_KEY) {
+        /* eslint-disable camelcase -- PostHog ingest API requires snake_case keys */
+        c.executionCtx.waitUntil(
+          sendAnalytics(c.env.POSTHOG_HOST, {
+            api_key: c.env.POSTHOG_KEY,
+            distinct_id: WORKER_DISTINCT_ID,
+            /* eslint-enable camelcase -- end PostHog key exception */
+            event: 'catalog_query',
+            properties: {
+              // eslint-disable-next-line camelcase -- PostHog property is snake_case.
+              cache_hit: true,
+              route: '/diplomas',
+              service: WORKER_SERVICE,
+            },
+          }),
+        );
+      }
+
       return new Response(cachedResponse.body, cachedResponse);
     }
 
@@ -170,9 +190,47 @@ const app = new Hono<{
     const diplomas = parseDiplomas(diplomasHtml);
 
     if (diplomas.length === 0) {
+      if (c.env.POSTHOG_KEY) {
+        c.executionCtx.waitUntil(
+          sendAnalytics(c.env.POSTHOG_HOST, {
+            /* eslint-disable camelcase -- PostHog ingest API requires snake_case keys */
+            api_key: c.env.POSTHOG_KEY,
+            distinct_id: WORKER_DISTINCT_ID,
+            /* eslint-enable camelcase -- end PostHog key exception */
+            event: 'query_zero_results',
+            properties: {
+              // eslint-disable-next-line camelcase -- PostHog property is snake_case.
+              cache_hit: false,
+              route: '/diplomas',
+              service: WORKER_SERVICE,
+            },
+          }),
+        );
+      }
+
       return c.json(
         { error: 'No diplomas found — authentication may have failed' },
         502,
+      );
+    }
+
+    if (c.env.POSTHOG_KEY) {
+      /* eslint-disable camelcase -- PostHog ingest API requires snake_case keys */
+      c.executionCtx.waitUntil(
+        sendAnalytics(c.env.POSTHOG_HOST, {
+          api_key: c.env.POSTHOG_KEY,
+          distinct_id: WORKER_DISTINCT_ID,
+          /* eslint-enable camelcase -- end PostHog key exception */
+          event: 'catalog_query',
+          properties: {
+            // eslint-disable-next-line camelcase -- PostHog property is snake_case.
+            cache_hit: false,
+            // eslint-disable-next-line camelcase -- PostHog property is snake_case.
+            result_count: diplomas.length,
+            route: '/diplomas',
+            service: WORKER_SERVICE,
+          },
+        }),
       );
     }
 
