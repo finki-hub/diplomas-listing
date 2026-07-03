@@ -1,6 +1,6 @@
 import { Service } from 'finki-auth';
 
-import type { AuthManager } from '@/auth.js';
+import type { AuthManager } from '../../api/src/auth.js';
 
 const MASTERS_LIST_URL = 'https://magisterski.finki.ukim.mk/list-master-thesis';
 
