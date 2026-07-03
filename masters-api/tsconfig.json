@@ -25,6 +25,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "outDir": "dist",
+    "preserveSymlinks": true,
     "resolveJsonModule": true,
     "strict": true,
     "target": "ESNext",
