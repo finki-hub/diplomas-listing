@@ -52,7 +52,11 @@ const MentorRow = (props: MentorListItemProps) => (
           class="p-0 whitespace-normal"
           colSpan={3}
         >
-          <DiplomaDetailsTable diplomas={props.summary.filteredDiplomas} />
+          <DiplomaDetailsTable
+            diplomas={props.summary.filteredDiplomas}
+            getStatusOpacity={props.getStatusOpacity}
+            showFileColumn={props.showFileColumn}
+          />
         </TableCell>
       </TableRow>
     </Show>

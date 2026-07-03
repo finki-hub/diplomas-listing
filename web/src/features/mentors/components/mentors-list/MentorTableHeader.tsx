@@ -1,10 +1,10 @@
 import { TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
-import type { SortControlsProps } from './types';
+import type { MentorTableHeaderProps } from './types';
 
 import SortIcon from './SortIcon';
 
-const MentorTableHeader = (props: SortControlsProps) => (
+const MentorTableHeader = (props: MentorTableHeaderProps) => (
   <TableHeader>
     <TableRow>
       <TableHead class="w-12.5 text-center">#</TableHead>
@@ -30,7 +30,7 @@ const MentorTableHeader = (props: SortControlsProps) => (
             props.onSort('totalDiplomas');
           }}
         >
-          Дипломски трудови
+          {props.countHeaderLabel}
           <SortIcon
             currentDirection={props.sortDirection}
             currentField={props.sortField}

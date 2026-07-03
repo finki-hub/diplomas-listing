@@ -10,9 +10,20 @@ permissions:
 
 jobs:
   deploy:
-    uses: finki-hub/.github/.github/workflows/cloudflare-pages.yaml@main
-    with:
-      working-directory: web
-      project-name: finki-hub-diplomas-listing
-      directory: dist
-    secrets: inherit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - run: npm run build --workspace diplomas-listing-web
+        env:
+          VITE_POSTHOG_KEY: ${{ vars.VITE_POSTHOG_KEY }}
+      - uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy web/dist --project-name=finki-hub-diplomas-listing

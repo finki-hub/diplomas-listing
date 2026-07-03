@@ -1,0 +1,18 @@
+{
+  "private": true,
+  "workspaces": [
+    "api",
+    "masters-api",
+    "web"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace diplomas-listing-web",
+    "check:api": "npm run check --workspace diplomas-listing-api",
+    "check:masters-api": "npm run check --workspace diplomas-listing-masters-api",
+    "check:web": "npm run check --workspace diplomas-listing-web",
+    "dev": "npm run dev --workspace diplomas-listing-web --",
+    "lint:api": "npm run lint --workspace diplomas-listing-api",
+    "lint:masters-api": "npm run lint --workspace diplomas-listing-masters-api",
+    "lint:web": "npm run lint --workspace diplomas-listing-web"
+  }
+}

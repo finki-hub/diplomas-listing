@@ -1,4 +1,4 @@
-name: Lint API
+name: Lint Masters API
 
 on:
   push:
@@ -21,10 +21,7 @@ jobs:
           cache: npm
           cache-dependency-path: package-lock.json
       - run: npm ci
-      - uses: finki-hub/.github/.github/actions/problem-matchers@main
-        with:
-          tool: tsc
-      - run: npm run check:api
+      - run: npm run check:masters-api
 
   eslint:
     runs-on: ubuntu-latest
@@ -36,7 +33,4 @@ jobs:
           cache: npm
           cache-dependency-path: package-lock.json
       - run: npm ci
-      - uses: finki-hub/.github/.github/actions/problem-matchers@main
-        with:
-          tool: eslint
-      - run: npm run lint:api
+      - run: npm run lint:masters-api

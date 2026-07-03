@@ -1,4 +1,4 @@
-import { Show } from 'solid-js';
+import { createEffect, Show } from 'solid-js';
 
 import {
   Card,
@@ -12,36 +12,52 @@ import MentorsList from '@/features/mentors/components/MentorsList';
 import MentorsPageHeader from '@/features/mentors/components/MentorsPageHeader';
 import MentorsStatsCards from '@/features/mentors/components/MentorsStatsCards';
 import MentorsToolbar from '@/features/mentors/components/MentorsToolbar';
+import SectionSwitch from '@/features/mentors/components/SectionSwitch';
 import { useMentorsPageState } from '@/features/mentors/hooks/useMentorsPageState';
+import { type SectionConfig } from '@/features/mentors/section';
 
-export default function MentorsPage() {
-  const state = useMentorsPageState();
+type MentorsPageProps = {
+  readonly config: SectionConfig;
+};
+
+export default function MentorsPage(props: MentorsPageProps) {
+  // eslint-disable-next-line solid/reactivity -- each section mounts its own MentorsPage instance, so the config never changes within a mount.
+  const state = useMentorsPageState(props.config);
+
+  createEffect(() => {
+    document.title = props.config.strings.headerTitle;
+  });
 
   return (
     <div class="min-h-screen bg-background">
-      <MentorsPageHeader />
+      <MentorsPageHeader title={props.config.strings.headerTitle} />
 
       <main class="container mx-auto py-6 sm:py-8">
+        <div class="mb-6">
+          <SectionSwitch active={props.config.id} />
+        </div>
+
         <MentorsStatsCards
+          countLabel={props.config.strings.countLabel}
           loading={state.diplomas.loading}
           median={state.medianDiplomas()}
           topTenDiplomasCount={state.topTenDiplomasCount()}
           topTenMentorsShare={state.topTenMentorsShare()}
           totalDiplomas={state.totalDiplomasCount()}
           totalMentors={state.totalMentorsCount()}
+          totalThesesLabel={props.config.strings.totalThesesLabel}
         />
 
         <Card class="overflow-hidden">
           <CardHeader class="px-4 sm:px-6">
-            <CardTitle>Ментори и дипломски трудови</CardTitle>
+            <CardTitle>{props.config.strings.cardTitle}</CardTitle>
             <CardDescription>
-              Преглед на сите ментори и нивните дипломски трудови. Кликнете на
-              ред за да ги видите деталите. Податоците се ажурираат на секој
-              час.
+              {props.config.strings.cardDescription}
             </CardDescription>
           </CardHeader>
           <CardContent class="px-4 pb-6 sm:px-6">
             <MentorsToolbar
+              countLabel={props.config.strings.countLabel}
               filteredDiplomasCount={state.filteredDiplomasCount()}
               filteredMentorsCount={state.filteredSummaries().length}
               lastUpdatedAt={state.lastUpdatedAt()}
@@ -79,11 +95,14 @@ export default function MentorsPage() {
                 expandedMentor={state.expandedMentor()}
                 filteredSummaries={state.filteredSummaries()}
                 getBadgeOpacity={state.getBadgeOpacity}
+                getStatusOpacity={state.getStatusOpacity}
                 hasActiveFilters={state.hasActiveFilters()}
                 onSort={state.handleSort}
                 onToggle={state.toggleExpanded}
+                showFileColumn={props.config.showFileColumn}
                 sortDirection={state.sortDirection()}
                 sortField={state.sortField()}
+                tableCountHeader={props.config.strings.tableCountHeader}
               />
             </Show>
           </CardContent>

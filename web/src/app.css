@@ -178,6 +178,9 @@
 
   html {
     scroll-behavior: smooth;
+    /* Reserve the scrollbar gutter so short-lived loading states (e.g. when
+       switching sections) don't cause a horizontal layout shift. */
+    scrollbar-gutter: stable;
   }
 
   body {
