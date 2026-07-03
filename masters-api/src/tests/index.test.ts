@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { AuthManager } from '../auth.js';
+import { AuthManager } from '../../../api/src/auth.js';
 import { fetchMastersListPage } from '../fetch.js';
 import { parseMasterTheses } from '../utils.js';
 
@@ -21,6 +21,31 @@ const getCredentials = (): null | { password: string; username: string } => {
 describe('Masters E2E', () => {
   it('defines credential lookup for optional e2e tests', () => {
     expect(typeof getCredentials).toBe('function');
+  });
+
+  it('parses text without preserving encoded HTML delimiters', () => {
+    const theses = parseMasterTheses(`
+      <div class="row rounded border m-4">
+        <h5>&lt;scrip&lt;script&gt;removed&lt;/script&gt;t&gt;Clean title&lt;/script&gt;</h5>
+        <table>
+          <tr><td>Студент</td><td><span>123456</span> - <span>Test Student</span></td></tr>
+          <tr><td>Ментор</td><td>д-р Test Mentor</td></tr>
+          <tr><td>Претседател</td><td>проф. Test President</td></tr>
+          <tr><td>Член</td><td>доц. Test Member</td></tr>
+          <tr><td>Датум на презентирање</td><td>03.07.2026 11:00</td></tr>
+          <tr><td>Статус</td><td>12. Архивирање</td></tr>
+          <tr><td>Краток опис</td><td>&lt;script&gt;not markup&lt;/script&gt;</td></tr>
+        </table>
+      </div>
+    `);
+
+    expect(theses).toHaveLength(1);
+    expect(theses[0]?.title).not.toContain('<');
+    expect(theses[0]?.title).not.toContain('>');
+    expect(theses[0]?.description).not.toContain('<script');
+    expect(theses[0]?.student).toBe('123456 - Test Student');
+    expect(theses[0]?.mentor).toBe('Test Mentor');
+    expect(theses[0]?.dateOfPresentation).toBe('03.07.2026');
   });
 
   it.skipIf(!getCredentials())(

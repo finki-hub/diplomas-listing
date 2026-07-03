@@ -17,10 +17,10 @@ type TableRow = {
 const ROW_REGEX = /<tr[^>]*>(?<content>[\s\S]*?)<\/tr>/giu;
 const CELL_REGEX = /<td[^>]*>(?<cell>[\s\S]*?)<\/td>/giu;
 const TITLE_REGEX = /<h5[^>]*>(?<heading>[\s\S]*?)<\/h5>/iu;
-const TAG_REGEX = /<[^<>]*>/gu;
 const ENTITY_REGEX =
   /&(?:#x(?<hex>[\da-f]+)|#(?<dec>\d+)|(?<named>[a-z]+));/giu;
 const MAX_CODE_POINT = 0x10_ff_ff;
+const HTML_DELIMITER_REGEX = /[<>]/gu;
 
 // Names come prefixed with academic titles ("вонр. проф. д-р Име Презиме");
 // the diplomas listing serves bare names, so strip them for parity.
@@ -58,10 +58,28 @@ const decodeEntities = (value: string): string =>
     return NAMED_ENTITIES[groups.named?.toLowerCase() ?? ''] ?? match;
   });
 
+const stripHtmlTags = (html: string): string => {
+  let text = '';
+  let insideTag = false;
+
+  for (const char of html) {
+    if (char === '<') {
+      insideTag = true;
+    } else if (char === '>') {
+      insideTag = false;
+    } else if (!insideTag) {
+      text += char;
+    }
+  }
+
+  return text;
+};
+
 // Collapsing whitespace also fuses the student cell's separate
 // <span>index</span> - <span>name</span> spans into "index - name".
 const toText = (html: string): string =>
-  decodeEntities(html.replaceAll(TAG_REGEX, ''))
+  decodeEntities(stripHtmlTags(html))
+    .replaceAll(HTML_DELIMITER_REGEX, '')
     .replaceAll(/\s+/gu, ' ')
     .trim();
 
