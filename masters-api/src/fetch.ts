@@ -1,6 +1,6 @@
-import { Service } from 'finki-auth';
+import type { AuthManager } from 'diplomas-listing-api/src/auth.js';
 
-import type { AuthManager } from '../../api/src/auth.js';
+import { Service } from 'finki-auth';
 
 const MASTERS_LIST_URL = 'https://magisterski.finki.ukim.mk/list-master-thesis';
 

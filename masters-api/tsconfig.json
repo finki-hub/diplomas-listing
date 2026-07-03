@@ -26,7 +26,6 @@
     "noUnusedParameters": true,
     "outDir": "dist",
     "resolveJsonModule": true,
-    "rootDir": "..",
     "strict": true,
     "target": "ESNext",
     "paths": {

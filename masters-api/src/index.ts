@@ -1,10 +1,11 @@
+import type { AuthManager } from 'diplomas-listing-api/src/auth.js';
+
+import { createCatalogApp } from 'diplomas-listing-api/src/catalog-app.js';
+
 import type { MasterThesis } from '@/utils.js';
 
 import { fetchMastersListPage, PAGE_SIZE } from '@/fetch.js';
 
-import type { AuthManager } from '../../api/src/auth.js';
-
-import { createCatalogApp } from '../../api/src/catalog-app.js';
 import { parseMasterTheses } from './utils.js';
 
 const CACHE_KEY = 'https://magisterski-api.finki-hub.com/masters';

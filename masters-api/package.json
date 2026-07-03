@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "diplomas-listing-api": "file:../api",
     "finki-auth": "^3.0.0",
     "hono": "^4.12.27"
   },

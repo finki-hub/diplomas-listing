@@ -1,6 +1,6 @@
+import { AuthManager } from 'diplomas-listing-api/src/auth.js';
 import { describe, expect, it } from 'vitest';
 
-import { AuthManager } from '../../../api/src/auth.js';
 import { fetchMastersListPage } from '../fetch.js';
 import { parseMasterTheses } from '../utils.js';
 
