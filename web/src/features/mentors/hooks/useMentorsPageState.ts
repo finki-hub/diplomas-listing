@@ -10,11 +10,14 @@ import {
 
 import type { SortField } from '../types';
 
-import { fetchDiplomas } from '../api';
 import {
   getInitialMentorsPageState,
   syncMentorsSearchParams,
 } from '../query-state';
+import {
+  getStatusOpacity as getSectionStatusOpacity,
+  type SectionConfig,
+} from '../section';
 import {
   buildFilteredSummaries,
   buildStatusOptions,
@@ -24,12 +27,12 @@ import {
 } from '../selectors';
 import { aggregateByMentor } from '../utils';
 
-export const useMentorsPageState = () => {
+export const useMentorsPageState = (config: SectionConfig) => {
   const initialState = getInitialMentorsPageState();
 
   const [lastUpdatedAt, setLastUpdatedAt] = createSignal<null | string>(null);
   const [diplomas] = createResource(async () => {
-    const nextDiplomas = await fetchDiplomas();
+    const nextDiplomas = await config.fetchTheses();
     // eslint-disable-next-line unicorn/prefer-temporal -- Temporal is not yet available in the target browsers and the project ships no polyfill.
     setLastUpdatedAt(new Date().toISOString());
     return nextDiplomas;
@@ -73,7 +76,9 @@ export const useMentorsPageState = () => {
       0,
     ),
   );
-  const statusOptions = createMemo(() => buildStatusOptions(diplomas()));
+  const statusOptions = createMemo(() =>
+    buildStatusOptions(diplomas(), config.getStatusStage),
+  );
   const yearOptions = createMemo(() => buildYearOptions(diplomas()));
   const medianDiplomas = createMemo(() =>
     calculateMedianDiplomas(mentorSummaries()),
@@ -136,10 +141,17 @@ export const useMentorsPageState = () => {
     const count = untrack(() => filteredSummaries().length);
 
     const timer = setTimeout(() => {
-      // eslint-disable-next-line camelcase -- PostHog property names are snake_case.
-      posthog.capture('catalog_search', { query: q, result_count: count });
+      posthog.capture('catalog_search', {
+        query: q,
+        // eslint-disable-next-line camelcase -- PostHog property names are snake_case.
+        result_count: count,
+        section: config.id,
+      });
       if (count === 0) {
-        posthog.capture('search_zero_results', { query: q });
+        posthog.capture('search_zero_results', {
+          query: q,
+          section: config.id,
+        });
       }
     }, 500);
 
@@ -154,6 +166,9 @@ export const useMentorsPageState = () => {
 
     return min + (count / maxDiplomas()) * (max - min);
   };
+
+  const getStatusOpacity = (status: string) =>
+    getSectionStatusOpacity(config, status);
 
   const handleSort = (field: SortField) => {
     if (sortField() === field) {
@@ -172,8 +187,12 @@ export const useMentorsPageState = () => {
       const position = filteredSummaries().findIndex(
         (summary) => summary.mentor === mentor,
       );
-      // eslint-disable-next-line camelcase -- PostHog property names are snake_case.
-      posthog.capture('result_clicked', { position, result_id: mentor });
+      posthog.capture('result_clicked', {
+        position,
+        // eslint-disable-next-line camelcase -- PostHog property names are snake_case.
+        result_id: mentor,
+        section: config.id,
+      });
     }
 
     setExpandedMentor((previous) => (previous === mentor ? null : mentor));
@@ -185,6 +204,7 @@ export const useMentorsPageState = () => {
     filteredDiplomasCount,
     filteredSummaries,
     getBadgeOpacity,
+    getStatusOpacity,
     handleSort,
     hasActiveFilters,
     lastUpdatedAt,

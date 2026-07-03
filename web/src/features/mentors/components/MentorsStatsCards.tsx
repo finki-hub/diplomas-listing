@@ -8,12 +8,14 @@ import {
 } from '@/components/ui/card';
 
 type MentorsStatsCardsProps = {
+  countLabel: string;
   loading: boolean;
   median: number;
   topTenDiplomasCount: number;
   topTenMentorsShare: number;
   totalDiplomas: number;
   totalMentors: number;
+  totalThesesLabel: string;
 };
 
 type StatCardProps = {
@@ -48,7 +50,7 @@ const MentorsStatsCards = (props: MentorsStatsCardsProps) => (
       value={props.totalMentors}
     />
     <StatCard
-      description="Вкупно дипломски"
+      description={props.totalThesesLabel}
       loading={props.loading}
       value={props.totalDiplomas}
     />
@@ -70,7 +72,8 @@ const MentorsStatsCards = (props: MentorsStatsCardsProps) => (
       description="Удел на топ 10 ментори"
       footer={
         <CardDescription>
-          {props.topTenDiplomasCount} од {props.totalDiplomas} дипломски
+          {props.topTenDiplomasCount} од {props.totalDiplomas}{' '}
+          {props.countLabel}
         </CardDescription>
       }
       loading={props.loading}

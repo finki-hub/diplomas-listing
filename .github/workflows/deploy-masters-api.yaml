@@ -1,0 +1,16 @@
+name: Deploy Masters API to Cloudflare Workers
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    uses: finki-hub/.github/.github/workflows/cloudflare-workers.yaml@main
+    with:
+      working-directory: masters-api
+    secrets: inherit

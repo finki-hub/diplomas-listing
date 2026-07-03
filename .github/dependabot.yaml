@@ -5,6 +5,10 @@ updates:
     schedule:
       interval: "daily"
   - package-ecosystem: "npm"
+    directory: "/masters-api"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "npm"
     directory: "/web"
     schedule:
       interval: "daily"

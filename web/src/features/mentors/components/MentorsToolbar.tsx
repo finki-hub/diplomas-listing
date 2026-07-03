@@ -3,6 +3,7 @@ import { For } from 'solid-js';
 import MentorsSearchInput from './MentorsSearchInput';
 
 type MentorsToolbarProps = {
+  countLabel: string;
   filteredDiplomasCount: number;
   filteredMentorsCount: number;
   lastUpdatedAt: null | string;
@@ -90,7 +91,7 @@ const MentorsToolbar = (props: MentorsToolbarProps) => (
       <div>
         Прикажани {props.filteredMentorsCount} од {props.totalMentorsCount}{' '}
         ментори · {props.filteredDiplomasCount} од {props.totalDiplomasCount}{' '}
-        дипломски
+        {props.countLabel}
       </div>
       <div>Последно освежување: {formatLastUpdatedAt(props.lastUpdatedAt)}</div>
     </div>

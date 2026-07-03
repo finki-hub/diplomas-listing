@@ -14,7 +14,11 @@ const GitHubIcon = () => (
   </svg>
 );
 
-const MentorsPageHeader = () => (
+type MentorsPageHeaderProps = {
+  title: string;
+};
+
+const MentorsPageHeader = (props: MentorsPageHeaderProps) => (
   <div class="border-b">
     <div class="container mx-auto flex min-h-16 items-center gap-3 py-3 sm:h-16 sm:py-0">
       <img
@@ -23,7 +27,7 @@ const MentorsPageHeader = () => (
         src="/logo.png"
       />
       <h1 class="min-w-0 flex-1 text-base font-bold leading-tight tracking-tight sm:text-xl">
-        ФИНКИ Хаб / Дипломски
+        {props.title}
       </h1>
       <div class="ml-auto flex shrink-0 items-center gap-2">
         <a

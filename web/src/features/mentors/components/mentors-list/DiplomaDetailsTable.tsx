@@ -7,12 +7,12 @@ import DownloadButton from '@/features/mentors/components/mentors-list/DownloadB
 
 import type { DiplomaDetailsTableProps } from './types';
 
-import { getDiplomaFileUrl, getStatusOpacity } from '../../utils';
+import { getDiplomaFileUrl } from '../../utils';
 
-const StatusBadge = (props: { status: string }) => (
+const StatusBadge = (props: { opacity: number; status: string }) => (
   <Badge
     class="whitespace-normal"
-    style={{ opacity: getStatusOpacity(props.status) }}
+    style={{ opacity: props.opacity }}
     variant="default"
   >
     {props.status || '\u{2014}'}
@@ -23,7 +23,11 @@ const DateDisplay = (props: { value: string }) => (
   <>{props.value || '\u{2014}'}</>
 );
 
-const MobileDiplomaCard = (props: { diploma: Diploma }) => (
+const MobileDiplomaCard = (props: {
+  diploma: Diploma;
+  getStatusOpacity: (status: string) => number;
+  showFileColumn: boolean;
+}) => (
   <div class="overflow-hidden rounded-xl border border-border/60 bg-background/80 p-4 shadow-sm">
     <div class="space-y-3 text-sm">
       <div>
@@ -54,7 +58,10 @@ const MobileDiplomaCard = (props: { diploma: Diploma }) => (
             Статус
           </div>
           <div class="mt-1">
-            <StatusBadge status={props.diploma.status} />
+            <StatusBadge
+              opacity={props.getStatusOpacity(props.diploma.status)}
+              status={props.diploma.status}
+            />
           </div>
         </div>
         <div class="min-w-0">
@@ -65,7 +72,7 @@ const MobileDiplomaCard = (props: { diploma: Diploma }) => (
             <DateDisplay value={props.diploma.dateOfSubmission} />
           </div>
         </div>
-        <Show when={props.diploma.fileId !== null}>
+        <Show when={props.showFileColumn && props.diploma.fileId !== null}>
           <div class="min-w-0">
             <div class="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Датотека
@@ -87,7 +94,13 @@ const DiplomaDetailsTable = (props: DiplomaDetailsTableProps) => (
   <div class="bg-muted/30 px-3 py-3 sm:px-8 sm:py-4">
     <div class="space-y-3 sm:hidden">
       <For each={props.diplomas}>
-        {(diploma) => <MobileDiplomaCard diploma={diploma} />}
+        {(diploma) => (
+          <MobileDiplomaCard
+            diploma={diploma}
+            getStatusOpacity={props.getStatusOpacity}
+            showFileColumn={props.showFileColumn}
+          />
+        )}
       </For>
     </div>
 
@@ -98,14 +111,16 @@ const DiplomaDetailsTable = (props: DiplomaDetailsTableProps) => (
           <th class="pb-2 text-left font-medium">Наслов</th>
           <th class="pb-2 text-left font-medium">Статус</th>
           <th class="pb-2 text-left font-medium">Датум</th>
-          <th class="pb-2 text-left font-medium">Датотека</th>
+          <Show when={props.showFileColumn}>
+            <th class="pb-2 text-left font-medium">Датотека</th>
+          </Show>
         </tr>
       </thead>
       <tbody>
         <For each={props.diplomas}>
           {(diploma) => (
             <tr class="border-b border-border/50 last:border-0">
-              <td class="py-2 pr-4">{diploma.student}</td>
+              <td class="py-2 pr-4 whitespace-nowrap">{diploma.student}</td>
               <td
                 class="max-w-xs py-2 pr-4 truncate"
                 title={diploma.title}
@@ -113,14 +128,19 @@ const DiplomaDetailsTable = (props: DiplomaDetailsTableProps) => (
                 {diploma.title}
               </td>
               <td class="py-2 pr-4">
-                <StatusBadge status={diploma.status} />
+                <StatusBadge
+                  opacity={props.getStatusOpacity(diploma.status)}
+                  status={diploma.status}
+                />
               </td>
-              <td class="py-2 text-muted-foreground">
+              <td class="py-2 whitespace-nowrap text-muted-foreground">
                 <DateDisplay value={diploma.dateOfSubmission} />
               </td>
-              <td class="py-2 text-center">
-                <DownloadButton url={getDiplomaFileUrl(diploma.fileId)} />
-              </td>
+              <Show when={props.showFileColumn}>
+                <td class="py-2 text-center">
+                  <DownloadButton url={getDiplomaFileUrl(diploma.fileId)} />
+                </td>
+              </Show>
             </tr>
           )}
         </For>

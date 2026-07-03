@@ -3,7 +3,6 @@ import type { Diploma, MentorSummary } from '@/types';
 import type { FilteredMentorSummary, SortDirection, SortField } from './types';
 
 import {
-  getStatusStage,
   getSubmissionYear,
   matchesNormalizedSearch,
   normalizeSearchText,
@@ -105,7 +104,10 @@ export const buildFilteredSummaries = (options: {
   );
 };
 
-export const buildStatusOptions = (diplomaData: Diploma[] | undefined) =>
+export const buildStatusOptions = (
+  diplomaData: Diploma[] | undefined,
+  getStatusStage: (status: string) => null | number,
+) =>
   [...new Set((diplomaData ?? []).map((diploma) => diploma.status))].sort(
     (a, b) => {
       const stageA = getStatusStage(a) ?? Number.MAX_SAFE_INTEGER;

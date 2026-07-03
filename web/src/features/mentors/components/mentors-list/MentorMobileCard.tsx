@@ -51,7 +51,11 @@ const MentorMobileCard = (props: MentorListItemProps) => (
 
     <Show when={props.expanded}>
       <div class="border-t border-border/60 bg-muted/20">
-        <DiplomaDetailsTable diplomas={props.summary.filteredDiplomas} />
+        <DiplomaDetailsTable
+          diplomas={props.summary.filteredDiplomas}
+          getStatusOpacity={props.getStatusOpacity}
+          showFileColumn={props.showFileColumn}
+        />
       </div>
     </Show>
   </Card>

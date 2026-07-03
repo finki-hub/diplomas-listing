@@ -1,8 +1,9 @@
 import type { Diploma, MentorSummary } from '@/types';
 
-import { DIPLOMAS_FILE_URL, STATUS_STAGES } from './constants';
+import { DIPLOMAS_FILE_URL } from './constants';
 
 const SUBMISSION_YEAR_REGEX = /^\d{4}$/u;
+const WHITESPACE_REGEX = /\s+/u;
 
 export const aggregateByMentor = (diplomas: Diploma[]): MentorSummary[] => {
   const mentorMap = new Map<string, Diploma[]>();
@@ -26,29 +27,11 @@ export const aggregateByMentor = (diplomas: Diploma[]): MentorSummary[] => {
   })).sort((a, b) => b.totalDiplomas - a.totalDiplomas);
 };
 
-const findStatusStage = (status: string): number | undefined => {
-  const lower = status.toLowerCase();
-
-  for (const [keyword, stage] of STATUS_STAGES) {
-    if (lower.includes(keyword)) {
-      return stage;
-    }
-  }
-
-  return undefined;
-};
-
-export const getStatusOpacity = (status: string): number => {
-  const stage = findStatusStage(status);
-
-  return stage === undefined ? 0.3 : 0.3 + (stage / 9) * 0.7;
-};
-
-export const getStatusStage = (status: string): null | number =>
-  findStatusStage(status) ?? null;
-
 export const getSubmissionYear = (value: string): null | string => {
-  const parts = value.split('.').filter(Boolean);
+  // Masters dates carry a time suffix ("03.07.2026 11:00"); the year lives in
+  // the leading date token.
+  const datePart = value.trim().split(WHITESPACE_REGEX, 1)[0] ?? '';
+  const parts = datePart.split('.').filter(Boolean);
   if (parts.length !== 3) return null;
 
   const year = parts[2]?.trim();

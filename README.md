@@ -1,6 +1,6 @@
 # FINKI Hub / Diplomas Listing
 
-A web dashboard for browsing diploma theses and their mentors at FCSE, also with statistics.
+A web dashboard for browsing diploma and master's theses and their mentors at FCSE, also with statistics.
 
 ## Development
 

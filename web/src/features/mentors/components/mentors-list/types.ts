@@ -15,14 +15,18 @@ export type DiplomaCountBadgeProps = {
 
 export type DiplomaDetailsTableProps = {
   diplomas: Diploma[];
+  getStatusOpacity: (status: string) => number;
+  showFileColumn: boolean;
 };
 
 export type MentorListItemProps = {
   expanded: boolean;
   getBadgeOpacity: (count: number) => number;
+  getStatusOpacity: (status: string) => number;
   hasActiveFilters: boolean;
   index: number;
   onToggle: () => void;
+  showFileColumn: boolean;
   summary: FilteredMentorSummary;
 };
 
@@ -30,11 +34,18 @@ export type MentorsListProps = {
   expandedMentor: null | string;
   filteredSummaries: FilteredMentorSummary[];
   getBadgeOpacity: (count: number) => number;
+  getStatusOpacity: (status: string) => number;
   hasActiveFilters: boolean;
   onSort: (field: SortField) => void;
   onToggle: (mentor: string) => void;
+  showFileColumn: boolean;
   sortDirection: SortDirection;
   sortField: SortField;
+  tableCountHeader: string;
+};
+
+export type MentorTableHeaderProps = SortControlsProps & {
+  countHeaderLabel: string;
 };
 
 export type SortControlsProps = {
