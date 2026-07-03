@@ -12,13 +12,31 @@ permissions:
 
 jobs:
   tsc:
-    uses: finki-hub/.github/.github/workflows/tsc.yaml@main
-    with:
-      working-directory: api
-    secrets: inherit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - uses: finki-hub/.github/.github/actions/problem-matchers@main
+        with:
+          tool: tsc
+      - run: npm run check:api
 
   eslint:
-    uses: finki-hub/.github/.github/workflows/eslint.yaml@main
-    with:
-      working-directory: api
-    secrets: inherit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - uses: finki-hub/.github/.github/actions/problem-matchers@main
+        with:
+          tool: eslint
+      - run: npm run lint:api
