@@ -17,7 +17,7 @@ import { useMentorsPageState } from '@/features/mentors/hooks/useMentorsPageStat
 import { type SectionConfig } from '@/features/mentors/section';
 
 type MentorsPageProps = {
-  config: SectionConfig;
+  readonly config: SectionConfig;
 };
 
 export default function MentorsPage(props: MentorsPageProps) {
