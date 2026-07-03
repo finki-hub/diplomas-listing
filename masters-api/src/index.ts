@@ -24,11 +24,23 @@ const fetchAllMasterTheses = async (
 
   for (let pageNum = 1; pageNum <= MAX_PAGES; pageNum++) {
     const listResponse = await fetchMastersListPage(auth, pageNum);
+    if (!listResponse.ok) {
+      throw new Error(
+        `Failed to fetch master theses page ${String(pageNum)}: ${String(listResponse.status)}`,
+      );
+    }
+
     const parsed = parseMasterTheses(await listResponse.text());
 
     theses.push(...parsed);
 
     if (parsed.length < PAGE_SIZE) break;
+
+    if (pageNum === MAX_PAGES) {
+      throw new Error(
+        `Master theses listing exceeded ${String(MAX_PAGES)} pages with page size ${String(PAGE_SIZE)}`,
+      );
+    }
   }
 
   return theses;
