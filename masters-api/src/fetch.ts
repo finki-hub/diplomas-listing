@@ -1,4 +1,4 @@
-import type { AuthManager } from 'diplomas-listing-api/src/auth.js';
+import type { AuthManager } from 'diplomas-listing-shared/src/auth.js';
 
 import { Service } from 'finki-auth';
 

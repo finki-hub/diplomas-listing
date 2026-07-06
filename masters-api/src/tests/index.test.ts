@@ -1,4 +1,4 @@
-import { AuthManager } from 'diplomas-listing-api/src/auth.js';
+import { AuthManager } from 'diplomas-listing-shared/src/auth.js';
 import { describe, expect, it } from 'vitest';
 
 import { fetchMastersListPage } from '../fetch.js';

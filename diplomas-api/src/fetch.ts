@@ -1,6 +1,6 @@
-import { Service } from 'finki-auth';
+import type { AuthManager } from 'diplomas-listing-shared/src/auth.js';
 
-import type { AuthManager } from '@/auth.js';
+import { Service } from 'finki-auth';
 
 const DIPLOMAS_LIST_URL = 'https://diplomski.finki.ukim.mk/DiplomaList';
 const DIPLOMAS_FILE_URL = 'https://diplomski.finki.ukim.mk/Upload/PublicFile/';

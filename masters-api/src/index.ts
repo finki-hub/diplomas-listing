@@ -1,6 +1,6 @@
-import type { AuthManager } from 'diplomas-listing-api/src/auth.js';
+import type { AuthManager } from 'diplomas-listing-shared/src/auth.js';
 
-import { createCatalogApp } from 'diplomas-listing-api/src/catalog-app.js';
+import { createCatalogApp } from 'diplomas-listing-shared/src/catalog-app.js';
 
 import type { MasterThesis } from '@/utils.js';
 
