@@ -1,18 +1,21 @@
 {
   "private": true,
   "workspaces": [
-    "api",
+    "diplomas-api",
     "masters-api",
+    "shared",
     "web"
   ],
   "scripts": {
     "build": "npm run build --workspace diplomas-listing-web",
-    "check:api": "npm run check --workspace diplomas-listing-api",
+    "check:diplomas-api": "npm run check --workspace diplomas-listing-diplomas-api",
     "check:masters-api": "npm run check --workspace diplomas-listing-masters-api",
+    "check:shared": "npm run check --workspace diplomas-listing-shared",
     "check:web": "npm run check --workspace diplomas-listing-web",
     "dev": "npm run dev --workspace diplomas-listing-web --",
-    "lint:api": "npm run lint --workspace diplomas-listing-api",
+    "lint:diplomas-api": "npm run lint --workspace diplomas-listing-diplomas-api",
     "lint:masters-api": "npm run lint --workspace diplomas-listing-masters-api",
+    "lint:shared": "npm run lint --workspace diplomas-listing-shared",
     "lint:web": "npm run lint --workspace diplomas-listing-web"
   }
 }

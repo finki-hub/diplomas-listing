@@ -1,8 +1,8 @@
+import { createCatalogApp } from 'diplomas-listing-shared/src/catalog-app.js';
 import { z } from 'zod';
 
 import { fetchDiplomaFile, fetchDiplomaList } from '@/fetch.js';
 
-import { createCatalogApp } from './catalog-app.js';
 import { parseDiplomas, validate } from './utils.js';
 
 const CACHE_KEY = 'https://diplomski-api.finki-hub.com/diplomas';

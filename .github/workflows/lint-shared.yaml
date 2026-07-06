@@ -1,4 +1,4 @@
-name: Lint API
+name: Lint Shared
 
 on:
   push:
@@ -24,7 +24,7 @@ jobs:
       - uses: finki-hub/.github/.github/actions/problem-matchers@main
         with:
           tool: tsc
-      - run: npm run check:api
+      - run: npm run check:shared
 
   eslint:
     runs-on: ubuntu-latest
@@ -39,4 +39,4 @@ jobs:
       - uses: finki-hub/.github/.github/actions/problem-matchers@main
         with:
           tool: eslint
-      - run: npm run lint:api
+      - run: npm run lint:shared

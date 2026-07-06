@@ -1,0 +1,42 @@
+name: Lint Diplomas API
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tsc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - uses: finki-hub/.github/.github/actions/problem-matchers@main
+        with:
+          tool: tsc
+      - run: npm run check:diplomas-api
+
+  eslint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - uses: finki-hub/.github/.github/actions/problem-matchers@main
+        with:
+          tool: eslint
+      - run: npm run lint:diplomas-api
