@@ -4,7 +4,7 @@
     "hono": "^4.12.27"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^5.20260703.1",
+    "@cloudflare/workers-types": "^5.20260707.1",
     "@types/node": "^26.1.0",
     "eslint": "^10.6.0",
     "eslint-config-imperium": "^4.1.4",
