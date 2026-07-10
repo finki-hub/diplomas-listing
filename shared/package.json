@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "finki-auth": "^3.0.0",
-    "hono": "^4.12.27"
+    "hono": "^4.12.29"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260708.1",

@@ -3,7 +3,7 @@
     "@hono/zod-validator": "^0.8.0",
     "diplomas-listing-shared": "0.0.0",
     "finki-auth": "^3.0.0",
-    "hono": "^4.12.27",
+    "hono": "^4.12.29",
     "zod": "^4.4.3"
   },
   "devDependencies": {
