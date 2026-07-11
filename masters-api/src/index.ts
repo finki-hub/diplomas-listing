@@ -4,7 +4,11 @@ import { createCatalogApp } from 'diplomas-listing-shared/src/catalog-app.js';
 
 import type { MasterThesis } from '@/utils.js';
 
-import { fetchMastersListPage, PAGE_SIZE } from '@/fetch.js';
+import {
+  fetchMastersListPage,
+  fetchMasterThesisFile,
+  PAGE_SIZE,
+} from '@/fetch.js';
 
 import { parseMasterTheses } from './utils.js';
 
@@ -49,7 +53,12 @@ const fetchAllMasterTheses = async (
 const app = createCatalogApp({
   analytics: ANALYTICS,
   cacheKey: CACHE_KEY,
-  corsExposeHeaders: ['Content-Type'],
+  corsExposeHeaders: ['Content-Disposition', 'Content-Length', 'Content-Type'],
+  download: {
+    fallbackFilename: (id) => `master_thesis_${id}.pdf`,
+    fetchFile: fetchMasterThesisFile,
+    path: '/masters/download/:id',
+  },
   emptyError: 'No master theses found — authentication may have failed',
   fetchItems: fetchAllMasterTheses,
   listPath: '/masters',

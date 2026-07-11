@@ -1,6 +1,7 @@
 export type MasterThesis = {
   dateOfPresentation: string;
   description: string;
+  fileId: null | string;
   member: string;
   mentor: string;
   president: string;
@@ -17,6 +18,9 @@ type TableRow = {
 const ROW_REGEX = /<tr[^>]*>(?<content>[\s\S]*?)<\/tr>/giu;
 const CELL_REGEX = /<td[^>]*>(?<cell>[\s\S]*?)<\/td>/giu;
 const TITLE_REGEX = /<h5[^>]*>(?<heading>[\s\S]*?)<\/h5>/iu;
+// Download buttons link to ".../master-thesis/download/{fileId}/text".
+const DOWNLOAD_HREF_REGEX =
+  /href="[^"]*\/master-thesis\/download\/(?<fileId>[^"/]+)\/text"/iu;
 const ENTITY_REGEX =
   /&(?:#x(?<hex>[\da-f]+)|#(?<dec>\d+)|(?<named>[a-z]+));/giu;
 const MAX_CODE_POINT = 0x10_ff_ff;
@@ -151,6 +155,7 @@ export const parseMasterTheses = (html: string): MasterThesis[] => {
         getByLabel(rows, 'Датум на презентирање'),
       ),
       description: getByLabel(rows, 'Краток опис'),
+      fileId: DOWNLOAD_HREF_REGEX.exec(block)?.groups?.fileId ?? null,
       member: stripAcademicTitles(getByLabel(rows, 'Член')),
       mentor: stripAcademicTitles(getByLabel(rows, 'Ментор')),
       president: stripAcademicTitles(getByLabel(rows, 'Претседател')),

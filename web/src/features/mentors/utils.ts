@@ -1,7 +1,5 @@
 import type { Diploma, MentorSummary } from '@/types';
 
-import { DIPLOMAS_FILE_URL } from './constants';
-
 const SUBMISSION_YEAR_REGEX = /^\d{4}$/u;
 const WHITESPACE_REGEX = /\s+/u;
 
@@ -40,8 +38,10 @@ export const getSubmissionYear = (value: string): null | string => {
   return year;
 };
 
-export const getDiplomaFileUrl = (fileId: null | string): null | string =>
-  fileId === null ? null : `${DIPLOMAS_FILE_URL}${fileId}`;
+export const createFileUrlGetter =
+  (baseUrl: string) =>
+  (fileId: null | string): null | string =>
+    fileId === null ? null : `${baseUrl}${fileId}`;
 
 const CYRILLIC_TO_LATIN: Record<string, string> = {
   а: 'a',

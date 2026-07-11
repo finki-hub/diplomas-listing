@@ -1,15 +1,20 @@
 import type { Diploma } from '@/types';
 
 import { fetchDiplomas, fetchMasterTheses } from './api';
-import { STATUS_STAGES } from './constants';
+import {
+  DIPLOMAS_FILE_URL,
+  MASTERS_FILE_URL,
+  STATUS_STAGES,
+} from './constants';
+import { createFileUrlGetter } from './utils';
 
 export type SectionConfig = {
   basePath: string;
   fetchTheses: () => Promise<Diploma[]>;
+  getFileUrl: (fileId: null | string) => null | string;
   getStatusStage: (status: string) => null | number;
   id: SectionId;
   maxStatusStage: number;
-  showFileColumn: boolean;
   strings: SectionStrings;
 };
 
@@ -60,10 +65,10 @@ export const getStatusOpacity = (
 export const DIPLOMAS_SECTION: SectionConfig = {
   basePath: '/',
   fetchTheses: fetchDiplomas,
+  getFileUrl: createFileUrlGetter(DIPLOMAS_FILE_URL),
   getStatusStage: findDiplomaStatusStage,
   id: 'diplomas',
   maxStatusStage: 9,
-  showFileColumn: true,
   strings: {
     cardDescription:
       'Преглед на сите ментори и нивните дипломски трудови. Кликнете на ред за да ги видите деталите. Податоците се ажурираат на секој час.',
@@ -78,10 +83,10 @@ export const DIPLOMAS_SECTION: SectionConfig = {
 export const MASTERS_SECTION: SectionConfig = {
   basePath: '/masters',
   fetchTheses: fetchMasterTheses,
+  getFileUrl: createFileUrlGetter(MASTERS_FILE_URL),
   getStatusStage: findMastersStatusStage,
   id: 'masters',
   maxStatusStage: 24,
-  showFileColumn: false,
   strings: {
     cardDescription:
       'Преглед на сите ментори и нивните магистерски трудови. Кликнете на ред за да ги видите деталите. Податоците се ажурираат на секој час.',

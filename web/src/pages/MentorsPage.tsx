@@ -95,11 +95,11 @@ export default function MentorsPage(props: MentorsPageProps) {
                 expandedMentor={state.expandedMentor()}
                 filteredSummaries={state.filteredSummaries()}
                 getBadgeOpacity={state.getBadgeOpacity}
+                getFileUrl={props.config.getFileUrl}
                 getStatusOpacity={state.getStatusOpacity}
                 hasActiveFilters={state.hasActiveFilters()}
                 onSort={state.handleSort}
                 onToggle={state.toggleExpanded}
-                showFileColumn={props.config.showFileColumn}
                 sortDirection={state.sortDirection()}
                 sortField={state.sortField()}
                 tableCountHeader={props.config.strings.tableCountHeader}

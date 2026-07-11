@@ -31,13 +31,13 @@ const MentorsList = (props: MentorsListProps) => (
             <MentorMobileCard
               expanded={props.expandedMentor === summary.mentor}
               getBadgeOpacity={props.getBadgeOpacity}
+              getFileUrl={props.getFileUrl}
               getStatusOpacity={props.getStatusOpacity}
               hasActiveFilters={props.hasActiveFilters}
               index={index()}
               onToggle={() => {
                 props.onToggle(summary.mentor);
               }}
-              showFileColumn={props.showFileColumn}
               summary={summary}
             />
           )}
@@ -72,13 +72,13 @@ const MentorsList = (props: MentorsListProps) => (
                 <MentorRow
                   expanded={props.expandedMentor === summary.mentor}
                   getBadgeOpacity={props.getBadgeOpacity}
+                  getFileUrl={props.getFileUrl}
                   getStatusOpacity={props.getStatusOpacity}
                   hasActiveFilters={props.hasActiveFilters}
                   index={index()}
                   onToggle={() => {
                     props.onToggle(summary.mentor);
                   }}
-                  showFileColumn={props.showFileColumn}
                   summary={summary}
                 />
               )}

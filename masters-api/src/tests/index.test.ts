@@ -1,7 +1,7 @@
 import { AuthManager } from 'diplomas-listing-shared/src/auth.js';
-import { describe, expect, it } from 'vitest';
+import { assert, describe, expect, it } from 'vitest';
 
-import { fetchMastersListPage } from '../fetch.js';
+import { fetchMastersListPage, fetchMasterThesisFile } from '../fetch.js';
 import { parseMasterTheses } from '../utils.js';
 
 const ACADEMIC_TITLE_PREFIX_REGEX =
@@ -36,6 +36,7 @@ describe('Masters E2E', () => {
           <tr><td>Статус</td><td>12. Архивирање</td></tr>
           <tr><td>Краток опис</td><td>&lt;script&gt;not markup&lt;/script&gt;</td></tr>
         </table>
+        <a href="https://magisterski.finki.ukim.mk/master-thesis/download/12345/text">Преземи</a>
       </div>
     `);
 
@@ -46,6 +47,7 @@ describe('Masters E2E', () => {
     expect(theses[0]?.student).toBe('123456 - Test Student');
     expect(theses[0]?.mentor).toBe('Test Mentor');
     expect(theses[0]?.dateOfPresentation).toBe('03.07.2026');
+    expect(theses[0]?.fileId).toBe('12345');
   });
 
   it.skipIf(!getCredentials())(
@@ -98,6 +100,54 @@ describe('Masters E2E', () => {
         ).toMatch(DATE_ONLY_REGEX);
         expect(typeof thesis.status).toBe('string');
         expect(typeof thesis.description).toBe('string');
+        expect(
+          thesis.fileId === null || typeof thesis.fileId === 'string',
+          'fileId should be null or a string',
+        ).toBe(true);
+      }
+    },
+  );
+
+  it.skipIf(!getCredentials())(
+    'should successfully fetch a real master thesis file',
+    { timeout: 30_000 },
+    async () => {
+      const credentials = getCredentials();
+      if (!credentials) return;
+
+      const authManager = new AuthManager(
+        credentials.username,
+        credentials.password,
+      );
+
+      const listResponse = await fetchMastersListPage(authManager, 1);
+
+      expect(listResponse.ok).toBe(true);
+
+      const theses = parseMasterTheses(await listResponse.text());
+      const firstThesis = theses.find((thesis) => thesis.fileId !== null);
+      assert(firstThesis?.fileId, 'No thesis with fileId found');
+
+      const fileResponse = await fetchMasterThesisFile(
+        authManager,
+        firstThesis.fileId,
+      );
+
+      expect(fileResponse.ok).toBe(true);
+      expect(fileResponse.status).toBe(200);
+
+      const contentLength = fileResponse.headers.get('Content-Length');
+
+      expect(contentLength, 'Content-Length header should be present').not.toBe(
+        null,
+      );
+
+      // A handful of listed theses have empty files upstream (Content-Length
+      // 0); only assert on the body when this one is non-empty.
+      if (contentLength !== '0') {
+        const blob = await fileResponse.blob();
+
+        expect(blob.size, 'file should not be empty').toBeGreaterThan(0);
       }
     },
   );
