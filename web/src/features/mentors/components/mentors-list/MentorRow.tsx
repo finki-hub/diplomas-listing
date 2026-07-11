@@ -54,8 +54,8 @@ const MentorRow = (props: MentorListItemProps) => (
         >
           <DiplomaDetailsTable
             diplomas={props.summary.filteredDiplomas}
+            getFileUrl={props.getFileUrl}
             getStatusOpacity={props.getStatusOpacity}
-            showFileColumn={props.showFileColumn}
           />
         </TableCell>
       </TableRow>

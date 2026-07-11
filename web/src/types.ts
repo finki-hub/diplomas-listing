@@ -17,6 +17,7 @@ export const diplomasResponseSchema = z.array(diplomaSchema);
 export const masterThesisSchema = z.object({
   dateOfPresentation: z.string(),
   description: z.string(),
+  fileId: z.string().nullable(),
   member: z.string(),
   mentor: z.string(),
   president: z.string(),
