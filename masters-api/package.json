@@ -2,7 +2,7 @@
   "dependencies": {
     "diplomas-listing-shared": "0.0.0",
     "finki-auth": "^3.0.0",
-    "hono": "^4.12.30"
+    "hono": "^4.12.31"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260717.1",
