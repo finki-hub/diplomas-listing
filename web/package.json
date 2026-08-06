@@ -35,7 +35,7 @@
   "type": "module",
   "version": "0.0.0",
   "optionalDependencies": {
-    "@rolldown/binding-linux-x64-gnu": "1.2.1",
+    "@rolldown/binding-linux-x64-gnu": "1.2.2",
     "@tailwindcss/oxide-linux-x64-gnu": "4.3.3",
     "lightningcss-linux-x64-gnu": "1.33.0"
   }
