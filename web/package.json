@@ -6,7 +6,7 @@
     "posthog-js": "^1.417.1",
     "simple-icons": "^16.28.0",
     "solid-js": "^1.9.14",
-    "solid-sonner": "^0.3.1",
+    "solid-sonner": "^0.3.2",
     "tailwind-merge": "^3.6.0",
     "zod": "^4.4.3"
   },
