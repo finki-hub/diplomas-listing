@@ -12,25 +12,10 @@ permissions:
 
 jobs:
   tsc:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v6
-        with:
-          node-version: lts/*
-          cache: npm
-          cache-dependency-path: package-lock.json
-      - run: npm ci
-      - run: npm run check:masters-api
-
+    uses: finki-hub/.github/.github/workflows/tsc.yaml@main
+    with:
+      script: check:masters-api
   eslint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v6
-        with:
-          node-version: lts/*
-          cache: npm
-          cache-dependency-path: package-lock.json
-      - run: npm ci
-      - run: npm run lint:masters-api
+    uses: finki-hub/.github/.github/workflows/eslint.yaml@main
+    with:
+      script: lint:masters-api
