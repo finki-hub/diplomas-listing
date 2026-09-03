@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@hono/zod-validator": "^0.9.0",
+    "@hono/zod-validator": "^0.9.1",
     "finki-auth": "^3.0.0",
     "hono": "^4.13.5",
     "zod": "^4.5.4"
