@@ -5,8 +5,11 @@ import {
   createResource,
   createSignal,
   onCleanup,
+  type Setter,
   untrack,
 } from 'solid-js';
+
+import type { Diploma } from '@/types';
 
 import type { SortField } from '../types';
 
@@ -27,15 +30,40 @@ import {
 } from '../selectors';
 import { aggregateByMentor } from '../utils';
 
+type ThesesResourceOptions = {
+  readonly config: SectionConfig;
+  readonly setLastUpdatedAt: Setter<null | string>;
+  readonly setLoadError: Setter<Error | null>;
+};
+
+const createThesesResource = (options: ThesesResourceOptions) =>
+  createResource<Diploma[]>(async (_source, info) => {
+    options.setLoadError(null);
+
+    try {
+      const nextDiplomas = await options.config.fetchTheses();
+      // eslint-disable-next-line unicorn/prefer-temporal -- Temporal is not yet available in the target browsers and the project ships no polyfill.
+      options.setLastUpdatedAt(new Date().toISOString());
+      return nextDiplomas;
+    } catch (error) {
+      options.setLoadError(
+        error instanceof Error
+          ? error
+          : new Error('Catalog request failed', { cause: error }),
+      );
+
+      return info.value ?? [];
+    }
+  });
+
 export const useMentorsPageState = (config: SectionConfig) => {
   const initialState = getInitialMentorsPageState();
-
   const [lastUpdatedAt, setLastUpdatedAt] = createSignal<null | string>(null);
-  const [diplomas] = createResource(async () => {
-    const nextDiplomas = await config.fetchTheses();
-    // eslint-disable-next-line unicorn/prefer-temporal -- Temporal is not yet available in the target browsers and the project ships no polyfill.
-    setLastUpdatedAt(new Date().toISOString());
-    return nextDiplomas;
+  const [loadError, setLoadError] = createSignal<Error | null>(null);
+  const [diplomas, { refetch: refetchDiplomas }] = createThesesResource({
+    config,
+    setLastUpdatedAt,
+    setLoadError,
   });
   const [search, setSearch] = createSignal(initialState.search);
   const [statusFilter, setStatusFilter] = createSignal(
@@ -208,7 +236,9 @@ export const useMentorsPageState = (config: SectionConfig) => {
     handleSort,
     hasActiveFilters,
     lastUpdatedAt,
+    loadError,
     medianDiplomas,
+    refetchDiplomas,
     search,
     setSearch,
     setStatusFilter,
