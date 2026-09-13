@@ -38,6 +38,35 @@ const createCatalogResult = (
   updatedAt: options?.updatedAt ?? '2026-09-13T20:00:00.000Z',
 });
 
+const createTestState = (fetchTheses: SectionConfig['fetchTheses']) => {
+  const config: SectionConfig = {
+    basePath: '/',
+    fetchTheses,
+    getFileUrl: () => null,
+    getStatusStage: () => null,
+    id: 'diplomas',
+    maxStatusStage: 9,
+    strings: STRINGS,
+  };
+  let dispose: (() => void) | undefined;
+  const state = createRoot((rootDispose) => {
+    dispose = rootDispose;
+
+    return useMentorsPageState(config);
+  });
+
+  onTestFinished(() => {
+    dispose?.();
+  });
+
+  return state;
+};
+
+const stubBrowserLocation = (search: string): void => {
+  vi.stubGlobal('location', { pathname: '/', search });
+  vi.stubGlobal('history', { replaceState: vi.fn() });
+};
+
 describe('useMentorsPageState', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
@@ -45,31 +74,13 @@ describe('useMentorsPageState', () => {
 
   it('retries the failed catalog request when requested', async () => {
     // Given
-    vi.stubGlobal('location', { pathname: '/', search: '' });
-    vi.stubGlobal('history', { replaceState: vi.fn() });
+    stubBrowserLocation('');
     const fetchTheses = vi
       .fn<() => Promise<CatalogResult>>()
       .mockResolvedValueOnce(createCatalogResult([]))
       .mockRejectedValueOnce(new Error('Catalog unavailable'))
       .mockResolvedValueOnce(createCatalogResult([DIPLOMA]));
-    const config: SectionConfig = {
-      basePath: '/',
-      fetchTheses,
-      getFileUrl: () => null,
-      getStatusStage: () => null,
-      id: 'diplomas',
-      maxStatusStage: 9,
-      strings: STRINGS,
-    };
-    let dispose: (() => void) | undefined;
-    const state = createRoot((rootDispose) => {
-      dispose = rootDispose;
-
-      return useMentorsPageState(config);
-    });
-    onTestFinished(() => {
-      dispose?.();
-    });
+    const state = createTestState(fetchTheses);
     await Promise.resolve();
     await Promise.resolve();
     await state.refetchDiplomas();
@@ -87,33 +98,12 @@ describe('useMentorsPageState', () => {
 
   it('preserves the selected mentor through an initial failure and retry', async () => {
     // Given
-    vi.stubGlobal('location', {
-      pathname: '/',
-      search: '?mentor=Mentor',
-    });
-    vi.stubGlobal('history', { replaceState: vi.fn() });
+    stubBrowserLocation('?mentor=Mentor');
     const fetchTheses = vi
       .fn<() => Promise<CatalogResult>>()
       .mockRejectedValueOnce(new Error('Catalog unavailable'))
       .mockResolvedValueOnce(createCatalogResult([DIPLOMA]));
-    const config: SectionConfig = {
-      basePath: '/',
-      fetchTheses,
-      getFileUrl: () => null,
-      getStatusStage: () => null,
-      id: 'diplomas',
-      maxStatusStage: 9,
-      strings: STRINGS,
-    };
-    let dispose: (() => void) | undefined;
-    const state = createRoot((rootDispose) => {
-      dispose = rootDispose;
-
-      return useMentorsPageState(config);
-    });
-    onTestFinished(() => {
-      dispose?.();
-    });
+    const state = createTestState(fetchTheses);
     await Promise.resolve();
     await Promise.resolve();
 
