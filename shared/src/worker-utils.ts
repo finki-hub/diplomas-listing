@@ -38,6 +38,8 @@ type CachedJsonResponseOptions = {
   readonly executionCtx: {
     readonly waitUntil: (promise: Promise<unknown>) => void;
   };
+  readonly staleCacheKey: string;
+  readonly staleTtlSeconds: number;
   readonly ttlSeconds: number;
   readonly value: unknown;
 };
@@ -195,15 +197,26 @@ export const createCachedJsonResponse = (
   const body = JSON.stringify(options.value);
 
   options.executionCtx.waitUntil(
-    options.cache.put(
-      options.cacheKey,
-      new Response(body, {
-        headers: {
-          'Cache-Control': `public, max-age=${String(options.ttlSeconds)}`,
-          'Content-Type': JSON_CONTENT_TYPE,
-        },
-      }),
-    ),
+    Promise.all([
+      options.cache.put(
+        options.cacheKey,
+        new Response(body, {
+          headers: {
+            'Cache-Control': `public, max-age=${String(options.ttlSeconds)}`,
+            'Content-Type': JSON_CONTENT_TYPE,
+          },
+        }),
+      ),
+      options.cache.put(
+        options.staleCacheKey,
+        new Response(body, {
+          headers: {
+            'Cache-Control': `public, max-age=${String(options.staleTtlSeconds)}`,
+            'Content-Type': JSON_CONTENT_TYPE,
+          },
+        }),
+      ),
+    ]),
   );
 
   return new Response(body, { headers: { 'Content-Type': JSON_CONTENT_TYPE } });

@@ -7,11 +7,13 @@ const DIPLOMAS_FILE_URL = 'https://diplomski.finki.ukim.mk/Upload/PublicFile/';
 
 export const fetchDiplomaList = async (
   auth: AuthManager,
+  signal?: AbortSignal,
 ): Promise<Response> => {
   const cookieHeader = await auth.getValidCookieHeader(Service.DIPLOMAS);
 
   return fetch(DIPLOMAS_LIST_URL, {
     headers: { Cookie: cookieHeader },
+    signal: signal ?? null,
   });
 };
 
