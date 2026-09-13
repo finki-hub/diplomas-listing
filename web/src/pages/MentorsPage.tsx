@@ -61,6 +61,7 @@ export default function MentorsPage(props: MentorsPageProps) {
               countLabel={props.config.strings.countLabel}
               filteredDiplomasCount={state.filteredDiplomasCount()}
               filteredMentorsCount={state.filteredSummaries().length}
+              isStale={state.isStale()}
               lastUpdatedAt={state.lastUpdatedAt()}
               search={state.search()}
               setSearch={state.setSearch}

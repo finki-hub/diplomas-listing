@@ -1,6 +1,4 @@
-import type { Diploma } from '@/types';
-
-import { fetchDiplomas, fetchMasterTheses } from './api';
+import { type CatalogResult, fetchDiplomas, fetchMasterTheses } from './api';
 import {
   DIPLOMAS_FILE_URL,
   MASTERS_FILE_URL,
@@ -10,7 +8,7 @@ import { createFileUrlGetter } from './utils';
 
 export type SectionConfig = {
   basePath: string;
-  fetchTheses: () => Promise<Diploma[]>;
+  fetchTheses: () => Promise<CatalogResult>;
   getFileUrl: (fileId: null | string) => null | string;
   getStatusStage: (status: string) => null | number;
   id: SectionId;

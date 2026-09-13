@@ -6,6 +6,7 @@ type MentorsToolbarProps = {
   countLabel: string;
   filteredDiplomasCount: number;
   filteredMentorsCount: number;
+  isStale: boolean;
   lastUpdatedAt: null | string;
   search: string;
   setSearch: (value: string) => void;
@@ -93,7 +94,15 @@ const MentorsToolbar = (props: MentorsToolbarProps) => (
         ментори · {props.filteredDiplomasCount} од {props.totalDiplomasCount}{' '}
         {props.countLabel}
       </div>
-      <div>Последно освежување: {formatLastUpdatedAt(props.lastUpdatedAt)}</div>
+      <div
+        aria-live="polite"
+        class={props.isStale ? 'font-medium text-destructive' : undefined}
+      >
+        {props.isStale
+          ? 'Податоците можеби не се најнови · Последно успешно освежување: '
+          : 'Последно освежување: '}
+        {formatLastUpdatedAt(props.lastUpdatedAt)}
+      </div>
     </div>
   </div>
 );

@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest';
 
 import type { Diploma } from '@/types';
 
+import type { CatalogResult } from '../api';
 import type { SectionConfig } from '../section';
 
 import { useMentorsPageState } from './useMentorsPageState';
@@ -28,6 +29,15 @@ const STRINGS = {
   totalThesesLabel: 'Total',
 } as const;
 
+const createCatalogResult = (
+  items: Diploma[],
+  options?: Partial<Omit<CatalogResult, 'items'>>,
+): CatalogResult => ({
+  items,
+  stale: options?.stale ?? false,
+  updatedAt: options?.updatedAt ?? '2026-09-13T20:00:00.000Z',
+});
+
 describe('useMentorsPageState', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
@@ -38,10 +48,10 @@ describe('useMentorsPageState', () => {
     vi.stubGlobal('location', { pathname: '/', search: '' });
     vi.stubGlobal('history', { replaceState: vi.fn() });
     const fetchTheses = vi
-      .fn<() => Promise<Diploma[]>>()
-      .mockResolvedValueOnce([])
+      .fn<() => Promise<CatalogResult>>()
+      .mockResolvedValueOnce(createCatalogResult([]))
       .mockRejectedValueOnce(new Error('Catalog unavailable'))
-      .mockResolvedValueOnce([DIPLOMA]);
+      .mockResolvedValueOnce(createCatalogResult([DIPLOMA]));
     const config: SectionConfig = {
       basePath: '/',
       fetchTheses,
@@ -73,5 +83,45 @@ describe('useMentorsPageState', () => {
     expect(state.diplomas()).toEqual([DIPLOMA]);
     expect(state.loadError()).toBe(null);
     expect(fetchTheses).toHaveBeenCalledTimes(3);
+  });
+
+  it('preserves the selected mentor through an initial failure and retry', async () => {
+    // Given
+    vi.stubGlobal('location', {
+      pathname: '/',
+      search: '?mentor=Mentor',
+    });
+    vi.stubGlobal('history', { replaceState: vi.fn() });
+    const fetchTheses = vi
+      .fn<() => Promise<CatalogResult>>()
+      .mockRejectedValueOnce(new Error('Catalog unavailable'))
+      .mockResolvedValueOnce(createCatalogResult([DIPLOMA]));
+    const config: SectionConfig = {
+      basePath: '/',
+      fetchTheses,
+      getFileUrl: () => null,
+      getStatusStage: () => null,
+      id: 'diplomas',
+      maxStatusStage: 9,
+      strings: STRINGS,
+    };
+    let dispose: (() => void) | undefined;
+    const state = createRoot((rootDispose) => {
+      dispose = rootDispose;
+
+      return useMentorsPageState(config);
+    });
+    onTestFinished(() => {
+      dispose?.();
+    });
+    await Promise.resolve();
+    await Promise.resolve();
+
+    // When
+    await state.refetchDiplomas();
+
+    // Then
+    expect(state.expandedMentor()).toBe('Mentor');
+    expect(fetchTheses).toHaveBeenCalledTimes(2);
   });
 });

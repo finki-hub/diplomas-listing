@@ -8,7 +8,7 @@ import { parseDiplomas } from './utils.js';
 const CACHE_KEY = 'https://diplomski-api.finki-hub.com/diplomas';
 const DIPLOMA_LIST_CACHE_TTL = 3_600; // 1 hour
 const DIPLOMA_LIST_STALE_TTL = 604_800; // 7 days
-const UPSTREAM_TIMEOUT_MS = 20_000;
+const UPSTREAM_TIMEOUT_MS = 30_000;
 const ANALYTICS = {
   distinctId: 'diplomas-api-worker',
   service: 'diplomas-api',
@@ -23,6 +23,7 @@ const app = createCatalogApp({
     'Content-Type',
     'Warning',
     'X-Data-Stale',
+    'X-Data-Updated-At',
   ],
   download: {
     fallbackFilename: (id) => `diploma_${id}.pdf`,

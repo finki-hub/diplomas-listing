@@ -200,6 +200,8 @@ export const handleCatalogList = async <Item>(
       staleCacheKey,
       staleTtlSeconds: options.staleTtlSeconds,
       ttlSeconds: options.ttlSeconds,
+      // eslint-disable-next-line unicorn/prefer-temporal -- Temporal is not available in the target Workers runtime.
+      updatedAt: new Date().toISOString(),
       value: items,
     });
   } catch (error) {

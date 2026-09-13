@@ -104,7 +104,10 @@ describe('catalog list resilience', () => {
     cache.seed(
       STALE_CACHE_KEY,
       Response.json(diplomas, {
-        headers: { 'Cache-Control': 'public, max-age=86400' },
+        headers: {
+          'Cache-Control': 'public, max-age=86400',
+          'X-Data-Updated-At': '2026-09-10T08:30:00.000Z',
+        },
       }),
     );
 
@@ -115,6 +118,9 @@ describe('catalog list resilience', () => {
     expect(response.status).toBe(200);
     expect(response.headers.get('Warning')).toBe('110 - "Response is stale"');
     expect(response.headers.get('X-Data-Stale')).toBe('true');
+    expect(response.headers.get('X-Data-Updated-At')).toBe(
+      '2026-09-10T08:30:00.000Z',
+    );
     await expect(response.json()).resolves.toEqual(diplomas);
   });
 
@@ -164,6 +170,7 @@ describe('catalog list resilience', () => {
       staleCacheKey: STALE_CACHE_KEY,
       staleTtlSeconds: 86_400,
       ttlSeconds: 3_600,
+      updatedAt: '2026-09-13T20:00:00.000Z',
       value: [{ title: 'Fresh diploma' }],
     });
     await Promise.all(backgroundTasks);
@@ -171,8 +178,14 @@ describe('catalog list resilience', () => {
     // Then
     expect(response.status).toBe(200);
     const staleResponse = await cache.match(STALE_CACHE_KEY);
+    expect(response.headers.get('X-Data-Updated-At')).toBe(
+      '2026-09-13T20:00:00.000Z',
+    );
     expect(staleResponse?.headers.get('Cache-Control')).toBe(
       'public, max-age=86400',
+    );
+    expect(staleResponse?.headers.get('X-Data-Updated-At')).toBe(
+      '2026-09-13T20:00:00.000Z',
     );
     await expect(staleResponse?.json()).resolves.toEqual([
       { title: 'Fresh diploma' },

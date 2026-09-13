@@ -41,6 +41,7 @@ type CachedJsonResponseOptions = {
   readonly staleCacheKey: string;
   readonly staleTtlSeconds: number;
   readonly ttlSeconds: number;
+  readonly updatedAt: string;
   readonly value: unknown;
 };
 
@@ -204,6 +205,7 @@ export const createCachedJsonResponse = (
           headers: {
             'Cache-Control': `public, max-age=${String(options.ttlSeconds)}`,
             'Content-Type': JSON_CONTENT_TYPE,
+            'X-Data-Updated-At': options.updatedAt,
           },
         }),
       ),
@@ -213,11 +215,17 @@ export const createCachedJsonResponse = (
           headers: {
             'Cache-Control': `public, max-age=${String(options.staleTtlSeconds)}`,
             'Content-Type': JSON_CONTENT_TYPE,
+            'X-Data-Updated-At': options.updatedAt,
           },
         }),
       ),
     ]),
   );
 
-  return new Response(body, { headers: { 'Content-Type': JSON_CONTENT_TYPE } });
+  return new Response(body, {
+    headers: {
+      'Content-Type': JSON_CONTENT_TYPE,
+      'X-Data-Updated-At': options.updatedAt,
+    },
+  });
 };

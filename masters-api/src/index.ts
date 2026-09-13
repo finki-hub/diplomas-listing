@@ -16,7 +16,7 @@ import { parseMasterTheses } from './utils.js';
 const CACHE_KEY = 'https://magisterski-api.finki-hub.com/masters';
 const MASTERS_LIST_CACHE_TTL = 3_600; // 1 hour
 const MASTERS_LIST_STALE_TTL = 604_800; // 7 days
-const UPSTREAM_TIMEOUT_MS = 20_000;
+const UPSTREAM_TIMEOUT_MS = 30_000;
 // Safety valve in case the catalog ever outgrows the upstream page size.
 const MAX_PAGES = 3;
 const ANALYTICS = {
@@ -61,6 +61,7 @@ const app = createCatalogApp({
     'Content-Type',
     'Warning',
     'X-Data-Stale',
+    'X-Data-Updated-At',
   ],
   download: {
     fallbackFilename: (id) => `master_thesis_${id}.pdf`,
