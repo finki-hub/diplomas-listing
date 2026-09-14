@@ -1,3 +1,4 @@
+import { RefreshCw } from 'lucide-solid';
 import { createEffect, Show } from 'solid-js';
 
 import {
@@ -60,6 +61,7 @@ export default function MentorsPage(props: MentorsPageProps) {
               countLabel={props.config.strings.countLabel}
               filteredDiplomasCount={state.filteredDiplomasCount()}
               filteredMentorsCount={state.filteredSummaries().length}
+              isStale={state.isStale()}
               lastUpdatedAt={state.lastUpdatedAt()}
               search={state.search()}
               setSearch={state.setSearch}
@@ -79,15 +81,32 @@ export default function MentorsPage(props: MentorsPageProps) {
               <LoadingSpinner />
             </Show>
 
-            <Show when={state.diplomas.error !== undefined}>
-              <div class="rounded-lg border border-destructive bg-destructive/10 p-4 text-sm text-destructive">
-                Грешка при вчитување на податоците. Обидете се повторно подоцна.
+            <Show when={state.loadError() !== null}>
+              <div
+                class="flex flex-col items-start gap-3 rounded-lg border border-destructive bg-destructive/10 p-4 text-sm text-destructive sm:flex-row sm:items-center sm:justify-between"
+                role="alert"
+              >
+                <span>
+                  Грешка при вчитување на податоците. Обидете се повторно.
+                </span>
+                <button
+                  class="inline-flex h-9 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-md border border-destructive/30 bg-background px-3 font-medium text-foreground ring-offset-background transition-colors hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                  disabled={state.diplomas.loading}
+                  onClick={() => state.refetchDiplomas()}
+                  type="button"
+                >
+                  <RefreshCw
+                    aria-hidden="true"
+                    class="h-4 w-4"
+                  />
+                  Обиди се повторно
+                </button>
               </div>
             </Show>
 
             <Show
               when={
-                state.diplomas.error === undefined &&
+                state.loadError() === null &&
                 (!state.diplomas.loading || state.totalDiplomasCount() > 0)
               }
             >

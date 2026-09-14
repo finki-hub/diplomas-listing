@@ -5,9 +5,13 @@ import {
   createResource,
   createSignal,
   onCleanup,
+  type Setter,
   untrack,
 } from 'solid-js';
 
+import type { Diploma } from '@/types';
+
+import type { CatalogResult } from '../api';
 import type { SortField } from '../types';
 
 import {
@@ -27,15 +31,50 @@ import {
 } from '../selectors';
 import { aggregateByMentor } from '../utils';
 
+type ThesesResourceOptions = {
+  readonly config: SectionConfig;
+  readonly setIsStale: Setter<boolean>;
+  readonly setLastUpdatedAt: Setter<null | string>;
+  readonly setLoadError: Setter<Error | null>;
+};
+
+const getLastUpdatedAt = (result: CatalogResult): null | string => {
+  if (result.updatedAt !== null || result.stale) return result.updatedAt;
+
+  // eslint-disable-next-line unicorn/prefer-temporal -- Temporal is not yet available in the target browsers and the project ships no polyfill.
+  return new Date().toISOString();
+};
+
+const createThesesResource = (options: ThesesResourceOptions) =>
+  createResource<Diploma[]>(async (_source, info) => {
+    options.setLoadError(null);
+
+    try {
+      const result = await options.config.fetchTheses();
+      options.setIsStale(result.stale);
+      options.setLastUpdatedAt(getLastUpdatedAt(result));
+      return result.items;
+    } catch (error) {
+      options.setLoadError(
+        error instanceof Error
+          ? error
+          : new Error('Catalog request failed', { cause: error }),
+      );
+
+      return info.value ?? [];
+    }
+  });
+
 export const useMentorsPageState = (config: SectionConfig) => {
   const initialState = getInitialMentorsPageState();
-
+  const [isStale, setIsStale] = createSignal(false);
   const [lastUpdatedAt, setLastUpdatedAt] = createSignal<null | string>(null);
-  const [diplomas] = createResource(async () => {
-    const nextDiplomas = await config.fetchTheses();
-    // eslint-disable-next-line unicorn/prefer-temporal -- Temporal is not yet available in the target browsers and the project ships no polyfill.
-    setLastUpdatedAt(new Date().toISOString());
-    return nextDiplomas;
+  const [loadError, setLoadError] = createSignal<Error | null>(null);
+  const [diplomas, { refetch: refetchDiplomas }] = createThesesResource({
+    config,
+    setIsStale,
+    setLastUpdatedAt,
+    setLoadError,
   });
   const [search, setSearch] = createSignal(initialState.search);
   const [statusFilter, setStatusFilter] = createSignal(
@@ -49,14 +88,12 @@ export const useMentorsPageState = (config: SectionConfig) => {
   const [expandedMentor, setExpandedMentor] = createSignal(
     initialState.expandedMentor,
   );
-
   const mentorSummaries = createMemo(() => {
     const data = diplomas();
     if (!data) return [];
 
     return aggregateByMentor(data);
   });
-
   const filteredSummaries = createMemo(() =>
     buildFilteredSummaries({
       query: search(),
@@ -67,7 +104,6 @@ export const useMentorsPageState = (config: SectionConfig) => {
       summaries: mentorSummaries(),
     }),
   );
-
   const totalDiplomasCount = createMemo(() => diplomas()?.length ?? 0);
   const totalMentorsCount = createMemo(() => mentorSummaries().length);
   const filteredDiplomasCount = createMemo(() =>
@@ -111,7 +147,7 @@ export const useMentorsPageState = (config: SectionConfig) => {
 
     // Don't collapse the expanded mentor before data has loaded,
     // otherwise URL params get wiped on initial page load.
-    if (diplomas.loading) return;
+    if (diplomas.loading || loadError() !== null) return;
 
     const mentorStillVisible = filteredSummaries().some(
       (summary) => summary.mentor === currentExpandedMentor,
@@ -207,8 +243,11 @@ export const useMentorsPageState = (config: SectionConfig) => {
     getStatusOpacity,
     handleSort,
     hasActiveFilters,
+    isStale,
     lastUpdatedAt,
+    loadError,
     medianDiplomas,
+    refetchDiplomas,
     search,
     setSearch,
     setStatusFilter,
