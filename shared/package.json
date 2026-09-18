@@ -6,7 +6,7 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^5.20260914.1",
+    "@cloudflare/workers-types": "^5.20260915.1",
     "@types/node": "^26.5.1",
     "eslint": "^10.10.0",
     "eslint-config-imperium": "^4.1.4",
