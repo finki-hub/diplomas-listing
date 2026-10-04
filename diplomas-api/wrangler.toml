@@ -19,11 +19,10 @@ enabled = true
 
 [observability.logs]
 enabled = true
-# Automatic request/span payloads include URLs; retain structured app logs.
-invocation_logs = false
+invocation_logs = true
 
 [observability.traces]
-enabled = false
+enabled = true
 
 [[routes]]
 pattern = "diplomas-api.finki-hub.com/*"
