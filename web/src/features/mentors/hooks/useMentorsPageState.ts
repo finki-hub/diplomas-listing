@@ -1,15 +1,14 @@
-import { posthog } from 'posthog-js';
 import {
   createEffect,
   createMemo,
   createResource,
   createSignal,
-  onCleanup,
   type Setter,
-  untrack,
 } from 'solid-js';
 
 import type { Diploma } from '@/types';
+
+import { createSearchAnalytics } from '@/lib/search-analytics';
 
 import type { CatalogResult } from '../api';
 import type { SortField } from '../types';
@@ -169,31 +168,21 @@ export const useMentorsPageState = (config: SectionConfig) => {
     });
   });
 
-  createEffect(() => {
-    const q = search();
-
-    if (q.trim().length === 0) return;
-
-    const count = untrack(() => filteredSummaries().length);
-
-    const timer = setTimeout(() => {
-      posthog.capture('catalog_search', {
-        query: q,
-        // eslint-disable-next-line camelcase -- PostHog property names are snake_case.
-        result_count: count,
-        section: config.id,
-      });
-      if (count === 0) {
-        posthog.capture('search_zero_results', {
-          query: q,
-          section: config.id,
-        });
-      }
-    }, 500);
-
-    onCleanup(() => {
-      clearTimeout(timer);
-    });
+  // This local-only key invalidates linkage synchronously, even before effects run.
+  const searchIntent = () =>
+    JSON.stringify([
+      search(),
+      statusFilter(),
+      yearFilter(),
+      sortField(),
+      sortDirection(),
+    ]);
+  const captureResultClick = createSearchAnalytics({
+    active: () => search().trim().length > 0,
+    count: () => filteredSummaries().length,
+    intent: searchIntent,
+    ready: () => !diplomas.loading && loadError() === null,
+    section: config.id,
   });
 
   const getBadgeOpacity = (count: number) => {
@@ -223,12 +212,7 @@ export const useMentorsPageState = (config: SectionConfig) => {
       const position = filteredSummaries().findIndex(
         (summary) => summary.mentor === mentor,
       );
-      posthog.capture('result_clicked', {
-        position,
-        // eslint-disable-next-line camelcase -- PostHog property names are snake_case.
-        result_id: mentor,
-        section: config.id,
-      });
+      captureResultClick(position);
     }
 
     setExpandedMentor((previous) => (previous === mentor ? null : mentor));

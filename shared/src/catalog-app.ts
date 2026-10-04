@@ -6,6 +6,12 @@ import { z, type ZodType } from 'zod';
 import { type AuthManager, casAuthErrorMessage } from './auth.js';
 import { type CatalogListOptions, handleCatalogList } from './catalog-list.js';
 import {
+  matchTelemetryRoute,
+  safeMethod,
+  telemetryMetadata,
+} from './telemetry.js';
+import {
+  captureAnalytics,
   type CatalogWorkerEnv,
   createAuthMiddleware,
   createAuthResolver,
@@ -52,17 +58,37 @@ export const createCatalogApp = <Item>(
   options: CatalogAppOptions<Item>,
 ): Hono<CatalogWorkerEnv> => {
   const resolveAuth = createAuthResolver();
+  const routes = [
+    options.listPath,
+    ...(options.download ? [options.download.path] : []),
+  ];
 
   const app = new Hono<CatalogWorkerEnv>()
     .onError((err, c) => {
+      captureAnalytics({
+        c,
+        config: options.analytics,
+        event: 'request_failed',
+        properties: { route: matchTelemetryRoute(c.req.path, routes) },
+      });
       if (err.message === casAuthErrorMessage) {
         return c.json({ error: 'CAS authentication failed' }, 401);
       }
 
-      console.error(err);
+      console.error(
+        JSON.stringify({
+          ...telemetryMetadata(),
+          category: 'handler_error',
+          event: 'request_failed',
+          method: safeMethod(c.req.method),
+          route: matchTelemetryRoute(c.req.path, routes),
+          service: options.analytics.service,
+          status: 500,
+        }),
+      );
       return c.json({ error: 'Internal Server Error' }, 500);
     })
-    .use('*', createRequestAnalyticsMiddleware(options.analytics))
+    .use('*', createRequestAnalyticsMiddleware(options.analytics, routes))
     .use(
       '*',
       cors({

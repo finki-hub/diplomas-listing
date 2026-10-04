@@ -7,6 +7,8 @@
     "web"
   ],
   "scripts": {
+    "postinstall": "node scripts/build-revision.mjs",
+    "test": "node --test scripts/build-revision.test.mjs && npm test --workspace diplomas-listing-web && npm test --workspace diplomas-listing-diplomas-api && npm test --workspace diplomas-listing-masters-api",
     "build": "npm run build --workspace diplomas-listing-web",
     "check:diplomas-api": "npm run check --workspace diplomas-listing-diplomas-api",
     "check:masters-api": "npm run check --workspace diplomas-listing-masters-api",

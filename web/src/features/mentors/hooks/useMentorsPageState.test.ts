@@ -1,12 +1,17 @@
+/* eslint-disable camelcase -- Assert the telemetry protocol. */
 import { createRoot } from 'solid-js';
 import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest';
 
 import type { Diploma } from '@/types';
 
+import { captureAnalytics } from '@/lib/analytics';
+
 import type { CatalogResult } from '../api';
 import type { SectionConfig } from '../section';
 
 import { useMentorsPageState } from './useMentorsPageState';
+
+vi.mock('@/lib/analytics', () => ({ captureAnalytics: vi.fn() }));
 
 const DIPLOMA: Diploma = {
   dateOfSubmission: '13.09.2026',
@@ -59,7 +64,7 @@ const createTestState = (fetchTheses: SectionConfig['fetchTheses']) => {
     dispose?.();
   });
 
-  return state;
+  return { ...state, dispose: () => dispose?.() };
 };
 
 const stubBrowserLocation = (search: string): void => {
@@ -69,7 +74,89 @@ const stubBrowserLocation = (search: string): void => {
 
 describe('useMentorsPageState', () => {
   afterEach(() => {
+    vi.useRealTimers();
+    vi.clearAllMocks();
     vi.unstubAllGlobals();
+  });
+
+  it('settles only the latest search and links rank clicks without identity or stale linkage', async () => {
+    vi.useFakeTimers();
+    stubBrowserLocation('');
+    const state = createTestState(() =>
+      Promise.resolve(createCatalogResult([DIPLOMA])),
+    );
+    await vi.advanceTimersByTimeAsync(0);
+    state.setSearch('Stud');
+    await vi.advanceTimersByTimeAsync(300);
+    state.setSearch('Student');
+    await vi.advanceTimersByTimeAsync(499);
+    expect(captureAnalytics).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(1);
+    expect(captureAnalytics).toHaveBeenCalledTimes(1);
+    const properties = vi.mocked(captureAnalytics).mock.calls[0]?.[1];
+    expect(properties).toMatchObject({
+      result_count: 1,
+      section: 'diplomas',
+    });
+    expect(typeof properties?.['search_attempt_id']).toBe('string');
+    state.toggleExpanded('Mentor');
+    expect(captureAnalytics).toHaveBeenLastCalledWith('result_clicked', {
+      position: 0,
+      search_attempt_id: properties?.['search_attempt_id'],
+      section: 'diplomas',
+    });
+    state.toggleExpanded('Mentor');
+    state.setSearch('Stu');
+    state.toggleExpanded('Mentor');
+    expect(captureAnalytics).toHaveBeenLastCalledWith('result_clicked', {
+      position: 0,
+      section: 'diplomas',
+    });
+    expect(
+      JSON.stringify(vi.mocked(captureAnalytics).mock.calls),
+    ).not.toContain('Student');
+    expect(
+      JSON.stringify(vi.mocked(captureAnalytics).mock.calls),
+    ).not.toContain('Mentor');
+    state.dispose();
+    const count = vi.mocked(captureAnalytics).mock.calls.length;
+    await vi.advanceTimersByTimeAsync(1_000);
+    expect(captureAnalytics).toHaveBeenCalledTimes(count);
+  });
+
+  it('waits for data, handles zero results and cancels cleared searches', async () => {
+    vi.useFakeTimers();
+    stubBrowserLocation('?q=Student');
+    let resolveCatalog: ((value: CatalogResult) => void) | undefined;
+    const state = createTestState(
+      () =>
+        new Promise((resolve) => {
+          resolveCatalog = resolve;
+        }),
+    );
+    state.setSearch('Student');
+    await vi.advanceTimersByTimeAsync(1_000);
+    expect(captureAnalytics).not.toHaveBeenCalled();
+    resolveCatalog?.(createCatalogResult([DIPLOMA]));
+    await vi.advanceTimersByTimeAsync(500);
+    expect(captureAnalytics).toHaveBeenCalledWith(
+      'catalog_search',
+      expect.objectContaining({ result_count: 1 }),
+    );
+    state.setStatusFilter('Private unmatched status');
+    await vi.advanceTimersByTimeAsync(500);
+    expect(captureAnalytics).toHaveBeenLastCalledWith(
+      'search_zero_results',
+      expect.objectContaining({ result_count: 0 }),
+    );
+    state.setSearch('Private thesis title');
+    state.setSearch('');
+    const count = vi.mocked(captureAnalytics).mock.calls.length;
+    await vi.advanceTimersByTimeAsync(1_000);
+    expect(captureAnalytics).toHaveBeenCalledTimes(count);
+    expect(
+      JSON.stringify(vi.mocked(captureAnalytics).mock.calls),
+    ).not.toContain('Private');
   });
 
   it('retries the failed catalog request when requested', async () => {
