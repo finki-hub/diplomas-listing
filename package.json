@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "postinstall": "node scripts/build-revision.mjs",
-    "test": "node --test scripts/build-revision.test.mjs && npm test --workspace diplomas-listing-web && npm test --workspace diplomas-listing-diplomas-api && npm test --workspace diplomas-listing-masters-api",
+    "test": "node --test scripts/build-revision.test.js && npm test --workspace diplomas-listing-web && npm test --workspace diplomas-listing-diplomas-api && npm test --workspace diplomas-listing-masters-api",
     "build": "npm run build --workspace diplomas-listing-web",
     "check:diplomas-api": "npm run check --workspace diplomas-listing-diplomas-api",
     "check:masters-api": "npm run check --workspace diplomas-listing-masters-api",
@@ -19,5 +19,6 @@
     "lint:masters-api": "npm run lint --workspace diplomas-listing-masters-api",
     "lint:shared": "npm run lint --workspace diplomas-listing-shared",
     "lint:web": "npm run lint --workspace diplomas-listing-web"
-  }
+  },
+  "type": "module"
 }
