@@ -1,4 +1,4 @@
-import { posthog } from 'posthog-js';
+/* eslint-disable camelcase -- PostHog wire contract. */
 import {
   createEffect,
   createMemo,
@@ -6,10 +6,12 @@ import {
   createSignal,
   onCleanup,
   type Setter,
-  untrack,
 } from 'solid-js';
 
 import type { Diploma } from '@/types';
+
+import { captureAnalytics } from '@/lib/analytics';
+import { createSearchAnalytics } from '@/lib/search-analytics';
 
 import type { CatalogResult } from '../api';
 import type { SortField } from '../types';
@@ -45,25 +47,64 @@ const getLastUpdatedAt = (result: CatalogResult): null | string => {
   return new Date().toISOString();
 };
 
-const createThesesResource = (options: ThesesResourceOptions) =>
-  createResource<Diploma[]>(async (_source, info) => {
-    options.setLoadError(null);
-
-    try {
-      const result = await options.config.fetchTheses();
-      options.setIsStale(result.stale);
-      options.setLastUpdatedAt(getLastUpdatedAt(result));
-      return result.items;
-    } catch (error) {
-      options.setLoadError(
-        error instanceof Error
-          ? error
-          : new Error('Catalog request failed', { cause: error }),
-      );
-
-      return info.value ?? [];
-    }
+const createThesesResource = (options: ThesesResourceOptions) => {
+  let generation = 0;
+  let requestNumber = 0;
+  let nextIsRetry = false;
+  let disposed = false;
+  onCleanup(() => {
+    disposed = true;
+    generation += 1;
   });
+  const [resource, actions] = createResource<Diploma[]>(
+    // Resource settlement retains existing fallback/error behavior and reports only terminal states.
+    // eslint-disable-next-line sonarjs/cognitive-complexity -- The fetcher must preserve its business error path.
+    async (_source, info) => {
+      generation += 1;
+      const currentGeneration = generation;
+      requestNumber += 1;
+      const requestNumberAtStart = requestNumber;
+      const trigger = nextIsRetry ? 'retry' : 'initial';
+      nextIsRetry = false;
+      options.setLoadError(null);
+
+      try {
+        const result = await options.config.fetchTheses();
+        if (!disposed && currentGeneration === generation) {
+          captureAnalytics('catalog_load_result', {
+            outcome: result.stale ? 'stale' : 'fresh',
+            section: options.config.id,
+            trigger: requestNumberAtStart === 1 ? 'initial' : trigger,
+          });
+        }
+        options.setIsStale(result.stale);
+        options.setLastUpdatedAt(getLastUpdatedAt(result));
+        return result.items;
+      } catch (error) {
+        if (!disposed && currentGeneration === generation) {
+          captureAnalytics('catalog_load_result', {
+            outcome: 'error',
+            retained_data: info.value !== undefined,
+            section: options.config.id,
+            trigger: requestNumberAtStart === 1 ? 'initial' : trigger,
+          });
+        }
+        options.setLoadError(
+          error instanceof Error
+            ? error
+            : new Error('Catalog request failed', { cause: error }),
+        );
+
+        return info.value ?? [];
+      }
+    },
+  );
+  const refetch = (...args: Parameters<typeof actions.refetch>) => {
+    nextIsRetry = true;
+    return actions.refetch(...args);
+  };
+  return [resource, { ...actions, refetch }] as const;
+};
 
 export const useMentorsPageState = (config: SectionConfig) => {
   const initialState = getInitialMentorsPageState();
@@ -169,31 +210,18 @@ export const useMentorsPageState = (config: SectionConfig) => {
     });
   });
 
-  createEffect(() => {
-    const q = search();
-
-    if (q.trim().length === 0) return;
-
-    const count = untrack(() => filteredSummaries().length);
-
-    const timer = setTimeout(() => {
-      posthog.capture('catalog_search', {
-        query: q,
-        // eslint-disable-next-line camelcase -- PostHog property names are snake_case.
-        result_count: count,
-        section: config.id,
-      });
-      if (count === 0) {
-        posthog.capture('search_zero_results', {
-          query: q,
-          section: config.id,
-        });
-      }
-    }, 500);
-
-    onCleanup(() => {
-      clearTimeout(timer);
-    });
+  // This local-only key invalidates linkage synchronously, even before effects run.
+  const searchIntent = () => ({
+    filters: JSON.stringify([statusFilter(), yearFilter()]),
+    query: search(),
+    sort: JSON.stringify([sortField(), sortDirection()]),
+  });
+  const searchAnalytics = createSearchAnalytics({
+    active: () => search().trim().length > 0,
+    count: () => filteredSummaries().length,
+    intent: searchIntent,
+    ready: () => !diplomas.loading && loadError() === null,
+    section: config.id,
   });
 
   const getBadgeOpacity = (count: number) => {
@@ -223,12 +251,7 @@ export const useMentorsPageState = (config: SectionConfig) => {
       const position = filteredSummaries().findIndex(
         (summary) => summary.mentor === mentor,
       );
-      posthog.capture('result_clicked', {
-        position,
-        // eslint-disable-next-line camelcase -- PostHog property names are snake_case.
-        result_id: mentor,
-        section: config.id,
-      });
+      searchAnalytics.captureResultClick(position);
     }
 
     setExpandedMentor((previous) => (previous === mentor ? null : mentor));
@@ -240,6 +263,7 @@ export const useMentorsPageState = (config: SectionConfig) => {
     filteredDiplomasCount,
     filteredSummaries,
     getBadgeOpacity,
+    getSearchAttemptId: searchAnalytics.getSearchAttemptId,
     getStatusOpacity,
     handleSort,
     hasActiveFilters,

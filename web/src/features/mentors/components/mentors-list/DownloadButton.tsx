@@ -4,23 +4,17 @@ import { toast } from 'solid-sonner';
 
 import { cn } from '@/lib/cn.ts';
 
-const FILENAME_REGEX = /filename="?(?<filename>[^";\n]+)"?/u;
+import {
+  type DownloadTelemetryProps,
+  performDownload,
+} from './downloadExecution';
 
-const getFilename = (response: Response): null | string => {
-  if (!response.ok) {
-    return null;
-  }
-
-  const disposition = response.headers.get('Content-Disposition');
-  if (!disposition?.includes('filename=')) {
-    return null;
-  }
-
-  const match = FILENAME_REGEX.exec(disposition);
-  return match?.groups?.['filename'] ?? null;
-};
-
-const DownloadButton = (props: { class?: string; url: null | string }) => {
+const DownloadButton = (
+  props: DownloadTelemetryProps & {
+    class?: string;
+    url: null | string;
+  },
+) => {
   const [isLoading, setIsLoading] = createSignal(false);
 
   const handleDownload = async () => {
@@ -31,31 +25,12 @@ const DownloadButton = (props: { class?: string; url: null | string }) => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(props.url);
-
-      if (response.status === 404) {
-        toast.error('Датотеката не постои');
-        return;
-      }
-
-      const filename = getFilename(response);
-      if (filename === null) {
-        toast.error('Грешка при преземање на датотеката');
-        return;
-      }
-
-      const blob = await response.blob();
-      const downloadUrl = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.download = filename;
-      link.href = downloadUrl;
-
-      document.body.append(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(downloadUrl);
-    } catch {
-      toast.error('Грешка при преземање на датотеката');
+      await performDownload(
+        props.url,
+        props,
+        () => toast.error('Датотеката не постои'),
+        () => toast.error('Грешка при преземање на датотеката'),
+      );
     } finally {
       setIsLoading(false);
     }

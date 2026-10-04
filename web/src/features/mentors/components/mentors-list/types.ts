@@ -16,17 +16,21 @@ export type DiplomaCountBadgeProps = {
 export type DiplomaDetailsTableProps = {
   diplomas: Diploma[];
   getFileUrl: (fileId: null | string) => null | string;
+  getSearchAttemptId: () => string | undefined;
   getStatusOpacity: (status: string) => number;
+  section: 'diplomas' | 'masters';
 };
 
 export type MentorListItemProps = {
   expanded: boolean;
   getBadgeOpacity: (count: number) => number;
   getFileUrl: (fileId: null | string) => null | string;
+  getSearchAttemptId: () => string | undefined;
   getStatusOpacity: (status: string) => number;
   hasActiveFilters: boolean;
   index: number;
   onToggle: () => void;
+  section: 'diplomas' | 'masters';
   summary: FilteredMentorSummary;
 };
 
@@ -35,10 +39,12 @@ export type MentorsListProps = {
   filteredSummaries: FilteredMentorSummary[];
   getBadgeOpacity: (count: number) => number;
   getFileUrl: (fileId: null | string) => null | string;
+  getSearchAttemptId: () => string | undefined;
   getStatusOpacity: (status: string) => number;
   hasActiveFilters: boolean;
   onSort: (field: SortField) => void;
   onToggle: (mentor: string) => void;
+  section: 'diplomas' | 'masters';
   sortDirection: SortDirection;
   sortField: SortField;
   tableCountHeader: string;

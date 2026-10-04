@@ -78,6 +78,7 @@ describe('catalog list resilience', () => {
   });
 
   afterEach(() => {
+    vi.restoreAllMocks();
     vi.unstubAllGlobals();
   });
 
@@ -98,8 +99,12 @@ describe('catalog list resilience', () => {
   it('serves the last successful response when a refresh fails', async () => {
     // Given
     const diplomas = [{ title: 'Available diploma' }] as const;
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const app = createTestApp(() => {
-      throw new Error('Upstream unavailable');
+      const error = new Error('Private Student Thesis');
+      // eslint-disable-next-line unicorn/no-error-property-assignment -- Exercise a hostile upstream error name, not only its message.
+      error.name = 'Private Student Thesis';
+      throw error;
     });
     cache.seed(
       STALE_CACHE_KEY,
@@ -122,6 +127,10 @@ describe('catalog list resilience', () => {
       '2026-09-10T08:30:00.000Z',
     );
     await expect(response.json()).resolves.toEqual(diplomas);
+    expect(JSON.stringify(warn.mock.calls)).not.toContain(
+      'Private Student Thesis',
+    );
+    expect(JSON.stringify(warn.mock.calls)).toContain('upstream_failure');
   });
 
   it('returns 502 when the upstream responds with an error status', async () => {

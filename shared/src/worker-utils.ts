@@ -1,6 +1,7 @@
 import type { Context, MiddlewareHandler } from 'hono';
 
 import { AuthManager } from './auth.js';
+import { matchTelemetryRoute, sanitizeProperties } from './telemetry.js';
 
 export type AnalyticsConfig = {
   readonly distinctId: string;
@@ -82,6 +83,7 @@ export const sendAnalytics = async (
       body: JSON.stringify(payload),
       headers: { 'content-type': 'application/json' },
       method: 'POST',
+      signal: AbortSignal.timeout(5_000),
     });
   } catch {} // eslint-disable-line no-empty -- analytics is best-effort.
 };
@@ -90,6 +92,8 @@ export const captureAnalytics = (options: AnalyticsEventOptions): void => {
   const { c, config, event, properties } = options;
 
   if (!c.env.POSTHOG_KEY || !c.env.POSTHOG_HOST) return;
+  const sanitized = sanitizeProperties(event, properties);
+  if (!sanitized) return;
 
   c.executionCtx.waitUntil(
     sendAnalytics(c.env.POSTHOG_HOST, {
@@ -99,7 +103,7 @@ export const captureAnalytics = (options: AnalyticsEventOptions): void => {
       distinct_id: config.distinctId,
       event,
       properties: {
-        ...properties,
+        ...sanitized,
         service: config.service,
       },
     }),
@@ -107,7 +111,10 @@ export const captureAnalytics = (options: AnalyticsEventOptions): void => {
 };
 
 export const createRequestAnalyticsMiddleware =
-  (config: AnalyticsConfig): MiddlewareHandler<CatalogWorkerEnv> =>
+  (
+    config: AnalyticsConfig,
+    routes: readonly string[] = [],
+  ): MiddlewareHandler<CatalogWorkerEnv> =>
   async (c, nextFn) => {
     const start = Date.now();
     let caughtError: unknown;
@@ -140,37 +147,13 @@ export const createRequestAnalyticsMiddleware =
         duration_ms: Date.now() - start,
         method: c.req.method,
         outcome: getOutcome(status),
-        route: c.req.path,
+        route: matchTelemetryRoute(c.req.path, routes),
         status,
       },
     });
 
     if (caughtError !== undefined) {
-      const { pathname } = new URL(c.req.url);
-
-      captureAnalytics({
-        c,
-        config,
-        event: '$exception',
-        properties: {
-          // eslint-disable-next-line camelcase -- PostHog property is snake_case.
-          $exception_list: [
-            {
-              mechanism: { handled: false, synthetic: false },
-              type:
-                caughtError instanceof Error
-                  ? caughtError.constructor.name
-                  : 'UnknownError',
-              value:
-                caughtError instanceof Error
-                  ? caughtError.message
-                  : JSON.stringify(caughtError),
-            },
-          ],
-          path: pathname,
-        },
-      });
-
+      // onError owns failure capture, including wrapped non-Error rejections.
       if (caughtError instanceof Error) throw caughtError;
       throw new Error('Non-error thrown by request handler', {
         cause: caughtError,

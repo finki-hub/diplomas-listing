@@ -24,7 +24,9 @@ const DateDisplay = (props: { value: string }) => (
 const MobileDiplomaCard = (props: {
   diploma: Diploma;
   getFileUrl: (fileId: null | string) => null | string;
+  getSearchAttemptId: () => string | undefined;
   getStatusOpacity: (status: string) => number;
+  section: 'diplomas' | 'masters';
 }) => (
   <div class="overflow-hidden rounded-xl border border-border/60 bg-background/80 p-4 shadow-sm">
     <div class="space-y-3 text-sm">
@@ -78,6 +80,8 @@ const MobileDiplomaCard = (props: {
             <div class="mt-1">
               <DownloadButton
                 class="w-full bg-primary text-primary-foreground"
+                getSearchAttemptId={props.getSearchAttemptId}
+                section={props.section}
                 url={props.getFileUrl(props.diploma.fileId)}
               />
             </div>
@@ -96,7 +100,9 @@ const DiplomaDetailsTable = (props: DiplomaDetailsTableProps) => (
           <MobileDiplomaCard
             diploma={diploma}
             getFileUrl={props.getFileUrl}
+            getSearchAttemptId={props.getSearchAttemptId}
             getStatusOpacity={props.getStatusOpacity}
+            section={props.section}
           />
         )}
       </For>
@@ -133,7 +139,11 @@ const DiplomaDetailsTable = (props: DiplomaDetailsTableProps) => (
                 <DateDisplay value={diploma.dateOfSubmission} />
               </td>
               <td class="py-2 text-center">
-                <DownloadButton url={props.getFileUrl(diploma.fileId)} />
+                <DownloadButton
+                  getSearchAttemptId={props.getSearchAttemptId}
+                  section={props.section}
+                  url={props.getFileUrl(diploma.fileId)}
+                />
               </td>
             </tr>
           )}

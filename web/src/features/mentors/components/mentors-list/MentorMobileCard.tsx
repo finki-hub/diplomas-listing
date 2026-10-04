@@ -54,7 +54,9 @@ const MentorMobileCard = (props: MentorListItemProps) => (
         <DiplomaDetailsTable
           diplomas={props.summary.filteredDiplomas}
           getFileUrl={props.getFileUrl}
+          getSearchAttemptId={props.getSearchAttemptId}
           getStatusOpacity={props.getStatusOpacity}
+          section={props.section}
         />
       </div>
     </Show>

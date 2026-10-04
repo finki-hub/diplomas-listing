@@ -2,6 +2,7 @@ import type { Context } from 'hono';
 
 import type { AuthManager } from './auth.js';
 
+import { telemetryMetadata } from './telemetry.js';
 import {
   type AnalyticsConfig,
   captureAnalytics,
@@ -117,6 +118,7 @@ type StaleResponseOptions = {
 const createStaleResponse = (options: StaleResponseOptions): Response => {
   console.warn(
     JSON.stringify({
+      ...telemetryMetadata(),
       durationMs: options.durationMs,
       event: 'catalog_stale_fallback',
       reason: options.reason,
@@ -137,8 +139,11 @@ const createStaleResponse = (options: StaleResponseOptions): Response => {
   });
 };
 
-const getErrorReason = (error: unknown): string =>
-  error instanceof Error ? error.name : 'UnknownError';
+const getErrorReason = (error: unknown): string => {
+  if (error instanceof CatalogUpstreamTimeoutError) return 'upstream_timeout';
+  if (error instanceof CatalogUpstreamResponseError) return 'upstream_response';
+  return 'upstream_failure';
+};
 
 export const handleCatalogList = async <Item>(
   c: Context<CatalogWorkerEnv>,
@@ -220,6 +225,7 @@ export const handleCatalogList = async <Item>(
     if (error instanceof CatalogUpstreamTimeoutError) {
       console.error(
         JSON.stringify({
+          ...telemetryMetadata(),
           event: 'catalog_upstream_timeout',
           route: options.listPath,
           service: options.analytics.service,
@@ -235,6 +241,7 @@ export const handleCatalogList = async <Item>(
     if (error instanceof CatalogUpstreamResponseError) {
       console.error(
         JSON.stringify({
+          ...telemetryMetadata(),
           event: 'catalog_upstream_response_error',
           route: options.listPath,
           service: options.analytics.service,
