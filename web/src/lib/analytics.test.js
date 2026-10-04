@@ -69,6 +69,11 @@ it('sends only the allowlist through real SDK compression/transport, respecting 
   vi.stubEnv('VITE_POSTHOG_HOST', 'https://telemetry.invalid');
   const { initAnalytics } = await import('./analytics');
   const { posthog } = await import('posthog-js');
+  const captureWire = (event, properties) =>
+    posthog.capture(event, properties, {
+      _noTruncate: true,
+      send_instantly: true,
+    });
   initAnalytics();
   expect(requests).toHaveLength(0);
   vi.stubEnv('VITE_POSTHOG_KEY', 'phc_fake_test_key');
@@ -82,6 +87,7 @@ it('sends only the allowlist through real SDK compression/transport, respecting 
     analytics_schema_version: 900,
     build_revision: 'b'.repeat(40),
     nested: { title: SENTINEL },
+    outcome: 'fresh',
     position: 0,
     query: SENTINEL,
     result_count: 3,
@@ -90,7 +96,36 @@ it('sends only the allowlist through real SDK compression/transport, respecting 
     section: 'diplomas',
     service: SENTINEL,
     token: SENTINEL,
+    trigger: 'query_edit',
   };
+  const downloadOutcomes = [
+    'browser_handoff',
+    'not_found',
+    'http_error',
+    'invalid_response',
+    'client_error',
+  ];
+  const loadOutcomes = ['fresh', 'stale', 'error'];
+  const loadTriggers = ['initial', 'retry'];
+  const searchTriggers = [
+    'initial',
+    'query_edit',
+    'filter_change',
+    'sort_change',
+    'data_refresh',
+  ];
+  for (const outcome of downloadOutcomes)
+    captureWire('document_download_result', { ...malicious, outcome });
+  for (const outcome of loadOutcomes) {
+    for (const trigger of loadTriggers)
+      captureWire('catalog_load_result', {
+        ...malicious,
+        outcome,
+        trigger,
+      });
+  }
+  for (const trigger of searchTriggers)
+    captureWire('catalog_search', { ...malicious, trigger });
   for (const event of [
     'catalog_search',
     'search_zero_results',
@@ -102,6 +137,71 @@ it('sends only the allowlist through real SDK compression/transport, respecting 
       { send_instantly: true },
     );
   }
+  posthog.capture(
+    'document_download_result',
+    { ...malicious, outcome: 'browser_handoff' },
+    { send_instantly: true },
+  );
+  let coercions = 0;
+  const coercible = (approvedValue) => ({
+    private_name: SENTINEL,
+    toString: () => {
+      coercions += 1;
+      return approvedValue;
+    },
+  });
+  captureWire('document_download_result', {
+    ...malicious,
+    outcome: ['browser_handoff'],
+  });
+  captureWire('document_download_result', {
+    ...malicious,
+    outcome: coercible('browser_handoff'),
+  });
+  captureWire('catalog_load_result', {
+    ...malicious,
+    outcome: ['fresh'],
+  });
+  captureWire('catalog_load_result', {
+    ...malicious,
+    outcome: coercible('fresh'),
+  });
+  captureWire('catalog_load_result', {
+    ...malicious,
+    trigger: ['retry'],
+  });
+  captureWire('catalog_load_result', {
+    ...malicious,
+    trigger: coercible('retry'),
+  });
+  captureWire('catalog_search', { ...malicious, trigger: ['query_edit'] });
+  captureWire('catalog_search', {
+    ...malicious,
+    trigger: coercible('query_edit'),
+  });
+  const invalidEnumValues = [7, true, null, undefined];
+  for (const value of invalidEnumValues) {
+    captureWire('document_download_result', { ...malicious, outcome: value });
+    captureWire('catalog_load_result', { ...malicious, outcome: value });
+    captureWire('catalog_load_result', { ...malicious, trigger: value });
+    captureWire('catalog_search', { ...malicious, trigger: value });
+  }
+  expect(coercions).toBe(0);
+  posthog.capture(
+    'catalog_load_result',
+    { ...malicious, outcome: 'error', retained_data: true, trigger: 'retry' },
+    { send_instantly: true },
+  );
+  posthog.capture(
+    'document_download_result',
+    { ...malicious, outcome: SENTINEL },
+    { send_instantly: true },
+  );
+  posthog.capture(
+    'catalog_load_result',
+    { ...malicious, outcome: 'fresh', trigger: SENTINEL },
+    { send_instantly: true },
+  );
   for (const event of [
     '$pageview',
     '$autocapture',
@@ -135,6 +235,11 @@ it('sends only the allowlist through real SDK compression/transport, respecting 
     { ...malicious, position: -1 },
     { send_instantly: true },
   );
+  posthog.capture(
+    'catalog_search',
+    { ...malicious, trigger: SENTINEL },
+    { send_instantly: true },
+  );
   await vi.advanceTimersByTimeAsync(4_000);
   const decoded = requests.map(({ body, url }) => {
     expect(['/e/', '/i/v0/e/']).toContain(new URL(url).pathname);
@@ -160,12 +265,44 @@ it('sends only the allowlist through real SDK compression/transport, respecting 
     expect(envelope.api_key).toBe('phc_fake_test_key');
     return envelope.batch;
   });
-  expect(events.map(({ event }) => event).sort()).toEqual([
-    'catalog_search',
-    'result_clicked',
-    'search_zero_results',
-    'service_visit',
-  ]);
+  expect(new Set(events.map(({ event }) => event))).toEqual(
+    new Set([
+      'catalog_load_result',
+      'catalog_search',
+      'document_download_result',
+      'result_clicked',
+      'search_zero_results',
+      'service_visit',
+    ]),
+  );
+  expect(
+    new Set(
+      events
+        .filter(({ event }) => event === 'document_download_result')
+        .map(({ properties }) => properties.outcome),
+    ),
+  ).toEqual(new Set(downloadOutcomes));
+  expect(
+    new Set(
+      events
+        .filter(({ event }) => event === 'catalog_load_result')
+        .map(({ properties }) => properties.outcome),
+    ),
+  ).toEqual(new Set(loadOutcomes));
+  expect(
+    new Set(
+      events
+        .filter(({ event }) => event === 'catalog_load_result')
+        .map(({ properties }) => properties.trigger),
+    ),
+  ).toEqual(new Set(loadTriggers));
+  expect(
+    new Set(
+      events
+        .filter(({ event }) => event === 'catalog_search')
+        .map(({ properties }) => properties.trigger),
+    ),
+  ).toEqual(new Set(searchTriggers));
   expect(JSON.stringify(events)).not.toContain(SENTINEL);
   expect(JSON.stringify(events)).not.toContain(encodeURIComponent(SENTINEL));
   for (const event of events) {
@@ -194,12 +331,15 @@ it('sends only the allowlist through real SDK compression/transport, respecting 
           'analytics_schema_version',
           'build_revision',
           'distinct_id',
+          'outcome',
           'position',
           'result_count',
+          'retained_data',
           'search_attempt_id',
           'section',
           'service',
           'token',
+          'trigger',
         ].includes(key),
       ),
     ).toBe(true);
@@ -215,4 +355,9 @@ it('sends only the allowlist through real SDK compression/transport, respecting 
   captureAnalytics('result_clicked', malicious);
   await vi.advanceTimersByTimeAsync(4_000);
   expect(requests).toHaveLength(count);
+  vi.stubEnv('VITE_POSTHOG_KEY', 'phc_fake_test_key');
+  vi.spyOn(posthog, 'capture').mockImplementation(() => {
+    throw new Error(SENTINEL);
+  });
+  expect(() => captureAnalytics('service_visit', {})).not.toThrow();
 });

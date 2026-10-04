@@ -32,12 +32,14 @@ const MentorsList = (props: MentorsListProps) => (
               expanded={props.expandedMentor === summary.mentor}
               getBadgeOpacity={props.getBadgeOpacity}
               getFileUrl={props.getFileUrl}
+              getSearchAttemptId={props.getSearchAttemptId}
               getStatusOpacity={props.getStatusOpacity}
               hasActiveFilters={props.hasActiveFilters}
               index={index()}
               onToggle={() => {
                 props.onToggle(summary.mentor);
               }}
+              section={props.section}
               summary={summary}
             />
           )}
@@ -73,12 +75,14 @@ const MentorsList = (props: MentorsListProps) => (
                   expanded={props.expandedMentor === summary.mentor}
                   getBadgeOpacity={props.getBadgeOpacity}
                   getFileUrl={props.getFileUrl}
+                  getSearchAttemptId={props.getSearchAttemptId}
                   getStatusOpacity={props.getStatusOpacity}
                   hasActiveFilters={props.hasActiveFilters}
                   index={index()}
                   onToggle={() => {
                     props.onToggle(summary.mentor);
                   }}
+                  section={props.section}
                   summary={summary}
                 />
               )}
