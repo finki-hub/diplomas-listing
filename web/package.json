@@ -3,7 +3,7 @@
     "@solidjs/router": "^1.0.0",
     "clsx": "^2.1.1",
     "lucide-solid": "^1.52.0",
-    "posthog-js": "^1.435.9",
+    "posthog-js": "^1.437.0",
     "simple-icons": "^16.34.0",
     "solid-js": "^1.9.16",
     "solid-sonner": "^0.3.2",
