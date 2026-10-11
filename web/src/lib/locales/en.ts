@@ -1,6 +1,7 @@
 export const en = {
   allStatuses: 'All statuses',
   allYears: 'All years',
+  appTitle: 'FINKI Hub / Theses',
   average: 'Average per mentor',
   brand: 'FINKI Hub',
   closeNotification: 'Close notification',
@@ -31,7 +32,6 @@ export const en = {
       cardDescription:
         'Browse all mentors and their bachelor’s theses. Select a row to see its details. Data is updated every hour.',
       cardTitle: 'Mentors and bachelor’s theses',
-      headerTitle: 'FINKI Hub / Bachelor’s',
       metadataDescription: 'Browse bachelor’s theses and mentors at FCSE.',
       results: 'Bachelor’s theses: {shown} of {total}',
       tab: 'Bachelor’s theses',
@@ -43,7 +43,6 @@ export const en = {
       cardDescription:
         'Browse all mentors and their master’s theses. Select a row to see its details. Data is updated every hour.',
       cardTitle: 'Mentors and master’s theses',
-      headerTitle: 'FINKI Hub / Master’s',
       metadataDescription: 'Browse master’s theses and mentors at FCSE.',
       results: 'Master’s theses: {shown} of {total}',
       tab: 'Master’s theses',

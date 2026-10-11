@@ -16,11 +16,7 @@ const GitHubIcon = () => (
   </svg>
 );
 
-type MentorsPageHeaderProps = {
-  title: string;
-};
-
-const MentorsPageHeader = (props: MentorsPageHeaderProps) => {
+const MentorsPageHeader = () => {
   const { language, setLanguage, t } = useLanguage();
   return (
     <header class="border-b">
@@ -31,7 +27,7 @@ const MentorsPageHeader = (props: MentorsPageHeaderProps) => {
           src="/logo.png"
         />
         <h1 class="min-w-0 flex-1 wrap-break-word text-base font-bold leading-tight tracking-tight sm:text-xl">
-          {props.title}
+          {t().appTitle}
         </h1>
         <div class="col-span-2 ml-auto flex shrink-0 items-center gap-2">
           <a

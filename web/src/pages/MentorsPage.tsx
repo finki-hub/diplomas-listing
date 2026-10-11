@@ -37,7 +37,7 @@ export default function MentorsPage(props: MentorsPageProps) {
 
   return (
     <div class="min-h-screen bg-background">
-      <MentorsPageHeader title={strings().headerTitle} />
+      <MentorsPageHeader />
 
       <main class="container mx-auto py-6 sm:py-8">
         <div class="mb-6">

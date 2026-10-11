@@ -175,9 +175,7 @@ describe('localization', () => {
     const source = await readFile('index.html', 'utf8');
     const html = localizeHtml(source);
     expect(html).toContain('<html lang="mk">');
-    expect(html).toContain(
-      `<title>${translations.mk.sections.diplomas.headerTitle}</title>`,
-    );
+    expect(html).toContain(`<title>${translations.mk.appTitle}</title>`);
     expect(html).not.toContain('__LOCALIZED_');
     expect(html).toContain(
       '<link rel="canonical" href="https://theses.finki-hub.com/" />',
@@ -201,7 +199,7 @@ describe('localization', () => {
     };
     updatePageMetadata('sq', 'masters', page as unknown as Document);
     expect(page.documentElement.lang).toBe('sq');
-    expect(page.title).toBe(translations.sq.sections.masters.headerTitle);
+    expect(page.title).toBe(translations.sq.appTitle);
     expect(tags.get('meta[property="og:locale"]')).toBe('sq_AL');
     expect(tags.get('meta[name="description"]')).toBe(
       translations.sq.sections.masters.metadataDescription,
@@ -212,13 +210,14 @@ describe('localization', () => {
     expect(tags.get('link[rel="canonical"]')).toBe(
       'https://theses.finki-hub.com/masters',
     );
-    updatePageMetadata('en', 'diplomas', page as unknown as Document);
+    updatePageMetadata('sq', 'diplomas', page as unknown as Document);
     expect(tags.get('meta[property="og:url"]')).toBe(
       'https://theses.finki-hub.com/',
     );
     expect(tags.get('link[rel="canonical"]')).toBe(
       'https://theses.finki-hub.com/',
     );
+    expect(page.title).toBe(translations.sq.appTitle);
   });
 
   it('continues when browser storage is blocked', () => {

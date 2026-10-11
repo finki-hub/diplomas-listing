@@ -28,7 +28,7 @@ const getPageMetadata = (
     image: `${SITE_URL}/favicon-96x96.png`,
     language,
     locale: openGraphLocales[language],
-    title: strings.headerTitle,
+    title: t.appTitle,
     url: `${SITE_URL}${sectionPaths[section]}`,
   };
 };
