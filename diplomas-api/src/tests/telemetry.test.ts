@@ -1,9 +1,9 @@
 /* eslint-disable camelcase -- Assert the PostHog protocol. */
-import { createCatalogApp } from 'diplomas-listing-shared/src/catalog-app.js';
-import { sanitizeProperties } from 'diplomas-listing-shared/src/telemetry.js';
+import { createCatalogApp } from 'theses-listing-shared/src/catalog-app.js';
+import { sanitizeProperties } from 'theses-listing-shared/src/telemetry.js';
 import { afterEach, expect, it, vi } from 'vitest';
 
-vi.mock('diplomas-listing-shared/src/build-revision.generated.js', () => ({
+vi.mock('theses-listing-shared/src/build-revision.generated.js', () => ({
   BUILD_REVISION: 'a'.repeat(40),
 }));
 

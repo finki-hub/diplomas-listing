@@ -1,7 +1,7 @@
-import type { AuthManager } from 'diplomas-listing-shared/src/auth.js';
+import type { AuthManager } from 'theses-listing-shared/src/auth.js';
 
-import { createCatalogApp } from 'diplomas-listing-shared/src/catalog-app.js';
-import { CatalogUpstreamResponseError } from 'diplomas-listing-shared/src/catalog-list.js';
+import { createCatalogApp } from 'theses-listing-shared/src/catalog-app.js';
+import { CatalogUpstreamResponseError } from 'theses-listing-shared/src/catalog-list.js';
 
 import type { MasterThesis } from '@/utils.js';
 

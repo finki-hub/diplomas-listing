@@ -1,6 +1,6 @@
-import { createCatalogApp } from 'diplomas-listing-shared/src/catalog-app.js';
-import { CatalogUpstreamResponseError } from 'diplomas-listing-shared/src/catalog-list.js';
-import { createCachedJsonResponse } from 'diplomas-listing-shared/src/worker-utils.js';
+import { createCatalogApp } from 'theses-listing-shared/src/catalog-app.js';
+import { CatalogUpstreamResponseError } from 'theses-listing-shared/src/catalog-list.js';
+import { createCachedJsonResponse } from 'theses-listing-shared/src/worker-utils.js';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const CACHE_KEY = 'https://example.com/diplomas';

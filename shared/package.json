@@ -13,7 +13,7 @@
     "typescript": "~6.0.3"
   },
   "license": "MIT",
-  "name": "diplomas-listing-shared",
+  "name": "theses-listing-shared",
   "private": true,
   "scripts": {
     "check": "tsc --noEmit",

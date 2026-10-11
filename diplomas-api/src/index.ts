@@ -1,5 +1,5 @@
-import { createCatalogApp } from 'diplomas-listing-shared/src/catalog-app.js';
-import { CatalogUpstreamResponseError } from 'diplomas-listing-shared/src/catalog-list.js';
+import { createCatalogApp } from 'theses-listing-shared/src/catalog-app.js';
+import { CatalogUpstreamResponseError } from 'theses-listing-shared/src/catalog-list.js';
 
 import { fetchDiplomaFile, fetchDiplomaList } from '@/fetch.js';
 

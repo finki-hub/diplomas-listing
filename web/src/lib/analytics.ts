@@ -145,7 +145,7 @@ export const sanitizeAnalytics = (
     ...dimensions,
     $process_person_profile: false,
     analytics_schema_version: 2,
-    service: 'diplomas-listing',
+    service: 'theses-listing',
     token: import.meta.env.VITE_POSTHOG_KEY?.trim(),
   };
   if (BUILD_REVISION?.length === 40 && REVISION.test(BUILD_REVISION))

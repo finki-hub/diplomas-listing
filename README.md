@@ -1,6 +1,6 @@
-# FINKI Hub / Diplomas Listing
+# FINKI Hub / Theses Listing
 
-A web dashboard for browsing diploma and master's theses and their mentors at FCSE, also with statistics.
+A web dashboard for browsing bachelor's and master's theses and their mentors at FCSE, also with statistics.
 
 ## Development
 
@@ -24,7 +24,7 @@ Status translations cover the live catalogs and the definitions in [diplomski](h
 Run the regular tests with `npm test`. To verify translation coverage against both live APIs and the upstream status definitions:
 
 ```sh
-LIVE_CATALOG_TESTS=1 npm test --workspace diplomas-listing-web -- src/lib/localization-live.test.ts
+LIVE_CATALOG_TESTS=1 npm test --workspace theses-listing-web -- src/lib/localization-live.test.ts
 ```
 
 ## License

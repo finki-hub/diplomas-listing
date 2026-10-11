@@ -12,9 +12,9 @@ jobs:
   deploy:
     uses: finki-hub/.github/.github/workflows/cloudflare-pages.yaml@main
     with:
-      project-name: finki-hub-diplomas-listing
+      project-name: finki-hub-theses-listing
       directory: web/dist
-      build-args: '["--workspace", "diplomas-listing-web"]'
+      build-args: '["--workspace", "theses-listing-web"]'
     secrets:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

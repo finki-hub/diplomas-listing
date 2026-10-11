@@ -309,7 +309,7 @@ it('sends only the allowlist through real SDK compression/transport, respecting 
     expect(event.properties).toMatchObject({
       $process_person_profile: false,
       analytics_schema_version: 2,
-      service: 'diplomas-listing',
+      service: 'theses-listing',
       token: 'phc_fake_test_key',
     });
     expect(event.properties.build_revision).toBe('a'.repeat(40));
