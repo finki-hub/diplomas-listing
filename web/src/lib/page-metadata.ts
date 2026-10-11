@@ -2,6 +2,13 @@ import type { SectionId } from '@/features/mentors/section';
 
 import { type Language, translations } from './i18n.ts';
 
+const SITE_URL = 'https://theses.finki-hub.com';
+
+const sectionPaths: Record<SectionId, string> = {
+  diplomas: '/',
+  masters: '/masters',
+};
+
 const openGraphLocales: Record<Language, string> = {
   en: 'en_GB',
   mk: 'mk_MK',
@@ -18,9 +25,11 @@ const getPageMetadata = (
   return {
     author: t.brand,
     description: strings.metadataDescription,
+    image: `${SITE_URL}/favicon-96x96.png`,
     language,
     locale: openGraphLocales[language],
     title: strings.headerTitle,
+    url: `${SITE_URL}${sectionPaths[section]}`,
   };
 };
 
@@ -60,10 +69,14 @@ export const updatePageMetadata = (
     ['meta[property="og:title"]', metadata.title],
     ['meta[property="og:description"]', metadata.description],
     ['meta[property="og:locale"]', metadata.locale],
+    ['meta[property="og:url"]', metadata.url],
     ['meta[name="twitter:title"]', metadata.title],
     ['meta[name="twitter:description"]', metadata.description],
   ] as const;
   for (const [selector, content] of tags) {
     page.head.querySelector(selector)?.setAttribute('content', content);
   }
+  page.head
+    .querySelector('link[rel="canonical"]')
+    ?.setAttribute('href', metadata.url);
 };

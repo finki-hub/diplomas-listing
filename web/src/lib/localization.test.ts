@@ -179,6 +179,12 @@ describe('localization', () => {
       `<title>${translations.mk.sections.diplomas.headerTitle}</title>`,
     );
     expect(html).not.toContain('__LOCALIZED_');
+    expect(html).toContain(
+      '<link rel="canonical" href="https://theses.finki-hub.com/" />',
+    );
+    expect(html).toContain(
+      'content="https://theses.finki-hub.com/favicon-96x96.png"',
+    );
   });
 
   it('updates document and social metadata for the selected section and language', () => {
@@ -199,6 +205,19 @@ describe('localization', () => {
     expect(tags.get('meta[property="og:locale"]')).toBe('sq_AL');
     expect(tags.get('meta[name="description"]')).toBe(
       translations.sq.sections.masters.metadataDescription,
+    );
+    expect(tags.get('meta[property="og:url"]')).toBe(
+      'https://theses.finki-hub.com/masters',
+    );
+    expect(tags.get('link[rel="canonical"]')).toBe(
+      'https://theses.finki-hub.com/masters',
+    );
+    updatePageMetadata('en', 'diplomas', page as unknown as Document);
+    expect(tags.get('meta[property="og:url"]')).toBe(
+      'https://theses.finki-hub.com/',
+    );
+    expect(tags.get('link[rel="canonical"]')).toBe(
+      'https://theses.finki-hub.com/',
     );
   });
 
