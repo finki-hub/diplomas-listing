@@ -6,16 +6,20 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { formatNumber, formatPercentage } from '@/lib/format';
+import { interpolate } from '@/lib/i18n';
+import { useLanguage } from '@/lib/LanguageProvider';
+
+import type { SectionId } from '../section';
 
 type MentorsStatsCardsProps = {
-  countLabel: string;
   loading: boolean;
   median: number;
+  section: SectionId;
   topTenDiplomasCount: number;
   topTenMentorsShare: number;
   totalDiplomas: number;
   totalMentors: number;
-  totalThesesLabel: string;
 };
 
 type StatCardProps = {
@@ -42,44 +46,53 @@ const StatCard = (props: StatCardProps) => (
   </Card>
 );
 
-const MentorsStatsCards = (props: MentorsStatsCardsProps) => (
-  <div class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-    <StatCard
-      description="Вкупно ментори"
-      loading={props.loading}
-      value={props.totalMentors}
-    />
-    <StatCard
-      description={props.totalThesesLabel}
-      loading={props.loading}
-      value={props.totalDiplomas}
-    />
-    <StatCard
-      description="Просек по ментор"
-      loading={props.loading}
-      value={
-        props.totalMentors > 0
-          ? (props.totalDiplomas / props.totalMentors).toFixed(1)
-          : '0'
-      }
-    />
-    <StatCard
-      description="Медијана по ментор"
-      loading={props.loading}
-      value={props.median}
-    />
-    <StatCard
-      description="Удел на топ 10 ментори"
-      footer={
-        <CardDescription>
-          {props.topTenDiplomasCount} од {props.totalDiplomas}{' '}
-          {props.countLabel}
-        </CardDescription>
-      }
-      loading={props.loading}
-      value={<>{props.topTenMentorsShare.toFixed(1)}%</>}
-    />
-  </div>
-);
+const MentorsStatsCards = (props: MentorsStatsCardsProps) => {
+  const { language, t } = useLanguage();
+  return (
+    <div class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <StatCard
+        description={t().totalMentors}
+        loading={props.loading}
+        value={formatNumber(props.totalMentors, language())}
+      />
+      <StatCard
+        description={t().sections[props.section].totalThesesLabel}
+        loading={props.loading}
+        value={formatNumber(props.totalDiplomas, language())}
+      />
+      <StatCard
+        description={t().average}
+        loading={props.loading}
+        value={formatNumber(
+          props.totalMentors > 0 ? props.totalDiplomas / props.totalMentors : 0,
+          language(),
+          { maximumFractionDigits: 1, minimumFractionDigits: 1 },
+        )}
+      />
+      <StatCard
+        description={t().median}
+        loading={props.loading}
+        value={formatNumber(props.median, language())}
+      />
+      <StatCard
+        description={t().topTenShare}
+        footer={
+          <CardDescription>
+            {interpolate(t().sections[props.section].topTenCount, {
+              shown: formatNumber(props.topTenDiplomasCount, language(), {
+                useGrouping: false,
+              }),
+              total: formatNumber(props.totalDiplomas, language(), {
+                useGrouping: false,
+              }),
+            })}
+          </CardDescription>
+        }
+        loading={props.loading}
+        value={formatPercentage(props.topTenMentorsShare, language())}
+      />
+    </div>
+  );
+};
 
 export default MentorsStatsCards;

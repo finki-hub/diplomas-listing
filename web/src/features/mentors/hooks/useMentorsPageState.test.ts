@@ -1,7 +1,8 @@
 /* eslint-disable camelcase -- Assert the telemetry protocol. */
-import { createRoot } from 'solid-js';
+import { type Accessor, createRoot, createSignal } from 'solid-js';
 import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest';
 
+import type { Language } from '@/lib/i18n';
 import type { Diploma } from '@/types';
 
 import { captureAnalytics } from '@/lib/analytics';
@@ -25,15 +26,6 @@ const DIPLOMA: Diploma = {
   title: 'Recovered diploma',
 };
 
-const STRINGS = {
-  cardDescription: 'Description',
-  cardTitle: 'Title',
-  countLabel: 'дипломски',
-  headerTitle: 'Header',
-  tableCountHeader: 'Diplomas',
-  totalThesesLabel: 'Total',
-} as const;
-
 const createCatalogResult = (
   items: Diploma[],
   options?: Partial<Omit<CatalogResult, 'items'>>,
@@ -43,7 +35,10 @@ const createCatalogResult = (
   updatedAt: options?.updatedAt ?? '2026-09-13T20:00:00.000Z',
 });
 
-const createTestState = (fetchTheses: SectionConfig['fetchTheses']) => {
+const createTestState = (
+  fetchTheses: SectionConfig['fetchTheses'],
+  language?: Accessor<Language>,
+) => {
   const config: SectionConfig = {
     basePath: '/',
     fetchTheses,
@@ -51,13 +46,12 @@ const createTestState = (fetchTheses: SectionConfig['fetchTheses']) => {
     getStatusStage: () => null,
     id: 'diplomas',
     maxStatusStage: 9,
-    strings: STRINGS,
   };
   let dispose: (() => void) | undefined;
   const state = createRoot((rootDispose) => {
     dispose = rootDispose;
 
-    return useMentorsPageState(config);
+    return useMentorsPageState(config, language);
   });
 
   onTestFinished(() => {
@@ -67,9 +61,11 @@ const createTestState = (fetchTheses: SectionConfig['fetchTheses']) => {
   return { ...state, dispose: () => dispose?.() };
 };
 
-const stubBrowserLocation = (search: string): void => {
+const stubBrowserLocation = (search: string): ReturnType<typeof vi.fn> => {
+  const replaceState = vi.fn();
   vi.stubGlobal('location', { pathname: '/', search });
-  vi.stubGlobal('history', { replaceState: vi.fn() });
+  vi.stubGlobal('history', { replaceState });
+  return replaceState;
 };
 
 describe('useMentorsPageState', () => {
@@ -77,6 +73,36 @@ describe('useMentorsPageState', () => {
     vi.useRealTimers();
     vi.clearAllMocks();
     vi.unstubAllGlobals();
+  });
+
+  it('preserves filters, raw mentor identity and loaded data when language changes', async () => {
+    vi.useFakeTimers();
+    const mentor = 'Ѓорѓи Ќосев';
+    const diploma = { ...DIPLOMA, mentor };
+    const replaceState = stubBrowserLocation(
+      `?q=Defended&status=${encodeURIComponent(diploma.status)}&year=2026&mentor=${encodeURIComponent(mentor)}&sort=mentor`,
+    );
+    const [language, setLanguage] = createSignal<Language>('mk');
+    const fetchTheses = vi.fn(() =>
+      Promise.resolve(createCatalogResult([diploma])),
+    );
+    const state = createTestState(fetchTheses, language);
+    await vi.advanceTimersByTimeAsync(0);
+    for (const next of ['en', 'sq', 'tr', 'mk'] as const) {
+      setLanguage(next);
+      await vi.advanceTimersByTimeAsync(0);
+      expect(state.search()).toBe('Defended');
+      expect(state.statusFilter()).toBe(diploma.status);
+      expect(state.yearFilter()).toBe('2026');
+      expect(state.expandedMentor()).toBe(mentor);
+      expect(state.filteredDiplomasCount()).toBe(1);
+      expect(state.diplomas()).toEqual([diploma]);
+    }
+    expect(fetchTheses).toHaveBeenCalledTimes(1);
+    const calls = replaceState.mock.calls;
+    expect(calls.at(-1)?.[2]).toContain(
+      `mentor=${encodeURIComponent(mentor).replaceAll('%20', '+')}`,
+    );
   });
 
   it('settles only the latest search and links rank clicks without identity or stale linkage', async () => {

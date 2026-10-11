@@ -13,19 +13,9 @@ export type SectionConfig = {
   getStatusStage: (status: string) => null | number;
   id: SectionId;
   maxStatusStage: number;
-  strings: SectionStrings;
 };
 
 export type SectionId = 'diplomas' | 'masters';
-
-export type SectionStrings = {
-  cardDescription: string;
-  cardTitle: string;
-  countLabel: string;
-  headerTitle: string;
-  tableCountHeader: string;
-  totalThesesLabel: string;
-};
 
 const findDiplomaStatusStage = (status: string): null | number => {
   const lower = status.toLowerCase();
@@ -67,15 +57,6 @@ export const DIPLOMAS_SECTION: SectionConfig = {
   getStatusStage: findDiplomaStatusStage,
   id: 'diplomas',
   maxStatusStage: 9,
-  strings: {
-    cardDescription:
-      'Преглед на сите ментори и нивните дипломски трудови. Кликнете на ред за да ги видите деталите. Податоците се ажурираат на секој час.',
-    cardTitle: 'Ментори и дипломски трудови',
-    countLabel: 'дипломски',
-    headerTitle: 'ФИНКИ Хаб / Дипломски',
-    tableCountHeader: 'Дипломски трудови',
-    totalThesesLabel: 'Вкупно дипломски',
-  },
 };
 
 export const MASTERS_SECTION: SectionConfig = {
@@ -85,13 +66,4 @@ export const MASTERS_SECTION: SectionConfig = {
   getStatusStage: findMastersStatusStage,
   id: 'masters',
   maxStatusStage: 24,
-  strings: {
-    cardDescription:
-      'Преглед на сите ментори и нивните магистерски трудови. Кликнете на ред за да ги видите деталите. Податоците се ажурираат на секој час.',
-    cardTitle: 'Ментори и магистерски трудови',
-    countLabel: 'магистерски',
-    headerTitle: 'ФИНКИ Хаб / Магистерски',
-    tableCountHeader: 'Магистерски трудови',
-    totalThesesLabel: 'Вкупно магистерски',
-  },
 };

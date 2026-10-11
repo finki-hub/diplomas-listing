@@ -1,8 +1,13 @@
 import type { Diploma, MentorSummary } from '@/types';
 
+import { type Language, languageLocales } from '@/lib/i18n';
+import { matchesStatusSearch } from '@/lib/statuses';
+
+import type { SectionId } from './section';
 import type { FilteredMentorSummary, SortDirection, SortField } from './types';
 
 import {
+  displayName,
   getSubmissionYear,
   matchesNormalizedSearch,
   normalizeSearchText,
@@ -12,6 +17,7 @@ const collator = new Intl.Collator();
 
 type FilterOptions = {
   query: string;
+  section: SectionId;
   selectedStatus: string;
   selectedYear: string;
 };
@@ -32,13 +38,14 @@ const matchesDiploma = (
     mentorMatches ||
     matchesNormalizedSearch(diploma.title, options.query) ||
     matchesNormalizedSearch(diploma.student, options.query) ||
-    matchesNormalizedSearch(diploma.status, options.query);
+    matchesStatusSearch(diploma.status, options.section, options.query);
 
   return matchesStatus && matchesYear && matchesSearch;
 };
 
 type CompareOptions = {
   hasQuery: boolean;
+  language: Language;
   sortDirection: SortDirection;
   sortField: SortField;
 };
@@ -51,7 +58,10 @@ const compareSummaries = (
   let comparison: number;
 
   if (options.sortField === 'mentor') {
-    comparison = a.mentor.localeCompare(b.mentor);
+    comparison = displayName(a.mentor, options.language).localeCompare(
+      displayName(b.mentor, options.language),
+      languageLocales[options.language],
+    );
   } else if (options.hasQuery) {
     comparison = a.filteredDiplomas.length - b.filteredDiplomas.length;
   } else {
@@ -62,7 +72,9 @@ const compareSummaries = (
 };
 
 export const buildFilteredSummaries = (options: {
+  language?: Language;
   query: string;
+  section?: SectionId;
   selectedStatus: string;
   selectedYear: string;
   sortDirection: SortDirection;
@@ -73,6 +85,7 @@ export const buildFilteredSummaries = (options: {
 
   const filterOptions: FilterOptions = {
     query: normalizedQuery,
+    section: options.section ?? 'diplomas',
     selectedStatus: options.selectedStatus,
     selectedYear: options.selectedYear,
   };
@@ -98,6 +111,7 @@ export const buildFilteredSummaries = (options: {
   return results.toSorted((a, b) =>
     compareSummaries(a, b, {
       hasQuery: options.query.length > 0,
+      language: options.language ?? 'mk',
       sortDirection: options.sortDirection,
       sortField: options.sortField,
     }),

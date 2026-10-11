@@ -2,6 +2,7 @@ import { Route, Router } from '@solidjs/router';
 
 import { Toaster } from '@/components/ui/sonner.tsx';
 import { DIPLOMAS_SECTION, MASTERS_SECTION } from '@/features/mentors/section';
+import { LanguageProvider } from '@/lib/LanguageProvider';
 import MentorsPage from '@/pages/MentorsPage';
 
 // Distinct wrapper components per section guarantee a remount (fresh data
@@ -10,7 +11,7 @@ const DiplomasPage = () => <MentorsPage config={DIPLOMAS_SECTION} />;
 const MastersPage = () => <MentorsPage config={MASTERS_SECTION} />;
 
 const App = () => (
-  <>
+  <LanguageProvider>
     <Router>
       <Route
         component={DiplomasPage}
@@ -26,7 +27,7 @@ const App = () => (
       />
     </Router>
     <Toaster position="bottom-right" />
-  </>
+  </LanguageProvider>
 );
 
 export default App;
