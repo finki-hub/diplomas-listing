@@ -29,15 +29,15 @@ export const en = {
   sections: {
     diplomas: {
       cardDescription:
-        'Browse all mentors and their diploma theses. Select a row to see its details. Data is updated every hour.',
-      cardTitle: 'Mentors and diploma theses',
+        'Browse all mentors and their bachelor’s theses. Select a row to see its details. Data is updated every hour.',
+      cardTitle: 'Mentors and bachelor’s theses',
       headerTitle: 'FINKI Hub / Bachelor’s',
-      metadataDescription: 'Browse diploma theses and mentors at FCSE.',
-      results: 'Diploma theses: {shown} of {total}',
-      tab: 'Diploma theses',
-      tableCountHeader: 'Diploma theses',
-      topTenCount: '{shown} of {total} diploma theses',
-      totalThesesLabel: 'Total diploma theses',
+      metadataDescription: 'Browse bachelor’s theses and mentors at FCSE.',
+      results: 'Bachelor’s theses: {shown} of {total}',
+      tab: 'Bachelor’s theses',
+      tableCountHeader: 'Bachelor’s theses',
+      topTenCount: '{shown} of {total} bachelor’s theses',
+      totalThesesLabel: 'Total bachelor’s theses',
     },
     masters: {
       cardDescription:
