@@ -1,4 +1,4 @@
-name: Deploy Diplomas API to Cloudflare Workers
+name: Deploy Bachelors API to Cloudflare Workers
 
 on:
   push:
@@ -12,7 +12,7 @@ jobs:
   deploy:
     uses: finki-hub/.github/.github/workflows/cloudflare-workers.yaml@main
     with:
-      working-directory: diplomas-api
+      working-directory: bachelors-api
       install-directory: .
     secrets:
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

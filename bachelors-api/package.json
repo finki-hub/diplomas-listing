@@ -15,7 +15,7 @@
     "wrangler": "^4.147.0"
   },
   "license": "MIT",
-  "name": "theses-listing-diplomas-api",
+  "name": "theses-listing-bachelors-api",
   "private": true,
   "scripts": {
     "check": "tsc --noEmit",

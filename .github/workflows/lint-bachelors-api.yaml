@@ -1,4 +1,4 @@
-name: Lint Diplomas API
+name: Lint Bachelors API
 
 on:
   push:
@@ -14,8 +14,8 @@ jobs:
   tsc:
     uses: finki-hub/.github/.github/workflows/tsc.yaml@main
     with:
-      script: check:diplomas-api
+      script: check:bachelors-api
   eslint:
     uses: finki-hub/.github/.github/workflows/eslint.yaml@main
     with:
-      script: lint:diplomas-api
+      script: lint:bachelors-api

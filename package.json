@@ -2,21 +2,21 @@
   "name": "theses-listing",
   "private": true,
   "workspaces": [
-    "diplomas-api",
+    "bachelors-api",
     "masters-api",
     "shared",
     "web"
   ],
   "scripts": {
     "postinstall": "node scripts/build-revision.mjs",
-    "test": "node --test scripts/build-revision.test.js && npm test --workspace theses-listing-web && npm test --workspace theses-listing-diplomas-api && npm test --workspace theses-listing-masters-api",
+    "test": "node --test scripts/build-revision.test.js && npm test --workspace theses-listing-web && npm test --workspace theses-listing-bachelors-api && npm test --workspace theses-listing-masters-api",
     "build": "npm run build --workspace theses-listing-web",
-    "check:diplomas-api": "npm run check --workspace theses-listing-diplomas-api",
+    "check:bachelors-api": "npm run check --workspace theses-listing-bachelors-api",
     "check:masters-api": "npm run check --workspace theses-listing-masters-api",
     "check:shared": "npm run check --workspace theses-listing-shared",
     "check:web": "npm run check --workspace theses-listing-web",
     "dev": "npm run dev --workspace theses-listing-web --",
-    "lint:diplomas-api": "npm run lint --workspace theses-listing-diplomas-api",
+    "lint:bachelors-api": "npm run lint --workspace theses-listing-bachelors-api",
     "lint:masters-api": "npm run lint --workspace theses-listing-masters-api",
     "lint:shared": "npm run lint --workspace theses-listing-shared",
     "lint:web": "npm run lint --workspace theses-listing-web"

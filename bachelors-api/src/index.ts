@@ -10,8 +10,8 @@ const DIPLOMA_LIST_CACHE_TTL = 3_600; // 1 hour
 const DIPLOMA_LIST_STALE_TTL = 604_800; // 7 days
 const UPSTREAM_TIMEOUT_MS = 30_000;
 const ANALYTICS = {
-  distinctId: 'diplomas-api-worker',
-  service: 'diplomas-api',
+  distinctId: 'bachelors-api-worker',
+  service: 'bachelors-api',
 } as const;
 
 const app = createCatalogApp({
