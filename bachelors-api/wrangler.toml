@@ -31,3 +31,7 @@ zone_name = "finki-hub.com"
 [[routes]]
 pattern = "diplomski-api.finki-hub.com/*"
 zone_name = "finki-hub.com"
+
+[[routes]]
+pattern = "bachelors-api.finki-hub.com"
+custom_domain = true

@@ -11,6 +11,7 @@ import {
   PAGE_SIZE,
 } from '@/fetch.js';
 
+import { handleMastersApiRequest } from './host-redirect.js';
 import { parseMasterTheses } from './utils.js';
 
 const CACHE_KEY = 'https://magisterski-api.finki-hub.com/masters';
@@ -76,4 +77,9 @@ const app = createCatalogApp({
   ttlSeconds: MASTERS_LIST_CACHE_TTL,
 });
 
-export default app;
+const handleRequest = (...args: Parameters<typeof app.fetch>) =>
+  handleMastersApiRequest(args[0], () => app.fetch(...args));
+
+const worker = { fetch: handleRequest };
+
+export default worker;

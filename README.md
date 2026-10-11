@@ -15,6 +15,36 @@ npm run dev
 npm run build
 ```
 
+## Canonical domains and legacy aliases
+
+The canonical APIs are `bachelors-api.finki-hub.com` (`/diplomas` and
+`/diplomas/download/:id`) and `masters-api.finki-hub.com` (`/masters` and
+`/masters/download/:id`). The web app uses these hosts while retaining the
+existing API paths and stable cache keys. The old API host attachments remain
+available and return method-preserving `308` redirects to the canonical API
+hosts: `diplomas-api.finki-hub.com` and `diplomski-api.finki-hub.com` for
+bachelor's, and `magisterski-api.finki-hub.com` for master's. `OPTIONS`
+preflights are passed through to the API CORS handler.
+
+Pages middleware permanently (`301`) redirects `diplomas.finki-hub.com` and
+`masters.finki-hub.com` to `theses.finki-hub.com`, and `diplomski.finki-hub.com`
+and `magisterski.finki-hub.com` to `trudovi.finki-hub.com`. These redirects
+preserve the original path and query. Canonical hosts, unknown hosts, and
+`pages.dev` deployments continue through the normal Pages/SPA handling.
+
+Main-branch deployment is ordered: Pages deploys first (including its web
+aliases), then a live gate verifies both canonical sites and their main JS
+assets, all four exact alias redirects, and canonical API JSON/CORS responses.
+Only a passing gate starts the bachelors and masters Worker deployments. The
+standalone API workflows are manual overrides and intentionally bypass this
+gate; use them only after confirming the canonical frontend and APIs are
+healthy. To roll back, restore the previous frontend API URLs if necessary,
+then manually redeploy the API workers without legacy-host redirects. Keep both
+canonical and legacy API domain attachments during that rollback. Pages `301`
+redirects may be cached by browsers, so removing the middleware does not
+guarantee immediate rollback for clients that cached a redirect; validate the
+canonical destination before enabling those aliases.
+
 ## Localization
 
 The interface supports Macedonian, English, Albanian and Turkish. Macedonian is the default; the selected language is saved in browser storage. Names use Latin transliteration outside Macedonian, while thesis titles, descriptions and downloaded documents retain their original text.

@@ -3,6 +3,7 @@ import { CatalogUpstreamResponseError } from 'theses-listing-shared/src/catalog-
 
 import { fetchDiplomaFile, fetchDiplomaList } from '@/fetch.js';
 
+import { handleBachelorsApiRequest } from './host-redirect.js';
 import { parseDiplomas } from './utils.js';
 
 const CACHE_KEY = 'https://diplomski-api.finki-hub.com/diplomas';
@@ -47,4 +48,9 @@ const app = createCatalogApp({
   ttlSeconds: DIPLOMA_LIST_CACHE_TTL,
 });
 
-export default app;
+const handleRequest = (...args: Parameters<typeof app.fetch>) =>
+  handleBachelorsApiRequest(args[0], () => app.fetch(...args));
+
+const worker = { fetch: handleRequest };
+
+export default worker;
