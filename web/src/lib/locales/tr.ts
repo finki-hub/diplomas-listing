@@ -33,7 +33,7 @@ export const tr = {
       cardDescription:
         'Tüm danışmanları ve lisans tezlerini inceleyin. Ayrıntıları görmek için bir satır seçin. Veriler her saat güncellenir.',
       cardTitle: 'Danışmanlar ve lisans tezleri',
-      headerTitle: 'FINKI Hub / Lisans tezleri',
+      headerTitle: 'FINKI Hub / Lisans',
       metadataDescription:
         'FINKI’deki lisans tezlerini ve danışmanları inceleyin.',
       results: 'Lisans tezleri: {total} tezden {shown} tez',
@@ -46,7 +46,7 @@ export const tr = {
       cardDescription:
         'Tüm danışmanları ve yüksek lisans tezlerini inceleyin. Ayrıntıları görmek için bir satır seçin. Veriler her saat güncellenir.',
       cardTitle: 'Danışmanlar ve yüksek lisans tezleri',
-      headerTitle: 'FINKI Hub / Yüksek lisans tezleri',
+      headerTitle: 'FINKI Hub / Yüksek lisans',
       metadataDescription:
         'FINKI’deki yüksek lisans tezlerini ve danışmanları inceleyin.',
       results: 'Yüksek lisans tezleri: {total} tezden {shown} tez',

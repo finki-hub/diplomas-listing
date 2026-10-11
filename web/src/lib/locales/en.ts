@@ -31,7 +31,7 @@ export const en = {
       cardDescription:
         'Browse all mentors and their diploma theses. Select a row to see its details. Data is updated every hour.',
       cardTitle: 'Mentors and diploma theses',
-      headerTitle: 'FINKI Hub / Diploma theses',
+      headerTitle: 'FINKI Hub / Bachelor’s',
       metadataDescription: 'Browse diploma theses and mentors at FCSE.',
       results: 'Diploma theses: {shown} of {total}',
       tab: 'Diploma theses',
@@ -43,7 +43,7 @@ export const en = {
       cardDescription:
         'Browse all mentors and their master’s theses. Select a row to see its details. Data is updated every hour.',
       cardTitle: 'Mentors and master’s theses',
-      headerTitle: 'FINKI Hub / Master’s theses',
+      headerTitle: 'FINKI Hub / Master’s',
       metadataDescription: 'Browse master’s theses and mentors at FCSE.',
       results: 'Master’s theses: {shown} of {total}',
       tab: 'Master’s theses',
