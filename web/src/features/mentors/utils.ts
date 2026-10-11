@@ -1,3 +1,4 @@
+import type { Language } from '@/lib/i18n';
 import type { Diploma, MentorSummary } from '@/types';
 
 const SUBMISSION_YEAR_REGEX = /^\d{4}$/u;
@@ -78,6 +79,7 @@ const CYRILLIC_TO_LATIN: Record<string, string> = {
 };
 
 const LATIN_EQUIVALENTS: Array<[string, string]> = [
+  ['ı', 'i'],
   ['dž', 'dzh'],
   ['dj', 'gj'],
   ['đ', 'gj'],
@@ -96,15 +98,22 @@ const LATIN_EQUIVALENTS: Array<[string, string]> = [
   ['c', 'c'],
 ];
 
-const transliterateToLatin = (value: string) => {
-  let result = '';
+export const transliterateToLatin = (value: string): string =>
+  value.replaceAll(/\p{Letter}+/gu, (word) => {
+    const allUppercase = word === word.toUpperCase();
+    return Array.from(word, (character) => {
+      const lower = character.toLowerCase();
+      const latin = CYRILLIC_TO_LATIN[lower];
+      if (!latin) return character;
+      if (character === lower) return latin;
+      return allUppercase
+        ? latin.toUpperCase()
+        : latin.charAt(0).toUpperCase() + latin.slice(1);
+    }).join('');
+  });
 
-  for (const character of value) {
-    result += CYRILLIC_TO_LATIN[character] ?? character;
-  }
-
-  return result;
-};
+export const displayName = (value: string, language: Language): string =>
+  language === 'mk' ? value : transliterateToLatin(value);
 
 const normalizeLatinVariants = (value: string) => {
   let normalized = value;

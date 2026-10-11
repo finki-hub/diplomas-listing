@@ -1,3 +1,5 @@
+import { useLanguage } from '@/lib/LanguageProvider';
+
 import type { SortField } from '../../types';
 import type { SortControlsProps } from './types';
 
@@ -32,28 +34,31 @@ const SortButton = (props: SortButtonProps) => (
   </button>
 );
 
-const MobileSortControls = (props: SortControlsProps) => (
-  <div class="mb-4 space-y-2 sm:hidden">
-    <div class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-      Сортирање
+const MobileSortControls = (props: SortControlsProps) => {
+  const { t } = useLanguage();
+  return (
+    <div class="mb-4 space-y-2 sm:hidden">
+      <div class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+        {t().sorting}
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <SortButton
+          field="totalDiplomas"
+          label={t().sortCount}
+          onSort={props.onSort}
+          sortDirection={props.sortDirection}
+          sortField={props.sortField}
+        />
+        <SortButton
+          field="mentor"
+          label={t().sortMentor}
+          onSort={props.onSort}
+          sortDirection={props.sortDirection}
+          sortField={props.sortField}
+        />
+      </div>
     </div>
-    <div class="flex flex-wrap gap-2">
-      <SortButton
-        field="totalDiplomas"
-        label="По број"
-        onSort={props.onSort}
-        sortDirection={props.sortDirection}
-        sortField={props.sortField}
-      />
-      <SortButton
-        field="mentor"
-        label="По ментор"
-        onSort={props.onSort}
-        sortDirection={props.sortDirection}
-        sortField={props.sortField}
-      />
-    </div>
-  </div>
-);
+  );
+};
 
 export default MobileSortControls;

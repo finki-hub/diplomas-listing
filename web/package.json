@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@kobalte/core": "^0.13.14",
     "@solidjs/router": "^1.0.0",
     "clsx": "^2.1.1",
     "lucide-solid": "^1.52.0",

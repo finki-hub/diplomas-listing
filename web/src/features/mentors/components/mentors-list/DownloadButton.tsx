@@ -3,6 +3,7 @@ import { createSignal, Show } from 'solid-js';
 import { toast } from 'solid-sonner';
 
 import { cn } from '@/lib/cn.ts';
+import { useLanguage } from '@/lib/LanguageProvider';
 
 import {
   type DownloadTelemetryProps,
@@ -15,6 +16,7 @@ const DownloadButton = (
     url: null | string;
   },
 ) => {
+  const { t } = useLanguage();
   const [isLoading, setIsLoading] = createSignal(false);
 
   const handleDownload = async () => {
@@ -28,8 +30,8 @@ const DownloadButton = (
       await performDownload(
         props.url,
         props,
-        () => toast.error('Датотеката не постои'),
-        () => toast.error('Грешка при преземање на датотеката'),
+        () => toast.error(t().downloadNotFound),
+        () => toast.error(t().downloadError),
       );
     } finally {
       setIsLoading(false);
@@ -39,7 +41,7 @@ const DownloadButton = (
   return (
     <button
       aria-disabled={isLoading()}
-      aria-label={props.url === null ? 'Не постои' : 'Преземи'}
+      aria-label={props.url === null ? t().fileMissing : t().download}
       class={cn(
         'inline-flex items-center justify-center rounded-md p-1.5 transition-colors',
         'disabled:opacity-30 disabled:cursor-default',
@@ -51,7 +53,7 @@ const DownloadButton = (
       )}
       disabled={props.url === null}
       onClick={handleDownload}
-      title={props.url === null ? 'Не постои' : 'Преземи'}
+      title={props.url === null ? t().fileMissing : t().download}
       type="button"
     >
       <Show

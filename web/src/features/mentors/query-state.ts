@@ -6,8 +6,10 @@ import type {
 
 const DEFAULT_SORT_FIELD: SortField = 'totalDiplomas';
 
-export const getInitialMentorsPageState = (): InitialMentorsPageState => {
-  const params = new URLSearchParams(location.search);
+export const getInitialMentorsPageState = (
+  initialSearch = location.search,
+): InitialMentorsPageState => {
+  const params = new URLSearchParams(initialSearch);
 
   const sortField = params.get('sort');
   const sortDirection = params.get('dir');

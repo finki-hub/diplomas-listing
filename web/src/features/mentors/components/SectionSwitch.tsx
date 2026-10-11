@@ -2,6 +2,7 @@ import { useNavigate } from '@solidjs/router';
 import { For, Show } from 'solid-js';
 
 import { cn } from '@/lib/cn';
+import { useLanguage } from '@/lib/LanguageProvider';
 
 import { DIPLOMAS_SECTION, MASTERS_SECTION, type SectionId } from '../section';
 
@@ -11,25 +12,23 @@ type SectionSwitchProps = {
 
 type SectionTab = {
   basePath: string;
-  label: string;
   value: SectionId;
 };
 
 const sectionTabs: SectionTab[] = [
   {
     basePath: DIPLOMAS_SECTION.basePath,
-    label: 'Дипломски',
     value: DIPLOMAS_SECTION.id,
   },
   {
     basePath: MASTERS_SECTION.basePath,
-    label: 'Магистерски',
     value: MASTERS_SECTION.id,
   },
 ];
 
 const SectionSwitch = (props: SectionSwitchProps) => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   return (
     <div
@@ -52,7 +51,7 @@ const SectionSwitch = (props: SectionSwitchProps) => {
             role="tab"
             type="button"
           >
-            {tab.label}
+            {t().sections[tab.value].tab}
             <Show when={props.active === tab.value}>
               <span class="absolute bottom-1 left-1/2 h-0.5 w-4 -translate-x-1/2 rounded-full bg-primary" />
             </Show>

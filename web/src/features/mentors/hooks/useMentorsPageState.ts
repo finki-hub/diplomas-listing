@@ -1,5 +1,6 @@
 /* eslint-disable camelcase -- PostHog wire contract. */
 import {
+  type Accessor,
   createEffect,
   createMemo,
   createResource,
@@ -8,6 +9,7 @@ import {
   type Setter,
 } from 'solid-js';
 
+import type { Language } from '@/lib/i18n';
 import type { Diploma } from '@/types';
 
 import { captureAnalytics } from '@/lib/analytics';
@@ -106,8 +108,12 @@ const createThesesResource = (options: ThesesResourceOptions) => {
   return [resource, { ...actions, refetch }] as const;
 };
 
-export const useMentorsPageState = (config: SectionConfig) => {
-  const initialState = getInitialMentorsPageState();
+export const useMentorsPageState = (
+  config: SectionConfig,
+  language: Accessor<Language> = () => 'mk',
+  initialSearch?: string,
+) => {
+  const initialState = getInitialMentorsPageState(initialSearch);
   const [isStale, setIsStale] = createSignal(false);
   const [lastUpdatedAt, setLastUpdatedAt] = createSignal<null | string>(null);
   const [loadError, setLoadError] = createSignal<Error | null>(null);
@@ -137,7 +143,9 @@ export const useMentorsPageState = (config: SectionConfig) => {
   });
   const filteredSummaries = createMemo(() =>
     buildFilteredSummaries({
+      language: sortField() === 'mentor' ? language() : 'mk',
       query: search(),
+      section: config.id,
       selectedStatus: statusFilter(),
       selectedYear: yearFilter(),
       sortDirection: sortDirection(),
