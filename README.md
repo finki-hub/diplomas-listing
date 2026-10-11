@@ -32,18 +32,16 @@ and `magisterski.finki-hub.com` to `trudovi.finki-hub.com`. These redirects
 preserve the original path and query. Canonical hosts, unknown hosts, and
 `pages.dev` deployments continue through the normal Pages/SPA handling.
 
-Main-branch deployment is ordered: Pages deploys first (including its web
-aliases), then a live gate verifies both canonical sites and their main JS
-assets, all four exact alias redirects, and canonical API JSON/CORS responses.
-Only a passing gate starts the bachelors and masters Worker deployments. The
-standalone API workflows are manual overrides and intentionally bypass this
-gate; use them only after confirming the canonical frontend and APIs are
-healthy. To roll back, restore the previous frontend API URLs if necessary,
-then manually redeploy the API workers without legacy-host redirects. Keep both
-canonical and legacy API domain attachments during that rollback. Pages `301`
-redirects may be cached by browsers, so removing the middleware does not
-guarantee immediate rollback for clients that cached a redirect; validate the
-canonical destination before enabling those aliases.
+Pages and each API have independent main-branch deployment workflows, with
+manual dispatch also available; there is no workflow ordering between them.
+The canonical domains are already live, the frontend uses the canonical API
+hosts, and the API legacy-host redirects include CORS headers for browser GETs
+while passing OPTIONS preflights through to the existing CORS handler. To roll
+back, restore the previous frontend API URLs if necessary, then redeploy the API
+workers without legacy-host redirects. Keep canonical and legacy API domain
+attachments during rollback. Pages `301` redirects may be cached by browsers,
+so removing the middleware does not guarantee immediate rollback for clients
+that cached a redirect.
 
 ## Localization
 

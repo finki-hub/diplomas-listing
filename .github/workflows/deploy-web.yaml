@@ -1,4 +1,4 @@
-name: Deploy Pages, Verify Canonical Release, and Deploy APIs
+name: Deploy Web to Cloudflare Pages
 
 on:
   push:
@@ -8,12 +8,8 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: canonical-release-${{ github.ref }}
-  cancel-in-progress: false
-
 jobs:
-  deploy-pages:
+  deploy:
     uses: finki-hub/.github/.github/workflows/cloudflare-pages.yaml@main
     with:
       project-name: finki-hub-theses-listing
@@ -22,37 +18,3 @@ jobs:
     secrets:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-
-  verify-canonical-release:
-    needs: deploy-pages
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Check out deployment verifier
-        uses: actions/checkout@v4
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - name: Verify canonical Pages release, aliases, and APIs
-        run: npm run verify:canonical-deployment
-
-  deploy-bachelors-api:
-    needs: verify-canonical-release
-    uses: finki-hub/.github/.github/workflows/cloudflare-workers.yaml@main
-    with:
-      working-directory: bachelors-api
-      install-directory: .
-    secrets:
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-
-  deploy-masters-api:
-    needs: [verify-canonical-release, deploy-bachelors-api]
-    uses: finki-hub/.github/.github/workflows/cloudflare-workers.yaml@main
-    with:
-      working-directory: masters-api
-      install-directory: .
-    secrets:
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
