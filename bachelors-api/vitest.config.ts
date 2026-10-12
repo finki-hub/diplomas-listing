@@ -3,6 +3,9 @@ import { loadEnv } from 'vite';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig(({ mode }) => ({
+  resolve: {
+    alias: { '@': resolve(process.cwd(), 'src') },
+  },
   test: {
     env: loadEnv(mode, resolve(process.cwd(), '..'), ''),
   },

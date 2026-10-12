@@ -16,11 +16,7 @@ const GitHubIcon = () => (
   </svg>
 );
 
-type MentorsPageHeaderProps = {
-  title: string;
-};
-
-const MentorsPageHeader = (props: MentorsPageHeaderProps) => {
+const MentorsPageHeader = () => {
   const { language, setLanguage, t } = useLanguage();
   return (
     <header class="border-b">
@@ -31,13 +27,13 @@ const MentorsPageHeader = (props: MentorsPageHeaderProps) => {
           src="/logo.png"
         />
         <h1 class="min-w-0 flex-1 wrap-break-word text-base font-bold leading-tight tracking-tight sm:text-xl">
-          {props.title}
+          {t().appTitle}
         </h1>
         <div class="col-span-2 ml-auto flex shrink-0 items-center gap-2">
           <a
             aria-label={t().github}
             class="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md border border-input bg-background text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            href="https://github.com/finki-hub/diplomas-listing"
+            href="https://github.com/finki-hub/theses-listing"
             rel="noopener noreferrer"
             target="_blank"
             title={t().github}

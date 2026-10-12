@@ -1,5 +1,6 @@
-import { createCatalogApp } from 'diplomas-listing-shared/src/catalog-app.js';
-import { CatalogUpstreamResponseError } from 'diplomas-listing-shared/src/catalog-list.js';
+import { createCatalogApp } from 'theses-listing-shared/src/catalog-app.js';
+import { CatalogUpstreamResponseError } from 'theses-listing-shared/src/catalog-list.js';
+import { redirectAliasHost } from 'theses-listing-shared/src/host-redirect.js';
 
 import { fetchDiplomaFile, fetchDiplomaList } from '@/fetch.js';
 
@@ -10,8 +11,8 @@ const DIPLOMA_LIST_CACHE_TTL = 3_600; // 1 hour
 const DIPLOMA_LIST_STALE_TTL = 604_800; // 7 days
 const UPSTREAM_TIMEOUT_MS = 30_000;
 const ANALYTICS = {
-  distinctId: 'diplomas-api-worker',
-  service: 'diplomas-api',
+  distinctId: 'bachelors-api-worker',
+  service: 'bachelors-api',
 } as const;
 
 const app = createCatalogApp({
@@ -47,4 +48,19 @@ const app = createCatalogApp({
   ttlSeconds: DIPLOMA_LIST_CACHE_TTL,
 });
 
-export default app;
+const API_HOST_ALIASES = {
+  'diplomas-api.finki-hub.com': 'bachelors-api.finki-hub.com',
+  'diplomski-api.finki-hub.com': 'bachelors-api.finki-hub.com',
+} as const;
+
+const handleRequest = (...args: Parameters<typeof app.fetch>) =>
+  redirectAliasHost(args[0], {
+    aliases: API_HOST_ALIASES,
+    allowAnyOrigin: true,
+    skipOptions: true,
+    status: 308,
+  }) ?? app.fetch(...args);
+
+const worker = { fetch: handleRequest };
+
+export default worker;

@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "diplomas-listing-shared": "0.0.0",
+    "theses-listing-shared": "0.0.0",
     "finki-auth": "^3.0.0",
     "hono": "^4.13.13"
   },
@@ -15,7 +15,7 @@
     "wrangler": "^4.147.0"
   },
   "license": "MIT",
-  "name": "diplomas-listing-diplomas-api",
+  "name": "theses-listing-bachelors-api",
   "private": true,
   "scripts": {
     "check": "tsc --noEmit",

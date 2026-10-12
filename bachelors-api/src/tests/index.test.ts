@@ -1,4 +1,4 @@
-import { AuthManager } from 'diplomas-listing-shared/src/auth.js';
+import { AuthManager } from 'theses-listing-shared/src/auth.js';
 import { assert, describe, expect, it } from 'vitest';
 
 import { fetchDiplomaFile, fetchDiplomaList } from '../fetch.js';

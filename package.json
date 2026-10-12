@@ -1,24 +1,25 @@
 {
+  "name": "theses-listing",
   "private": true,
   "workspaces": [
-    "diplomas-api",
+    "bachelors-api",
     "masters-api",
     "shared",
     "web"
   ],
   "scripts": {
     "postinstall": "node scripts/build-revision.mjs",
-    "test": "node --test scripts/build-revision.test.js && npm test --workspace diplomas-listing-web && npm test --workspace diplomas-listing-diplomas-api && npm test --workspace diplomas-listing-masters-api",
-    "build": "npm run build --workspace diplomas-listing-web",
-    "check:diplomas-api": "npm run check --workspace diplomas-listing-diplomas-api",
-    "check:masters-api": "npm run check --workspace diplomas-listing-masters-api",
-    "check:shared": "npm run check --workspace diplomas-listing-shared",
-    "check:web": "npm run check --workspace diplomas-listing-web",
-    "dev": "npm run dev --workspace diplomas-listing-web --",
-    "lint:diplomas-api": "npm run lint --workspace diplomas-listing-diplomas-api",
-    "lint:masters-api": "npm run lint --workspace diplomas-listing-masters-api",
-    "lint:shared": "npm run lint --workspace diplomas-listing-shared",
-    "lint:web": "npm run lint --workspace diplomas-listing-web"
+    "test": "node --test scripts/build-revision.test.js && npm test --workspace theses-listing-web && npm test --workspace theses-listing-bachelors-api && npm test --workspace theses-listing-masters-api",
+    "build": "npm run build --workspace theses-listing-web",
+    "check:bachelors-api": "npm run check --workspace theses-listing-bachelors-api",
+    "check:masters-api": "npm run check --workspace theses-listing-masters-api",
+    "check:shared": "npm run check --workspace theses-listing-shared",
+    "check:web": "npm run check --workspace theses-listing-web",
+    "dev": "npm run dev --workspace theses-listing-web --",
+    "lint:bachelors-api": "npm run lint --workspace theses-listing-bachelors-api",
+    "lint:masters-api": "npm run lint --workspace theses-listing-masters-api",
+    "lint:shared": "npm run lint --workspace theses-listing-shared",
+    "lint:web": "npm run lint --workspace theses-listing-web"
   },
   "type": "module"
 }

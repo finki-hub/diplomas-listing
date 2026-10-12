@@ -1,4 +1,4 @@
-name = "finki-hub-diplomas-api"
+name = "finki-hub-bachelors-api"
 main = "src/index.ts"
 compatibility_date = "2025-02-06"
 compatibility_flags = ["nodejs_compat"]
@@ -31,3 +31,7 @@ zone_name = "finki-hub.com"
 [[routes]]
 pattern = "diplomski-api.finki-hub.com/*"
 zone_name = "finki-hub.com"
+
+[[routes]]
+pattern = "bachelors-api.finki-hub.com"
+custom_domain = true

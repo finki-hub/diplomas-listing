@@ -27,3 +27,7 @@ enabled = true
 [[routes]]
 pattern = "magisterski-api.finki-hub.com"
 custom_domain = true
+
+[[routes]]
+pattern = "masters-api.finki-hub.com"
+custom_domain = true

@@ -3,6 +3,7 @@ import type { Translations } from '../i18n.ts';
 export const tr = {
   allStatuses: 'Tüm durumlar',
   allYears: 'Tüm yıllar',
+  appTitle: 'FINKI Hub / Tezler',
   average: 'Danışman başına ortalama',
   brand: 'FINKI Hub',
   closeNotification: 'Bildirimi kapat',
@@ -33,7 +34,6 @@ export const tr = {
       cardDescription:
         'Tüm danışmanları ve lisans tezlerini inceleyin. Ayrıntıları görmek için bir satır seçin. Veriler her saat güncellenir.',
       cardTitle: 'Danışmanlar ve lisans tezleri',
-      headerTitle: 'FINKI Hub / Lisans',
       metadataDescription:
         'FINKI’deki lisans tezlerini ve danışmanları inceleyin.',
       results: 'Lisans tezleri: {total} tezden {shown} tez',
@@ -46,7 +46,6 @@ export const tr = {
       cardDescription:
         'Tüm danışmanları ve yüksek lisans tezlerini inceleyin. Ayrıntıları görmek için bir satır seçin. Veriler her saat güncellenir.',
       cardTitle: 'Danışmanlar ve yüksek lisans tezleri',
-      headerTitle: 'FINKI Hub / Yüksek lisans',
       metadataDescription:
         'FINKI’deki yüksek lisans tezlerini ve danışmanları inceleyin.',
       results: 'Yüksek lisans tezleri: {total} tezden {shown} tez',

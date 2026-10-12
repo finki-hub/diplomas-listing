@@ -3,6 +3,7 @@ import type { Translations } from '../i18n.ts';
 export const sq = {
   allStatuses: 'Të gjitha statuset',
   allYears: 'Të gjitha vitet',
+  appTitle: 'FINKI Hub / Punime diplome',
   average: 'Mesatarja për mentor',
   brand: 'FINKI Hub',
   closeNotification: 'Mbyll njoftimin',
@@ -33,7 +34,6 @@ export const sq = {
       cardDescription:
         'Shfleto të gjithë mentorët dhe punimet e tyre të diplomës. Zgjidh një rresht për të parë detajet. Të dhënat përditësohen çdo orë.',
       cardTitle: 'Mentorë dhe punime diplome',
-      headerTitle: 'FINKI Hub / Diploma',
       metadataDescription: 'Shfleto punimet e diplomës dhe mentorët në FINKI.',
       results: 'Punime diplome: {shown} nga {total}',
       tab: 'Punime diplome',
@@ -45,7 +45,6 @@ export const sq = {
       cardDescription:
         'Shfleto të gjithë mentorët dhe punimet e tyre të masterit. Zgjidh një rresht për të parë detajet. Të dhënat përditësohen çdo orë.',
       cardTitle: 'Mentorë dhe punime masteri',
-      headerTitle: 'FINKI Hub / Master',
       metadataDescription: 'Shfleto punimet e masterit dhe mentorët në FINKI.',
       results: 'Punime masteri: {shown} nga {total}',
       tab: 'Punime masteri',
