@@ -255,11 +255,9 @@ export const assertAllowlistedAnalytics = ({
   expect(events.length).toBeGreaterThan(0);
   const receivedEvents = events.flatMap((body) => {
     const envelope = JSON.parse(body);
-    expect(Object.keys(envelope).sort()).toEqual([
-      'api_key',
-      'batch',
-      'sent_at',
-    ]);
+    expect(new Set(Object.keys(envelope))).toEqual(
+      new Set(['api_key', 'batch', 'sent_at']),
+    );
     expect(envelope.api_key).toBe('phc_fake_test_key');
     return envelope.batch;
   });
@@ -315,12 +313,9 @@ export const assertAllowlistedAnalytics = ({
     expect(event.properties.build_revision).toBe('a'.repeat(40));
     // Payload-only guarantee: the receiver still observes the network IP.
     expect(event.properties).not.toHaveProperty('$ip');
-    expect(Object.keys(event).sort()).toEqual([
-      'event',
-      'properties',
-      'timestamp',
-      'uuid',
-    ]);
+    expect(new Set(Object.keys(event))).toEqual(
+      new Set(['event', 'properties', 'timestamp', 'uuid']),
+    );
     expect(
       Object.keys(event.properties).every((key) =>
         [
