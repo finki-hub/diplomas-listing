@@ -15,35 +15,6 @@ npm run dev
 npm run build
 ```
 
-## Canonical domains and legacy aliases
-
-The canonical APIs are `bachelors-api.finki-hub.com` (`/diplomas` and
-`/diplomas/download/:id`) and `masters-api.finki-hub.com` (`/masters` and
-`/masters/download/:id`). The web app uses these hosts while retaining the
-existing API paths and stable cache keys. The old API host attachments remain
-available and return method-preserving `308` redirects to the canonical API
-hosts: `diplomas-api.finki-hub.com` and `diplomski-api.finki-hub.com` for
-bachelor's, and `magisterski-api.finki-hub.com` for master's. `OPTIONS`
-preflights are passed through to the API CORS handler.
-
-Cloudflare Single Redirects permanently (`301`) redirect `diplomas.finki-hub.com`
-and `masters.finki-hub.com` to `theses.finki-hub.com`, and `diplomski.finki-hub.com`
-and `magisterski.finki-hub.com` to `trudovi.finki-hub.com`, preserving path and
-query. Pages Functions do not implement these aliases. The existing Bulk Rule
-redirects the base `pages.dev` host directly to `theses.finki-hub.com`; preview
-URLs are excluded from that rule.
-
-Pages and each API have independent main-branch deployment workflows, with
-manual dispatch also available; there is no workflow ordering between them.
-The canonical domains are already live, the frontend uses the canonical API
-hosts, and the API legacy-host redirects include CORS headers for browser GETs
-while passing OPTIONS preflights through to the existing CORS handler. To roll
-back, restore the previous frontend API URLs if necessary, then redeploy the API
-workers without legacy-host redirects. Keep canonical and legacy API domain
-attachments during rollback. `301` redirects may be cached by browsers, so
-changing or removing a Cloudflare redirect rule does not guarantee immediate
-rollback for clients that cached a redirect.
-
 ## Localization
 
 The interface supports Macedonian, English, Albanian and Turkish. Macedonian is the default; the selected language is saved in browser storage. Names use Latin transliteration outside Macedonian, while thesis titles, descriptions and downloaded documents retain their original text.
