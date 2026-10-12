@@ -36,12 +36,11 @@ export const getStatusLabel = (
   status: string,
   section: SectionId,
   language: Language,
-): string => {
-  if (language === 'mk') return status;
-  return (
-    lookups[section].get(normalizeStatus(status))?.labels[language] ?? status
-  );
-};
+): string =>
+  language === 'mk'
+    ? status
+    : (lookups[section].get(normalizeStatus(status))?.labels[language] ??
+      status);
 
 export const matchesStatusSearch = (
   status: string,

@@ -2,7 +2,7 @@ import { LoaderCircle } from 'lucide-solid';
 
 import { useLanguage } from '@/lib/LanguageProvider';
 
-const LoadingSpinner = () => {
+export default function LoadingSpinner() {
   const { t } = useLanguage();
   return (
     <div class="flex items-center justify-center py-12">
@@ -12,6 +12,4 @@ const LoadingSpinner = () => {
       </div>
     </div>
   );
-};
-
-export default LoadingSpinner;
+}

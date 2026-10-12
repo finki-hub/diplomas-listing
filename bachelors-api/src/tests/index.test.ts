@@ -11,9 +11,7 @@ const getCredentials = (): null | { password: string; username: string } => {
   const username = process.env.CAS_USERNAME;
   const password = process.env.CAS_PASSWORD;
 
-  if (!username || !password) return null;
-
-  return { password, username };
+  return username && password ? { password, username } : null;
 };
 
 describe('Diplomas E2E', () => {
@@ -103,7 +101,7 @@ describe('Diplomas E2E', () => {
 
       const contentType = fileResponse.headers.get('Content-Type');
 
-      expect(contentType).not.toBe(null);
+      expect(contentType).not.toBeNull();
       expect(contentType).toMatch(FILE_CONTENT_TYPE_REGEX);
 
       const contentLength = fileResponse.headers.get('Content-Length');

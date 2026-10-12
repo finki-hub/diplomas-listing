@@ -68,13 +68,7 @@ const stubBrowserLocation = (search: string): ReturnType<typeof vi.fn> => {
   return replaceState;
 };
 
-describe('useMentorsPageState', () => {
-  afterEach(() => {
-    vi.useRealTimers();
-    vi.clearAllMocks();
-    vi.unstubAllGlobals();
-  });
-
+const defineSearchAndSelectionTests = () => {
   it('preserves filters, raw mentor identity and loaded data when language changes', async () => {
     vi.useFakeTimers();
     const mentor = 'Ѓорѓи Ќосев';
@@ -155,17 +149,13 @@ describe('useMentorsPageState', () => {
   it('waits for data, handles zero results and cancels cleared searches', async () => {
     vi.useFakeTimers();
     stubBrowserLocation('?q=Student');
-    let resolveCatalog: ((value: CatalogResult) => void) | undefined;
-    const state = createTestState(
-      () =>
-        new Promise((resolve) => {
-          resolveCatalog = resolve;
-        }),
-    );
+    const { promise: pendingCatalog, resolve: resolveCatalog } =
+      Promise.withResolvers<CatalogResult>();
+    const state = createTestState(() => pendingCatalog);
     state.setSearch('Student');
     await vi.advanceTimersByTimeAsync(1_000);
     expect(captureAnalytics).not.toHaveBeenCalled();
-    resolveCatalog?.(createCatalogResult([DIPLOMA]));
+    resolveCatalog(createCatalogResult([DIPLOMA]));
     await vi.advanceTimersByTimeAsync(500);
     expect(captureAnalytics).toHaveBeenCalledWith(
       'catalog_search',
@@ -186,7 +176,9 @@ describe('useMentorsPageState', () => {
       JSON.stringify(vi.mocked(captureAnalytics).mock.calls),
     ).not.toContain('Private');
   });
+};
 
+const defineCatalogRetryAndSearchAttemptTests = () => {
   it('retries the failed catalog request when requested', async () => {
     // Given
     stubBrowserLocation('');
@@ -213,7 +205,7 @@ describe('useMentorsPageState', () => {
     // Then
     expect(state.diplomas.state).toBe('ready');
     expect(state.diplomas()).toEqual([DIPLOMA]);
-    expect(state.loadError()).toBe(null);
+    expect(state.loadError()).toBeNull();
     expect(fetchTheses).toHaveBeenCalledTimes(3);
     expect(captureAnalytics).toHaveBeenLastCalledWith('catalog_load_result', {
       outcome: 'fresh',
@@ -263,19 +255,20 @@ describe('useMentorsPageState', () => {
         .mock.calls.filter(([event]) => event === 'catalog_search'),
     ).toHaveLength(before);
   });
+};
 
+const defineRefreshSearchCausalityTests = () => {
   it('keeps refresh causality through a canceled filter edit and settles one refresh attempt', async () => {
     vi.useFakeTimers();
     stubBrowserLocation('');
-    let resolveRefresh: ((result: CatalogResult) => void) | undefined;
+    const { promise: pendingRefresh, resolve: resolveRefresh } =
+      Promise.withResolvers<CatalogResult>();
     let calls = 0;
     const state = createTestState(() => {
       calls += 1;
       return calls === 1
         ? Promise.resolve(createCatalogResult([DIPLOMA]))
-        : new Promise((resolve) => {
-            resolveRefresh = resolve;
-          });
+        : pendingRefresh;
     });
     await vi.advanceTimersByTimeAsync(0);
     state.setSearch('Student');
@@ -289,7 +282,7 @@ describe('useMentorsPageState', () => {
     const refresh = state.refetchDiplomas();
     await Promise.resolve();
     expect(state.getSearchAttemptId()).toBeUndefined();
-    resolveRefresh?.(createCatalogResult([DIPLOMA]));
+    resolveRefresh(createCatalogResult([DIPLOMA]));
     await refresh;
     await vi.advanceTimersByTimeAsync(0);
 
@@ -341,15 +334,14 @@ describe('useMentorsPageState', () => {
     async ({ kind, trigger }) => {
       vi.useFakeTimers();
       stubBrowserLocation('');
-      let resolveRefresh: ((result: CatalogResult) => void) | undefined;
+      const { promise: pendingRefresh, resolve: resolveRefresh } =
+        Promise.withResolvers<CatalogResult>();
       let calls = 0;
       const state = createTestState(() => {
         calls += 1;
         return calls === 1
           ? Promise.resolve(createCatalogResult([DIPLOMA]))
-          : new Promise((resolve) => {
-              resolveRefresh = resolve;
-            });
+          : pendingRefresh;
       });
       await vi.advanceTimersByTimeAsync(0);
       state.setSearch('Student');
@@ -362,7 +354,7 @@ describe('useMentorsPageState', () => {
 
       const refresh = state.refetchDiplomas();
       await Promise.resolve();
-      resolveRefresh?.(createCatalogResult([DIPLOMA]));
+      resolveRefresh(createCatalogResult([DIPLOMA]));
       await refresh;
       await vi.advanceTimersByTimeAsync(490);
       if (kind === 'query') state.setSearch('Stud');
@@ -400,7 +392,9 @@ describe('useMentorsPageState', () => {
       ).toHaveLength(searchesBeforeRefresh + 1);
     },
   );
+};
 
+const defineCleanupAndRetainedSelectionTests = () => {
   it('preserves the selected mentor through an initial failure and retry', async () => {
     // Given
     stubBrowserLocation('?mentor=Mentor');
@@ -463,4 +457,17 @@ describe('useMentorsPageState', () => {
     await Promise.resolve();
     expect(captureAnalytics).toHaveBeenCalledTimes(count);
   });
+};
+
+describe('useMentorsPageState', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.clearAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  defineSearchAndSelectionTests();
+  defineCatalogRetryAndSearchAttemptTests();
+  defineRefreshSearchCausalityTests();
+  defineCleanupAndRetainedSelectionTests();
 });

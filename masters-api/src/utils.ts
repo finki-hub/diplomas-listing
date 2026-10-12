@@ -92,7 +92,11 @@ const stripAcademicTitles = (name: string): string =>
 
 // Presentation dates come as "03.07.2026 11:00"; the diplomas listing serves
 // bare dates, so drop the time for parity.
-const stripTimeOfDay = (value: string): string => value.split(' ', 1)[0] ?? '';
+const stripTimeOfDay = (value: string): string => {
+  const separatorIndex = value.indexOf(' ');
+
+  return separatorIndex === -1 ? value : value.slice(0, separatorIndex);
+};
 
 const parseTableRows = (block: string): TableRow[] => {
   const rows: TableRow[] = [];

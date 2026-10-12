@@ -50,8 +50,7 @@ const JSON_CONTENT_TYPE = 'application/json; charset=UTF-8';
 
 const getOutcome = (status: number): string => {
   if (status < 400) return 'ok';
-  if (status < 500) return 'client_error';
-  return 'server_error';
+  return status < 500 ? 'client_error' : 'server_error';
 };
 
 export const createAuthResolver = () => {
@@ -152,13 +151,13 @@ export const createRequestAnalyticsMiddleware =
       },
     });
 
-    if (caughtError !== undefined) {
-      // onError owns failure capture, including wrapped non-Error rejections.
-      if (caughtError instanceof Error) throw caughtError;
-      throw new Error('Non-error thrown by request handler', {
-        cause: caughtError,
-      });
-    }
+    if (caughtError === undefined) return;
+
+    // onError owns failure capture, including wrapped non-Error rejections.
+    if (caughtError instanceof Error) throw caughtError;
+    throw new Error('Non-error thrown by request handler', {
+      cause: caughtError,
+    });
   };
 
 export const createAuthMiddleware =

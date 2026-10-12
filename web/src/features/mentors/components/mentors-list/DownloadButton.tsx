@@ -27,12 +27,10 @@ const DownloadButton = (
     setIsLoading(true);
 
     try {
-      await performDownload(
-        props.url,
-        props,
-        () => toast.error(t().downloadNotFound),
-        () => toast.error(t().downloadError),
-      );
+      await performDownload(props.url, props, {
+        notifyError: () => toast.error(t().downloadError),
+        notifyNotFound: () => toast.error(t().downloadNotFound),
+      });
     } finally {
       setIsLoading(false);
     }

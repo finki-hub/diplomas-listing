@@ -45,8 +45,7 @@ const getTrigger = (
   if (baseline.query !== intent.query) return 'query_edit';
   if (baseline.filters !== intent.filters) return 'filter_change';
   if (baseline.sort !== intent.sort) return 'sort_change';
-  if (dataRefresh) return 'data_refresh';
-  return 'initial';
+  return dataRefresh ? 'data_refresh' : 'initial';
 };
 
 export const createSearchAnalytics = (options: SearchAnalyticsOptions) => {

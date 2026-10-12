@@ -66,11 +66,9 @@ const getFileId = (rows: TableRow[]): null | string => {
 
   const hrefMatch = HREF_REGEX.exec(row.valueCell);
 
-  if (hrefMatch?.groups?.url && hrefMatch.groups.url !== JAVASCRIPT_VOID_URL) {
-    return hrefMatch.groups.url.split('/').pop() ?? null;
-  }
-
-  return null;
+  return hrefMatch?.groups?.url && hrefMatch.groups.url !== JAVASCRIPT_VOID_URL
+    ? (hrefMatch.groups.url.split('/').pop() ?? null)
+    : null;
 };
 
 const PANEL_MARKER = 'class="panel ';

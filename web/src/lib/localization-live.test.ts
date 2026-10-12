@@ -48,7 +48,7 @@ describe.runIf(process.env['LIVE_CATALOG_TESTS'] === '1')(
           'src/main/java/vp/magisterski/model/enumerations/MasterThesisStatus.java',
         ],
       ] as const;
-      const [diplomas, masters] = await Promise.all(
+      const [diplomas = '', masters = ''] = await Promise.all(
         files.map(async ([project, path]) => {
           const response = await fetch(
             `https://gitlab.finki.ukim.mk/api/v4/projects/${project}/repository/files/${encodeURIComponent(path)}/raw?ref=dev`,
@@ -58,12 +58,12 @@ describe.runIf(process.env['LIVE_CATALOG_TESTS'] === '1')(
         }),
       );
       const diplomaStatuses =
-        (diplomas ?? '')
+        diplomas
           .split(BLOCK_BREAK_REGEX, 1)[0]
           ?.split(LINE_BREAK_REGEX)
           .map((line) => line.slice(line.indexOf('=') + 1)) ?? [];
       const masterStatuses = Array.from(
-        (masters ?? '').matchAll(/\b\w+\(\d+,\s*"(?<status>[^"]+)"/gu),
+        masters.matchAll(/\b\w+\(\d+,\s*"(?<status>[^"]+)"/gu),
         (match) => match.groups?.['status'] ?? '',
       );
       expect(diplomaStatuses.length).toBeGreaterThanOrEqual(13);
