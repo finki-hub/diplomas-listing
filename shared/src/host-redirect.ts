@@ -1,15 +1,14 @@
-/**
- * Redirect an explicitly allowlisted request hostname while preserving its
- * path and query. Returns null for all other hosts and skipped methods.
- *
- * @param {Request} request The incoming request.
- * @param {{ aliases: Readonly<Record<string, string>>, allowAnyOrigin?: boolean, status: 301 | 308, skipOptions?: boolean }} options Redirect configuration.
- * @returns {Response | null} Redirect response, or null when it should pass through.
- */
+type RedirectAliasOptions = {
+  readonly aliases: Readonly<Record<string, string>>;
+  readonly allowAnyOrigin?: boolean;
+  readonly skipOptions?: boolean;
+  readonly status: 301 | 308;
+};
+
 export const redirectAliasHost = (
-  request,
-  { aliases, allowAnyOrigin, skipOptions, status },
-) => {
+  request: Request,
+  { aliases, allowAnyOrigin, skipOptions, status }: RedirectAliasOptions,
+): null | Response => {
   if (skipOptions && request.method === 'OPTIONS') return null;
 
   const source = new URL(request.url);

@@ -1,9 +1,9 @@
 import { createCatalogApp } from 'theses-listing-shared/src/catalog-app.js';
 import { CatalogUpstreamResponseError } from 'theses-listing-shared/src/catalog-list.js';
+import { redirectAliasHost } from 'theses-listing-shared/src/host-redirect.js';
 
 import { fetchDiplomaFile, fetchDiplomaList } from '@/fetch.js';
 
-import { handleBachelorsApiRequest } from './host-redirect.js';
 import { parseDiplomas } from './utils.js';
 
 const CACHE_KEY = 'https://diplomski-api.finki-hub.com/diplomas';
@@ -48,8 +48,18 @@ const app = createCatalogApp({
   ttlSeconds: DIPLOMA_LIST_CACHE_TTL,
 });
 
+const API_HOST_ALIASES = {
+  'diplomas-api.finki-hub.com': 'bachelors-api.finki-hub.com',
+  'diplomski-api.finki-hub.com': 'bachelors-api.finki-hub.com',
+} as const;
+
 const handleRequest = (...args: Parameters<typeof app.fetch>) =>
-  handleBachelorsApiRequest(args[0], () => app.fetch(...args));
+  redirectAliasHost(args[0], {
+    aliases: API_HOST_ALIASES,
+    allowAnyOrigin: true,
+    skipOptions: true,
+    status: 308,
+  }) ?? app.fetch(...args);
 
 const worker = { fetch: handleRequest };
 

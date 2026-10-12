@@ -11,21 +11,28 @@ const EMPTY_ENV = {
   POSTHOG_KEY: '',
 };
 
-it('redirects cross-origin GET with CORS and preserves encoded path/query', async () => {
+const fetchWorker = (request: Request) => {
   const waitUntil = vi.fn();
   const context = {
     passThroughOnException: vi.fn(),
     props: {},
     waitUntil,
   } satisfies ExecutionContext;
-  const response = await worker.fetch(
+
+  return {
+    response: worker.fetch(request, EMPTY_ENV, context),
+    waitUntil,
+  };
+};
+
+it('redirects cross-origin GET with CORS and preserves encoded path/query', async () => {
+  const { response: pendingResponse, waitUntil } = fetchWorker(
     new Request(
       'https://magisterski-api.finki-hub.com/masters/download/42%2F43?keep=%2f&lang=mk',
       { headers: { Origin: 'https://theses.finki-hub.com' } },
     ),
-    EMPTY_ENV,
-    context,
   );
+  const response = await pendingResponse;
 
   expect(response.status).toBe(308);
   expect(response.headers.get('Location')).toBe(
@@ -36,12 +43,12 @@ it('redirects cross-origin GET with CORS and preserves encoded path/query', asyn
 });
 
 it('uses a method-preserving redirect status for legacy non-GET requests', async () => {
-  const response = await worker.fetch(
+  const { response: pendingResponse } = fetchWorker(
     new Request('https://magisterski-api.finki-hub.com/masters', {
       method: 'POST',
     }),
-    EMPTY_ENV,
   );
+  const response = await pendingResponse;
 
   expect(response.status).toBe(308);
 });
@@ -56,7 +63,7 @@ it.each([
 ])(
   'does not redirect OPTIONS for host %s; CORS handles preflight',
   async (host) => {
-    const response = await worker.fetch(
+    const { response: pendingResponse } = fetchWorker(
       new Request(`${host}?preflight=1`, {
         headers: {
           'Access-Control-Request-Method': 'GET',
@@ -64,8 +71,8 @@ it.each([
         },
         method: 'OPTIONS',
       }),
-      EMPTY_ENV,
     );
+    const response = await pendingResponse;
 
     expect(response.status).toBe(204);
     expect(response.headers.get('access-control-allow-origin')).toBe('*');
@@ -83,19 +90,12 @@ it.each([
   'https://toString/masters',
   'http://localhost:8787/masters',
 ])('passes GET through without redirect for host %s', async (host) => {
-  const waitUntil = vi.fn();
-  const context = {
-    passThroughOnException: vi.fn(),
-    props: {},
-    waitUntil,
-  } satisfies ExecutionContext;
-  const response = await worker.fetch(
+  const { response: pendingResponse, waitUntil } = fetchWorker(
     new Request(host, {
       headers: { Origin: 'https://theses.finki-hub.com' },
     }),
-    EMPTY_ENV,
-    context,
   );
+  const response = await pendingResponse;
 
   expect(response.status).toBe(500);
   expect(response.headers.has('Location')).toBe(false);
@@ -104,7 +104,7 @@ it.each([
 });
 
 it('passes legacy preflight through to the CORS handler', async () => {
-  const response = await worker.fetch(
+  const { response: pendingResponse } = fetchWorker(
     new Request('https://magisterski-api.finki-hub.com/masters', {
       headers: {
         'Access-Control-Request-Method': 'GET',
@@ -112,8 +112,8 @@ it('passes legacy preflight through to the CORS handler', async () => {
       },
       method: 'OPTIONS',
     }),
-    EMPTY_ENV,
   );
+  const response = await pendingResponse;
 
   expect(response.status).toBe(204);
   expect(response.headers.get('access-control-allow-origin')).toBe('*');

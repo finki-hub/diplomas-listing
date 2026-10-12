@@ -2,6 +2,7 @@ import type { AuthManager } from 'theses-listing-shared/src/auth.js';
 
 import { createCatalogApp } from 'theses-listing-shared/src/catalog-app.js';
 import { CatalogUpstreamResponseError } from 'theses-listing-shared/src/catalog-list.js';
+import { redirectAliasHost } from 'theses-listing-shared/src/host-redirect.js';
 
 import type { MasterThesis } from '@/utils.js';
 
@@ -11,7 +12,6 @@ import {
   PAGE_SIZE,
 } from '@/fetch.js';
 
-import { handleMastersApiRequest } from './host-redirect.js';
 import { parseMasterTheses } from './utils.js';
 
 const CACHE_KEY = 'https://magisterski-api.finki-hub.com/masters';
@@ -77,8 +77,17 @@ const app = createCatalogApp({
   ttlSeconds: MASTERS_LIST_CACHE_TTL,
 });
 
+const API_HOST_ALIASES = {
+  'magisterski-api.finki-hub.com': 'masters-api.finki-hub.com',
+} as const;
+
 const handleRequest = (...args: Parameters<typeof app.fetch>) =>
-  handleMastersApiRequest(args[0], () => app.fetch(...args));
+  redirectAliasHost(args[0], {
+    aliases: API_HOST_ALIASES,
+    allowAnyOrigin: true,
+    skipOptions: true,
+    status: 308,
+  }) ?? app.fetch(...args);
 
 const worker = { fetch: handleRequest };
 
