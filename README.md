@@ -17,6 +17,12 @@ npm run build
 
 ## Canonical domains and legacy aliases
 
+The preferred website for search indexing is `https://theses.finki-hub.com`.
+`https://trudovi.finki-hub.com` remains an accessible alternate, not a separate
+language-specific site. Canonical links and Open Graph URLs point to the
+matching page on `theses.finki-hub.com`, regardless of the visited host or
+selected interface language.
+
 The canonical APIs are `bachelors-api.finki-hub.com` (`/diplomas` and
 `/diplomas/download/:id`) and `masters-api.finki-hub.com` (`/masters` and
 `/masters/download/:id`). The web app uses these hosts while retaining the
