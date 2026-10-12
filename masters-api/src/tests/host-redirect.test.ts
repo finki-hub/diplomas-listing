@@ -1,3 +1,5 @@
+import type { ExecutionContext } from 'hono';
+
 import { expect, it, vi } from 'vitest';
 
 import worker from '../index.js';
@@ -13,8 +15,9 @@ it('redirects cross-origin GET with CORS and preserves encoded path/query', asyn
   const waitUntil = vi.fn();
   const context = {
     passThroughOnException: vi.fn(),
+    props: {},
     waitUntil,
-  } as unknown as NonNullable<Parameters<typeof worker.fetch>[2]>;
+  } satisfies ExecutionContext;
   const response = await worker.fetch(
     new Request(
       'https://magisterski-api.finki-hub.com/masters/download/42%2F43?keep=%2f&lang=mk',
@@ -50,22 +53,27 @@ it.each([
   'https://constructor/masters',
   'https://toString/masters',
   'http://localhost:8787/masters',
-])('does not redirect OPTIONS for host %s; CORS handles preflight', async (host) => {
-  const response = await worker.fetch(
-    new Request(`${host}?preflight=1`, {
-      headers: {
-        'Access-Control-Request-Method': 'GET',
-        Origin: 'https://theses.finki-hub.com',
-      },
-      method: 'OPTIONS',
-    }),
-    EMPTY_ENV,
-  );
+])(
+  'does not redirect OPTIONS for host %s; CORS handles preflight',
+  async (host) => {
+    const response = await worker.fetch(
+      new Request(`${host}?preflight=1`, {
+        headers: {
+          'Access-Control-Request-Method': 'GET',
+          Origin: 'https://theses.finki-hub.com',
+        },
+        method: 'OPTIONS',
+      }),
+      EMPTY_ENV,
+    );
 
-  expect(response.status).toBe(204);
-  expect(response.headers.get('access-control-allow-origin')).toBe('*');
-  expect(response.headers.get('access-control-allow-methods')).toContain('GET');
-});
+    expect(response.status).toBe(204);
+    expect(response.headers.get('access-control-allow-origin')).toBe('*');
+    expect(response.headers.get('access-control-allow-methods')).toContain(
+      'GET',
+    );
+  },
+);
 
 it.each([
   'https://masters-api.finki-hub.com/masters',
@@ -78,8 +86,9 @@ it.each([
   const waitUntil = vi.fn();
   const context = {
     passThroughOnException: vi.fn(),
+    props: {},
     waitUntil,
-  } as unknown as NonNullable<Parameters<typeof worker.fetch>[2]>;
+  } satisfies ExecutionContext;
   const response = await worker.fetch(
     new Request(host, {
       headers: { Origin: 'https://theses.finki-hub.com' },

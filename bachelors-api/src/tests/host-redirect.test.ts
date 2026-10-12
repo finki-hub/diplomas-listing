@@ -1,3 +1,5 @@
+import type { ExecutionContext } from 'hono';
+
 import { describe, expect, it, vi } from 'vitest';
 
 import worker from '../index.js';
@@ -13,8 +15,9 @@ const createContext = () => {
   const waitUntil = vi.fn();
   const context = {
     passThroughOnException: vi.fn(),
+    props: {},
     waitUntil,
-  } as unknown as NonNullable<Parameters<typeof worker.fetch>[2]>;
+  } satisfies ExecutionContext;
 
   return { context, waitUntil };
 };
@@ -69,24 +72,27 @@ describe('bachelors API host redirects', () => {
     'https://constructor/diplomas',
     'https://toString/diplomas',
     'http://localhost:8787/diplomas',
-  ])('does not redirect OPTIONS for host %s; CORS handles preflight', async (host) => {
-    const { response } = fetchWorker(
-      new Request(`${host}?preflight=1`, {
-        headers: {
-          'Access-Control-Request-Method': 'GET',
-          Origin: 'https://theses.finki-hub.com',
-        },
-        method: 'OPTIONS',
-      }),
-    );
+  ])(
+    'does not redirect OPTIONS for host %s; CORS handles preflight',
+    async (host) => {
+      const { response } = fetchWorker(
+        new Request(`${host}?preflight=1`, {
+          headers: {
+            'Access-Control-Request-Method': 'GET',
+            Origin: 'https://theses.finki-hub.com',
+          },
+          method: 'OPTIONS',
+        }),
+      );
 
-    const corsResponse = await response;
-    expect(corsResponse.status).toBe(204);
-    expect(corsResponse.headers.get('access-control-allow-origin')).toBe('*');
-    expect(corsResponse.headers.get('access-control-allow-methods')).toContain(
-      'GET',
-    );
-  });
+      const corsResponse = await response;
+      expect(corsResponse.status).toBe(204);
+      expect(corsResponse.headers.get('access-control-allow-origin')).toBe('*');
+      expect(
+        corsResponse.headers.get('access-control-allow-methods'),
+      ).toContain('GET');
+    },
+  );
 
   it.each([
     'https://bachelors-api.finki-hub.com/diplomas',
