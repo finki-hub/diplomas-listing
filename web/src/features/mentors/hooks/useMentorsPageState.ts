@@ -42,12 +42,10 @@ type ThesesResourceOptions = {
   readonly setLoadError: Setter<Error | null>;
 };
 
-const getLastUpdatedAt = (result: CatalogResult): null | string => {
-  if (result.updatedAt !== null || result.stale) return result.updatedAt;
-
-  // eslint-disable-next-line unicorn/prefer-temporal -- Temporal is not yet available in the target browsers and the project ships no polyfill.
-  return new Date().toISOString();
-};
+const getLastUpdatedAt = (result: CatalogResult): null | string =>
+  result.updatedAt !== null || result.stale
+    ? result.updatedAt
+    : new Date().toISOString(); // eslint-disable-line unicorn/prefer-temporal -- Temporal is not yet available in the target browsers and the project ships no polyfill.
 
 const createThesesResource = (options: ThesesResourceOptions) => {
   let generation = 0;
@@ -137,9 +135,7 @@ export const useMentorsPageState = (
   );
   const mentorSummaries = createMemo(() => {
     const data = diplomas();
-    if (!data) return [];
-
-    return aggregateByMentor(data);
+    return data ? aggregateByMentor(data) : [];
   });
   const filteredSummaries = createMemo(() =>
     buildFilteredSummaries({
@@ -173,9 +169,9 @@ export const useMentorsPageState = (
   );
   const topTenMentorsShare = createMemo(() => {
     const totalDiplomas = totalDiplomasCount();
-    if (totalDiplomas === 0) return 0;
-
-    return (topTenDiplomasCount() / totalDiplomas) * 100;
+    return totalDiplomas === 0
+      ? 0
+      : (topTenDiplomasCount() / totalDiplomas) * 100;
   });
   const hasActiveFilters = createMemo(
     () =>
@@ -185,9 +181,9 @@ export const useMentorsPageState = (
   );
   const maxDiplomas = createMemo(() => {
     const summaries = mentorSummaries();
-    if (summaries.length === 0) return 1;
-
-    return Math.max(...summaries.map((summary) => summary.totalDiplomas));
+    return summaries.length === 0
+      ? 1
+      : Math.max(...summaries.map((summary) => summary.totalDiplomas));
   });
 
   createEffect(() => {

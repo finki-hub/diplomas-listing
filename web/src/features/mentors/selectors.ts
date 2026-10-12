@@ -100,9 +100,9 @@ export const buildFilteredSummaries = (options: {
         matchesDiploma(diploma, filterOptions, mentorMatches),
       );
 
-      if (matchingDiplomas.length === 0) return null;
-
-      return { ...summary, filteredDiplomas: matchingDiplomas };
+      return matchingDiplomas.length === 0
+        ? null
+        : { ...summary, filteredDiplomas: matchingDiplomas };
     })
     .filter(
       (summary): summary is NonNullable<typeof summary> => summary !== null,
@@ -127,11 +127,7 @@ export const buildStatusOptions = (
       const stageA = getStatusStage(a) ?? Number.MAX_SAFE_INTEGER;
       const stageB = getStatusStage(b) ?? Number.MAX_SAFE_INTEGER;
 
-      if (stageA !== stageB) {
-        return stageA - stageB;
-      }
-
-      return collator.compare(a, b);
+      return stageA === stageB ? collator.compare(a, b) : stageA - stageB;
     },
   );
 
@@ -152,11 +148,9 @@ export const calculateMedianDiplomas = (summaries: MentorSummary[]) => {
     .sort((a, b) => a - b);
   const mid = Math.floor(counts.length / 2);
 
-  if (counts.length % 2 === 0) {
-    return ((counts[mid - 1] ?? 0) + (counts[mid] ?? 0)) / 2;
-  }
-
-  return counts[mid] ?? 0;
+  return counts.length % 2 === 0
+    ? ((counts[mid - 1] ?? 0) + (counts[mid] ?? 0)) / 2
+    : (counts[mid] ?? 0);
 };
 
 export const calculateTopMentorsDiplomaCount = (

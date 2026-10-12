@@ -141,8 +141,9 @@ const createStaleResponse = (options: StaleResponseOptions): Response => {
 
 const getErrorReason = (error: unknown): string => {
   if (error instanceof CatalogUpstreamTimeoutError) return 'upstream_timeout';
-  if (error instanceof CatalogUpstreamResponseError) return 'upstream_response';
-  return 'upstream_failure';
+  return error instanceof CatalogUpstreamResponseError
+    ? 'upstream_response'
+    : 'upstream_failure';
 };
 
 export const handleCatalogList = async <Item>(

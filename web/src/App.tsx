@@ -10,24 +10,24 @@ import MentorsPage from '@/pages/MentorsPage';
 const DiplomasPage = () => <MentorsPage config={DIPLOMAS_SECTION} />;
 const MastersPage = () => <MentorsPage config={MASTERS_SECTION} />;
 
-const App = () => (
-  <LanguageProvider>
-    <Router>
-      <Route
-        component={DiplomasPage}
-        path="/"
-      />
-      <Route
-        component={DiplomasPage}
-        path="/mentors"
-      />
-      <Route
-        component={MastersPage}
-        path="/masters"
-      />
-    </Router>
-    <Toaster position="bottom-right" />
-  </LanguageProvider>
-);
-
-export default App;
+export default function App() {
+  return (
+    <LanguageProvider>
+      <Router>
+        <Route
+          component={DiplomasPage}
+          path="/"
+        />
+        <Route
+          component={DiplomasPage}
+          path="/mentors"
+        />
+        <Route
+          component={MastersPage}
+          path="/masters"
+        />
+      </Router>
+      <Toaster position="bottom-right" />
+    </LanguageProvider>
+  );
+}

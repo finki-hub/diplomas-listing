@@ -50,8 +50,10 @@ const captureDownloadResult = (
 export const performDownload = async (
   url: string,
   telemetry: DownloadTelemetryProps,
-  notifyNotFound: () => void,
-  notifyError: () => void,
+  notifications: {
+    notifyError: () => void;
+    notifyNotFound: () => void;
+  },
 ) => {
   let searchAttemptId: string | undefined;
   try {
@@ -66,20 +68,20 @@ export const performDownload = async (
 
     if (response.status === 404) {
       outcome = 'not_found';
-      notifyNotFound();
+      notifications.notifyNotFound();
       return;
     }
 
     if (!response.ok) {
       outcome = 'http_error';
-      notifyError();
+      notifications.notifyError();
       return;
     }
 
     const filename = getFilename(response);
     if (filename === null) {
       outcome = 'invalid_response';
-      notifyError();
+      notifications.notifyError();
       return;
     }
 
@@ -95,7 +97,7 @@ export const performDownload = async (
     URL.revokeObjectURL(downloadUrl);
     outcome = 'browser_handoff';
   } catch {
-    notifyError();
+    notifications.notifyError();
   } finally {
     captureDownloadResult(telemetry.section, outcome, searchAttemptId);
   }

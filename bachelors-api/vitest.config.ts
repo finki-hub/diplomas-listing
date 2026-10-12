@@ -1,12 +1,13 @@
 import { resolve } from 'node:path';
 import { loadEnv } from 'vite';
-import { defineConfig } from 'vitest/config';
 
-export default defineConfig(({ mode }) => ({
+const config = ({ mode }: { mode: string }) => ({
   resolve: {
     alias: { '@': resolve(process.cwd(), 'src') },
   },
   test: {
     env: loadEnv(mode, resolve(process.cwd(), '..'), ''),
   },
-}));
+});
+
+export default config;

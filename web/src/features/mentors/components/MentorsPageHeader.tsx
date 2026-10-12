@@ -16,7 +16,7 @@ const GitHubIcon = () => (
   </svg>
 );
 
-const MentorsPageHeader = () => {
+export default function MentorsPageHeader() {
   const { language, setLanguage, t } = useLanguage();
   return (
     <header class="border-b">
@@ -50,6 +50,4 @@ const MentorsPageHeader = () => {
       </div>
     </header>
   );
-};
-
-export default MentorsPageHeader;
+}

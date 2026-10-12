@@ -13,9 +13,7 @@ const getCredentials = (): null | { password: string; username: string } => {
   const username = process.env.CAS_USERNAME;
   const password = process.env.CAS_PASSWORD;
 
-  if (!username || !password) return null;
-
-  return { password, username };
+  return username && password ? { password, username } : null;
 };
 
 describe('Masters E2E', () => {
@@ -144,11 +142,10 @@ describe('Masters E2E', () => {
 
       // A handful of listed theses have empty files upstream (Content-Length
       // 0); only assert on the body when this one is non-empty.
-      if (contentLength !== '0') {
-        const blob = await fileResponse.blob();
+      if (contentLength === '0') return;
 
-        expect(blob.size, 'file should not be empty').toBeGreaterThan(0);
-      }
+      const blob = await fileResponse.blob();
+      expect(blob.size, 'file should not be empty').toBeGreaterThan(0);
     },
   );
 });

@@ -13,7 +13,7 @@ export const PAGE_SIZE = 1_000;
 export const fetchMastersListPage = async (
   auth: AuthManager,
   pageNum: number,
-  signal?: AbortSignal,
+  signal: AbortSignal | null = null,
 ): Promise<Response> => {
   const cookieHeader = await auth.getValidCookieHeader(Service.MASTERS);
 
@@ -21,7 +21,7 @@ export const fetchMastersListPage = async (
     `${MASTERS_LIST_URL}?results=${String(PAGE_SIZE)}&pageNum=${String(pageNum)}`,
     {
       headers: { Cookie: cookieHeader },
-      signal: signal ?? null,
+      signal,
     },
   );
 };

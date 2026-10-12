@@ -10,8 +10,8 @@ import { performDownload } from './downloadExecution';
 vi.mock('@/lib/analytics.ts', () => ({ captureAnalytics: vi.fn() }));
 vi.mock('solid-sonner', () => ({ toast: { error: vi.fn() } }));
 
-const successfulResponse = (blob = new Blob(['file'])) => ({
-  blob: vi.fn().mockResolvedValue(blob),
+const successfulResponse = () => ({
+  blob: vi.fn().mockResolvedValue(new Blob(['file'])),
   headers: { get: () => 'attachment; filename="thesis-private.pdf"' },
   ok: true,
   status: 200,
@@ -26,8 +26,7 @@ const performDownloadWithoutAttempt = async () => {
   await performDownload(
     'https://example.invalid/private',
     { getSearchAttemptId: () => {}, section: 'diplomas' },
-    vi.fn(),
-    vi.fn(),
+    { notifyError: vi.fn(), notifyNotFound: vi.fn() },
   );
 };
 
@@ -76,15 +75,11 @@ describe('download result telemetry', () => {
       });
       if (sanitizedEvent) sanitizedEvents.push(sanitizedEvent);
     });
-    let resolveFetch!: (response: Response) => void;
+    const { promise: pendingFetch, resolve: resolveFetch } =
+      Promise.withResolvers<Response>();
     vi.stubGlobal(
       'fetch',
-      vi.fn(
-        () =>
-          new Promise<Response>((resolve) => {
-            resolveFetch = resolve;
-          }),
-      ),
+      vi.fn(() => pendingFetch),
     );
     let currentId: string | undefined = validUUID;
     const getSearchAttemptId = vi.fn(() => currentId);
@@ -92,8 +87,7 @@ describe('download result telemetry', () => {
     const pending = performDownload(
       'https://example.invalid/private?secret=1',
       { getSearchAttemptId, section: 'diplomas' },
-      vi.fn(),
-      vi.fn(),
+      { notifyError: vi.fn(), notifyNotFound: vi.fn() },
     );
     currentId = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
     resolveFetch(successfulResponse() as unknown as Response);
@@ -126,19 +120,29 @@ describe('download result telemetry', () => {
   });
 
   it.each([
-    ['404', { ok: false, status: 404 }, 'not_found', true],
-    ['other HTTP failure', { ok: false, status: 503 }, 'http_error', false],
-    [
-      'missing filename',
-      {
+    {
+      caseName: '404',
+      notFound: true,
+      outcome: 'not_found',
+      response: { ok: false, status: 404 },
+    },
+    {
+      caseName: 'other HTTP failure',
+      notFound: false,
+      outcome: 'http_error',
+      response: { ok: false, status: 503 },
+    },
+    {
+      caseName: 'missing filename',
+      notFound: false,
+      outcome: 'invalid_response',
+      response: {
         headers: { get: () => null },
         ok: true,
         status: 200,
       },
-      'invalid_response',
-      false,
-    ],
-  ] as const)('handles %s', async (_caseName, response, outcome, notFound) => {
+    },
+  ] as const)('handles $caseName', async ({ notFound, outcome, response }) => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response));
     const notifyNotFound = vi.fn();
     const notifyError = vi.fn();
@@ -146,8 +150,7 @@ describe('download result telemetry', () => {
     await performDownload(
       'https://example.invalid/private',
       { getSearchAttemptId: () => {}, section: 'masters' },
-      notifyNotFound,
-      notifyError,
+      { notifyError, notifyNotFound },
     );
 
     expect(capture).toHaveBeenCalledTimes(1);
@@ -188,8 +191,7 @@ describe('download result telemetry', () => {
       await performDownload(
         'https://example.invalid/private',
         { getSearchAttemptId: () => {}, section: 'diplomas' },
-        vi.fn(),
-        notifyError,
+        { notifyError, notifyNotFound: vi.fn() },
       );
 
       expect(capture).toHaveBeenCalledTimes(1);
@@ -217,8 +219,7 @@ describe('download result telemetry', () => {
           },
           section: 'diplomas',
         },
-        vi.fn(),
-        vi.fn(),
+        { notifyError: vi.fn(), notifyNotFound: vi.fn() },
       ),
     ).resolves.toBeUndefined();
 

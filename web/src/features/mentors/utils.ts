@@ -34,9 +34,7 @@ export const getSubmissionYear = (value: string): null | string => {
   if (parts.length !== 3) return null;
 
   const year = parts[2]?.trim();
-  if (!year || !SUBMISSION_YEAR_REGEX.test(year)) return null;
-
-  return year;
+  return !year || !SUBMISSION_YEAR_REGEX.test(year) ? null : year;
 };
 
 export const createFileUrlGetter =
@@ -136,8 +134,4 @@ export const normalizeSearchText = (value: string) =>
 export const matchesNormalizedSearch = (
   value: string,
   normalizedSearch: string,
-) => {
-  if (!normalizedSearch) return true;
-
-  return normalizeSearchText(value).includes(normalizedSearch);
-};
+) => !normalizedSearch || normalizeSearchText(value).includes(normalizedSearch);

@@ -129,8 +129,9 @@ const eventDimensions = (
   if (event === 'service_visit') return {};
   if (event === 'document_download_result')
     return documentDownloadDimensions(input);
-  if (event === 'catalog_load_result') return catalogLoadDimensions(input);
-  return searchDimensions(event, input);
+  return event === 'catalog_load_result'
+    ? catalogLoadDimensions(input)
+    : searchDimensions(event, input);
 };
 
 // Reconstruct both envelope and properties: SDK defaults include URLs and referrers.
