@@ -3,7 +3,7 @@
     "@hono/zod-validator": "^0.9.1",
     "finki-auth": "^3.0.0",
     "hono": "^4.13.13",
-    "zod": "^4.6.6"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20261012.1",
